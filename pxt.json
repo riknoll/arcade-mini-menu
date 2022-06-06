@@ -1,0 +1,30 @@
+{
+    "name": "new menu",
+    "description": "",
+    "dependencies": {
+        "device": "*"
+    },
+    "files": [
+        "main.blocks",
+        "main.ts",
+        "README.md",
+        "assets.json",
+        "custom.ts",
+        "api.ts"
+    ],
+    "testFiles": [
+        "test.ts"
+    ],
+    "targetVersions": {
+        "branch": "v1.8.25",
+        "tag": "v1.8.25",
+        "commits": "https://github.com/microsoft/pxt-arcade/commits/1a86bab4a3629b30176ea84f7c52383983a05a46",
+        "target": "1.8.26",
+        "pxt": "7.4.27",
+        "targetId": "arcade"
+    },
+    "supportedTargets": [
+        "arcade"
+    ],
+    "preferredEditor": "blocksprj"
+}
