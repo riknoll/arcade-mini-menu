@@ -380,7 +380,7 @@ namespace miniMenu {
         protected printScrolled(target: Image, scroll: number, left: number, top: number, width: number, color: number) {
             const startCharacter = Math.idiv(scroll, this.font.charWidth);
             const offset = scroll % this.font.charWidth;
-            const lastCharacter = startCharacter + Math.ceil(width / this.font.charWidth);
+            const lastCharacter = startCharacter + Math.floor(width / this.font.charWidth);
 
             // Print the non-partial text first
             target.print(
@@ -399,7 +399,6 @@ namespace miniMenu {
                 color
             )
             target.drawTransparentImage(printCanvas, left, top);
-
 
             printCanvas.fill(0);
             printCanvas.print(
