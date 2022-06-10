@@ -201,10 +201,13 @@ namespace miniMenu {
 
             const backgroundWidth = width - (style.horizontalMargin << 1) - (style.borderWidth << 1);
 
-            let availableTextHeight: number;
             let textTop: number;
+            let availableTextHeight: number;
+            let iconTop: number;
+            let availableIconHeight: number;
 
             const maxHeight = this.getHeight(style);
+
             if (cutTop) {
                 const cutoffHeight = this.getHeight(style) - height;
 
@@ -228,10 +231,17 @@ namespace miniMenu {
                     style.background
                 );
 
-                textTop = Math.max(top + style.verticalMargin + style.borderWidth + style.padding, top + cutoffHeight);
-                const textBottom = Math.max(top + maxHeight - style.verticalMargin - style.borderWidth - style.padding, top + cutoffHeight)
+                textTop = Math.max(top + (maxHeight >> 1) - (this.font.charHeight >> 1), top + cutoffHeight);
+                const textBottom = Math.max(top + (maxHeight >> 1) + (this.font.charHeight >> 1), top + cutoffHeight)
                 
                 availableTextHeight = textBottom - textTop;
+
+                if (this.icon) {
+                    iconTop = Math.max(top + (maxHeight >> 1) - (this.icon.height >> 1), top + cutoffHeight);
+                    const iconBottom = Math.max(top + (maxHeight >> 1) + (this.icon.height >> 1), top + cutoffHeight)
+
+                    availableIconHeight = iconBottom - iconTop;
+                }
             }
             else {
                 if (style.borderWidth) {
@@ -254,85 +264,84 @@ namespace miniMenu {
                     style.background
                 )
 
-                textTop = top + style.verticalMargin + style.padding + style.borderWidth;
-                const textBottom = Math.min(top - style.verticalMargin - style.borderWidth - style.padding + maxHeight, top + height)
+                textTop = top + (maxHeight >> 1) - (this.font.charHeight >> 1);
+                const textBottom = Math.min(top + (maxHeight >> 1) + (this.font.charHeight >> 1), top + height)
                 availableTextHeight = textBottom - textTop;
+
+                if (this.icon) {
+                    iconTop = top + (maxHeight >> 1) - (this.icon.height >> 1);
+                    const iconBottom = Math.min(top + (maxHeight >> 1) + (this.icon.height >> 1), top + height)
+                    availableIconHeight = iconBottom - iconTop;
+                }
             }
 
             const widthOfText = this.text.length * this.font.charWidth;
+            let availableTextWidth = backgroundWidth - (style.padding << 1);
+            let textAreaLeft = left + style.horizontalMargin + style.padding + style.borderWidth;
 
-            if (style.alignment === Alignment.Left || widthOfText >= backgroundWidth ) {
-                const textLeft = left + style.horizontalMargin + style.padding + style.borderWidth;
-                if (this.icon) {
-                    target.drawTransparentImage(
-                        this.icon,
-                        textLeft,
-                        textTop + (this.contentHeight >> 1) - (this.icon.height >> 1)
-                    )
-                    target.print(
-                        this.text,
-                        textLeft + style.iconPadding + this.icon.width,
-                        textTop + (this.contentHeight >> 1) - (this.font.charHeight >> 1),
-                        style.foreground
+            if (this.icon) {
+                this.drawPartialIcon(target, availableIconHeight, textAreaLeft, iconTop, this.icon.width, cutTop)
+
+                availableTextWidth -= this.icon.width + style.iconPadding;
+                textAreaLeft += this.icon.width + style.iconPadding
+            }
+
+            if (style.alignment === Alignment.Left || widthOfText >= availableTextWidth) {
+                if (widthOfText <= availableTextWidth) {
+                    this.printPartialText(
+                        target,
+                        availableTextHeight,
+                        textAreaLeft,
+                        textTop,
+                        availableTextWidth,
+                        style.foreground,
+                        cutTop
                     );
                 }
                 else {
-                    if (widthOfText <= backgroundWidth) {
+                    if (scrollTick) {
+                        const maxScroll = widthOfText - availableTextWidth + this.font.charWidth;
+                        const animationLength = (100 + maxScroll + 100) << 2;
+
+                        scrollTick = scrollTick % animationLength;
+
+                        this.printScrolled(
+                            target,
+                            Math.min(Math.max((scrollTick - 100) >> 2, 0), maxScroll),
+                            textAreaLeft,
+                            textTop,
+                            availableTextWidth,
+                            style.foreground,
+                        )
+                    }
+                    else {
                         this.printPartialText(
                             target,
                             availableTextHeight,
-                            textLeft,
+                            textAreaLeft,
                             textTop,
-                            backgroundWidth - (style.padding << 1),
+                            availableTextWidth - this.font.charWidth,
                             style.foreground,
                             cutTop
                         );
-                    }
-                    else {
-                        if (scrollTick) {
-                            const maxScroll = widthOfText - backgroundWidth + this.font.charWidth;
-                            const animationLength = (100 + maxScroll + 100) << 2;
 
-                            scrollTick = scrollTick % animationLength;
-
-                            this.printScrolled(
-                                target,
-                                Math.min(Math.max((scrollTick - 100) >> 2, 0), maxScroll),
-                                textLeft,
-                                textTop,
-                                backgroundWidth - (style.padding << 1),
-                                style.foreground,
+                        if (availableTextHeight >= this.font.charHeight || (cutTop && availableTextHeight > 1)) {
+                            // draw ellipsis
+                            target.setPixel(
+                                textAreaLeft + availableTextWidth - this.font.charWidth + 1,
+                                textTop + availableTextHeight - 2,
+                                style.foreground
                             )
-                        }
-                        else {
-                            this.printPartialText(
-                                target,
-                                availableTextHeight,
-                                textLeft,
-                                textTop,
-                                backgroundWidth - (style.padding << 1) - this.font.charWidth,
-                                style.foreground,
-                                cutTop
-                            );
-
-                            if (availableTextHeight >= this.font.charHeight || (cutTop && availableTextHeight > 0)) {
-                                // draw ellipsis
-                                target.setPixel(
-                                    left + style.horizontalMargin + style.padding + style.borderWidth + backgroundWidth - this.font.charWidth - 3,
-                                    top + style.verticalMargin + style.padding + style.borderWidth + this.font.charHeight - 2,
-                                    style.foreground
-                                )
-                                target.setPixel(
-                                    left + style.horizontalMargin + style.padding + style.borderWidth + backgroundWidth - this.font.charWidth - 1,
-                                    top + style.verticalMargin + style.padding + style.borderWidth + this.font.charHeight - 2,
-                                    style.foreground
-                                )
-                                target.setPixel(
-                                    left + style.horizontalMargin + style.padding + style.borderWidth + backgroundWidth - this.font.charWidth + 1,
-                                    top + style.verticalMargin + style.padding + style.borderWidth + this.font.charHeight - 2,
-                                    style.foreground
-                                )
-                            }
+                            target.setPixel(
+                                textAreaLeft + availableTextWidth - this.font.charWidth + 3,
+                                textTop + availableTextHeight - 2,
+                                style.foreground
+                            )
+                            target.setPixel(
+                                textAreaLeft + availableTextWidth - this.font.charWidth + 5,
+                                textTop + availableTextHeight - 2,
+                                style.foreground
+                            )
                         }
                     }
                 }
@@ -341,10 +350,10 @@ namespace miniMenu {
                 let drawLeft: number;
 
                 if (style.alignment === Alignment.Right) {
-                    drawLeft = left - style.horizontalMargin - style.padding - style.borderWidth + width - this.contentWidth - (this.icon ? style.iconPadding : 0);
+                    drawLeft = textAreaLeft + availableTextWidth - widthOfText
                 }
                 else {
-                    drawLeft = left + style.horizontalMargin + style.padding + style.borderWidth + ((width - (style.horizontalMargin << 1) - (style.padding << 1) - (style.borderWidth << 1) - this.contentWidth - (this.icon ? style.iconPadding : 0)) >> 1);
+                    drawLeft = textAreaLeft + (availableTextWidth >> 1) - (widthOfText >> 1)
                 }
 
                 if (this.icon) {
@@ -445,6 +454,33 @@ namespace miniMenu {
                         this.font
                     );
                     target.drawTransparentImage(printCanvas, left + i * this.font.charWidth, top - printCanvas.height + height);
+                }
+            }
+        }
+
+        protected drawPartialIcon(target: Image, height: number, left: number, top: number, width: number, cutTop: boolean) {
+            if (height <= 0) return
+            else if (height >= this.icon.height) {
+                target.drawTransparentImage(this.icon, left, top);
+                return;
+            }
+
+            if (printCanvas.height < height) {
+                printCanvas = image.create(printCanvas.width, height)
+            }
+
+            if (cutTop) {
+                for (let x = 0; x < this.icon.width; x += printCanvas.width) {
+                    printCanvas.fill(0);
+                    printCanvas.drawTransparentImage(this.icon, -x, height - this.icon.height)
+                    target.drawTransparentImage(printCanvas, left + x, top);
+                }
+            }
+            else {
+                for (let x = 0; x < this.icon.width; x += printCanvas.width) {
+                    printCanvas.fill(0);
+                    printCanvas.drawTransparentImage(this.icon, -x, printCanvas.height - height)
+                    target.drawTransparentImage(printCanvas, left + x, top);
                 }
             }
         }
