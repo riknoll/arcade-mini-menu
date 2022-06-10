@@ -76,14 +76,27 @@ namespace miniMenu {
     //% menu.defl=myMenu
     //% inlineInputMode=inline
     export function setStyleProperty(menu: MenuSprite, kind: StyleKind, property: StyleProperty, value: number) {
-        if (kind === StyleKind.Default) {
-            menu.defaultStyle.setProperty(property, value);
-        }
-        else {
-            menu.selectedStyle.setProperty(property, value);
+        switch (kind) {
+            case StyleKind.Default:
+                menu.defaultStyle.setProperty(property, value);
+                break;
+            case StyleKind.Selected:
+                menu.selectedStyle.setProperty(property, value);
+                break;
+            case StyleKind.Title:
+                menu.titleStyle.setProperty(property, value);
+                break;
+            case StyleKind.DefaultAndSelected:
+                menu.defaultStyle.setProperty(property, value);
+                menu.selectedStyle.setProperty(property, value);
+                break;
+            case StyleKind.All:
+                menu.defaultStyle.setProperty(property, value);
+                menu.selectedStyle.setProperty(property, value);
+                menu.titleStyle.setProperty(property, value);
+                break;
         }
     }
-
 
     //% blockId=mini_menu_set_menu_style_property
     //% block="set menu style for $menu $property to $value"
@@ -92,6 +105,16 @@ namespace miniMenu {
     //% inlineInputMode=inline
     export function setMenuStyleProperty(menu: MenuSprite, property: MenuStyleProperty, value: number) {
         menu.setProperty(property, value);
+    }
+
+    //% blockId=mini_menu_set_menu_title
+    //% block="set $menu title to $title"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% title.defl="title"
+    //% inlineInputMode=inline
+    export function setMenuTitle(menu: MenuSprite, title: string) {
+        menu.title = new miniMenu.MenuItem(title, undefined);
     }
 
     //% blockId=mini_menu_move_direction

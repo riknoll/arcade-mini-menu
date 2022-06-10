@@ -25,7 +25,6 @@ namespace miniMenu {
             this.selectedStyle = this.defaultStyle.clone();
             this.selectedStyle.foreground = 1;
             this.selectedStyle.background = 3;
-            this.selectedStyle.alignment = Alignment.Center;
 
             for (const button of [controller.up, controller.right, controller.down, controller.menu, controller.left, controller.A, controller.B]) {
                 button.addEventListener(ControllerButtonEvent.Pressed, () => {
@@ -63,7 +62,9 @@ namespace miniMenu {
         //% block="icon padding"
         IconPadding,
         //% block="alignment"
-        Alignment
+        Alignment,
+        //% block="icon only"
+        IconOnly
     }
 
     export enum MenuStyleProperty {
@@ -75,13 +76,21 @@ namespace miniMenu {
         BorderColor,
         //% block="border width"
         BorderWidth,
+        //% block="scroll speed"
+        ScrollSpeed,
     }
 
     export enum StyleKind {
         //% block="default"
         Default,
         //% block="selected"
-        Selected
+        Selected,
+        //% block="title"
+        Title,
+        //% block="default and selected"
+        DefaultAndSelected,
+        //% block="all"
+        All
     }
 
     export enum MoveDirection {
@@ -101,6 +110,7 @@ namespace miniMenu {
         verticalMargin: number;
         horizontalMargin: number;
         iconPadding: number;
+        iconOnly: number;
         alignment: Alignment;
 
         constructor() {
@@ -113,6 +123,7 @@ namespace miniMenu {
             this.verticalMargin = 0;
             this.horizontalMargin = 0;
             this.iconPadding = 0;
+            this.iconOnly = 0;
             this.alignment = Alignment.Left
         }
 
@@ -163,6 +174,9 @@ namespace miniMenu {
                 case StyleProperty.Alignment:
                     this.alignment = value;
                     break;
+                case StyleProperty.IconOnly:
+                    this.iconOnly = value;
+                    break;
             }
         }
     }
@@ -189,17 +203,22 @@ namespace miniMenu {
         }
 
         getHeight(style: Style) {
-            return this.contentHeight + (style.padding << 1) + (style.verticalMargin << 2) + (style.borderWidth << 1);
+            return this.contentHeight + (style.padding << 1) + (style.verticalMargin << 1) + (style.borderWidth << 1);
         }
 
         getWidth(style: Style) {
-            return this.contentWidth + (style.padding << 1) + (style.horizontalMargin << 2) + (style.borderWidth << 1) + (this.icon ? style.iconPadding : 0);
+            if (style.iconOnly) {
+                return (this.icon ? this.icon.width : 0) + (style.padding << 1) + (style.horizontalMargin << 1) + (style.borderWidth << 1)
+            }
+            return this.contentWidth + (style.padding << 1) + (style.horizontalMargin << 1) + (style.borderWidth << 1) + (this.icon ? style.iconPadding : 0);
         }
 
         drawTo(left: number, top: number, target: Image, style: Style, width: number, height: number, cutTop: boolean, scrollTick: number) {
             if (height <= 0) return;
 
             const backgroundWidth = width - (style.horizontalMargin << 1) - (style.borderWidth << 1);
+
+            const iconOnly = !!style.iconOnly;
 
             let textTop: number;
             let availableTextHeight: number;
@@ -233,7 +252,7 @@ namespace miniMenu {
 
                 textTop = Math.max(top + (maxHeight >> 1) - (this.font.charHeight >> 1), top + cutoffHeight);
                 const textBottom = Math.max(top + (maxHeight >> 1) + (this.font.charHeight >> 1), top + cutoffHeight)
-                
+
                 availableTextHeight = textBottom - textTop;
 
                 if (this.icon) {
@@ -280,11 +299,41 @@ namespace miniMenu {
             let textAreaLeft = left + style.horizontalMargin + style.padding + style.borderWidth;
 
             if (this.icon) {
-                this.drawPartialIcon(target, availableIconHeight, textAreaLeft, iconTop, this.icon.width, cutTop)
+                if (iconOnly) {
+
+                    if (style.alignment === Alignment.Left) {
+                        this.drawPartialIcon(target, availableIconHeight, textAreaLeft, iconTop, this.icon.width, cutTop)
+                    }
+                    else if (style.alignment === Alignment.Right) {
+                        this.drawPartialIcon(
+                            target,
+                            availableIconHeight,
+                            textAreaLeft + availableTextWidth - this.icon.width,
+                            iconTop,
+                            this.icon.width,
+                            cutTop
+                        );
+                    }
+                    else {
+                        this.drawPartialIcon(
+                            target,
+                            availableIconHeight,
+                            textAreaLeft + (availableTextWidth >> 1) - (this.icon.width >> 1),
+                            iconTop,
+                            this.icon.width,
+                            cutTop
+                        );
+                    }
+                }
+                else {
+                    this.drawPartialIcon(target, availableIconHeight, textAreaLeft, iconTop, this.icon.width, cutTop)
+                }
 
                 availableTextWidth -= this.icon.width + style.iconPadding;
                 textAreaLeft += this.icon.width + style.iconPadding
             }
+
+            if (iconOnly) return;
 
             if (style.alignment === Alignment.Left || widthOfText >= availableTextWidth) {
                 if (widthOfText <= availableTextWidth) {
@@ -447,7 +496,7 @@ namespace miniMenu {
                 for (let i = 0; i < printableCharacters; i += canvasCharacters) {
                     printCanvas.fill(0);
                     printCanvas.print(
-                        this.text.substr(i, canvasCharacters),
+                        this.text.substr(i, Math.min(canvasCharacters, printableCharacters - i)),
                         0,
                         printCanvas.height - height,
                         color,
@@ -480,7 +529,7 @@ namespace miniMenu {
                 for (let x = 0; x < this.icon.width; x += printCanvas.width) {
                     printCanvas.fill(0);
                     printCanvas.drawTransparentImage(this.icon, -x, printCanvas.height - height)
-                    target.drawTransparentImage(printCanvas, left + x, top);
+                    target.drawTransparentImage(printCanvas, left + x, top - (printCanvas.height - height));
                 }
             }
         }
@@ -516,6 +565,7 @@ namespace miniMenu {
     export class MenuSprite extends sprites.ExtendableSprite {
         items: MenuItem[];
 
+        titleStyle: Style;
         defaultStyle: Style;
         selectedStyle: Style;
 
@@ -528,18 +578,24 @@ namespace miniMenu {
         targetScroll: number;
 
         scrollAnimationTick: number;
+        titleAnimationTick: number;
+
+        title: MenuItem;
+        scrollSpeed: number;
 
         protected buttonHandlers: any;
 
         constructor() {
             super(img`.`, SpriteKind.MiniMenu);
             _init();
+            this.titleStyle = _state().defaultStyle.clone()
+            this.titleStyle.setProperty(StyleProperty.Background, 0)
             this.defaultStyle = _state().defaultStyle.clone();
             this.selectedStyle = _state().selectedStyle.clone();
 
             this.selectedIndex = 0;
             this.items = [];
-            
+
             this.buttonHandlers = {};
             this.buttonEventsEnabled = false;
 
@@ -547,6 +603,8 @@ namespace miniMenu {
             this.onButtonEvent(controller.down, () => this.moveSelection(MoveDirection.Down));
             this.scroll = 0;
             this.scrollAnimationTick = -1;
+            this.titleAnimationTick = 0;
+            this.scrollSpeed = 150;
         }
 
         get width(): number {
@@ -560,35 +618,45 @@ namespace miniMenu {
         draw(drawLeft: number, drawTop: number) {
             if (!this.items) return;
 
-            let offset = -(this.scroll | 0);
-
             const width = this.getWidth();
 
             let current: MenuItem;
-            let currentHeight: number;
+            let currentHeight = 0;
             let style: Style;
             let isSelected: boolean;
 
             const height = this.getHeight();
+
+            if (this.title) {
+                currentHeight = this.title.getHeight(this.titleStyle);
+                this.title.drawTo(
+                    drawLeft,
+                    drawTop,
+                    screen,
+                    this.titleStyle,
+                    width,
+                    currentHeight,
+                    true,
+                    this.titleAnimationTick
+                )
+            }
+
+            let offset = -(this.scroll | 0);
+            const menuTop = drawTop + currentHeight;
+            const menuHeight = height - currentHeight;
 
             for (let i = 0; i < this.items.length; i++) {
                 current = this.items[i];
                 isSelected = this.selectedIndex === i
                 style = isSelected ? this.selectedStyle : this.defaultStyle;
                 currentHeight = current.getHeight(style);
-                
+
                 if (isSelected) {
                     if (offset < 0) this.targetScroll = (offset + (this.scroll | 0));
-                    else if (offset > height - currentHeight) this.targetScroll = offset + (this.scroll | 0) + currentHeight - height;
+                    else if (offset > menuHeight - currentHeight) this.targetScroll = offset + (this.scroll | 0) + currentHeight - menuHeight;
                     else this.targetScroll = this.scroll
                 }
 
-                if (this.targetScroll !== this.scroll) {
-                    this.scrollAnimationTick = 0;
-                }
-                else {
-                    this.scrollAnimationTick ++;
-                }
 
                 if (offset < -currentHeight) {
                     offset += currentHeight;
@@ -598,7 +666,7 @@ namespace miniMenu {
                 if (offset < 0) {
                     current.drawTo(
                         drawLeft,
-                        drawTop + offset,
+                        menuTop + offset,
                         screen,
                         style,
                         width,
@@ -610,11 +678,11 @@ namespace miniMenu {
                 else {
                     current.drawTo(
                         drawLeft,
-                        drawTop + offset,
+                        menuTop + offset,
                         screen,
                         style,
                         width,
-                        Math.min(currentHeight, height - offset),
+                        Math.min(currentHeight, menuHeight - offset),
                         false,
                         isSelected ? this.scrollAnimationTick : 0
                     )
@@ -627,6 +695,21 @@ namespace miniMenu {
         update(deltaTimeMillis: number) {
             if (this.scroll < this.targetScroll) this.scroll += 1;
             else if (this.scroll > this.targetScroll) this.scroll -= 1;
+
+            const deltaTick = (deltaTimeMillis / 1000) * this.scrollSpeed;
+
+            if (this.scroll === this.targetScroll) {
+                this.scrollAnimationTick += deltaTick
+            }
+            else {
+                this.scrollAnimationTick = 0
+            }
+
+            this.titleAnimationTick += deltaTick
+
+            if (this.scrollAnimationTick < 0) this.scrollAnimationTick = 0
+            if (this.titleAnimationTick < 0) this.titleAnimationTick = 0
+
         }
 
         setMenuItems(items: MenuItem[]) {
@@ -685,6 +768,9 @@ namespace miniMenu {
                 case MenuStyleProperty.Height:
                     this.customHeight = value;
                     break;
+                case MenuStyleProperty.ScrollSpeed:
+                    this.scrollSpeed = value;
+                    break;
             }
         }
 
@@ -724,6 +810,7 @@ namespace miniMenu {
     }
 
     function fillVerticalRegion(target: Image, left: number, top: number, width: number, bottom: number, color: number) {
+        if (!color) return;
         target.fillRect(left, top, width, bottom - top, color);
     }
 }
