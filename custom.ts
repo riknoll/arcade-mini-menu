@@ -42,6 +42,12 @@ namespace miniMenu {
         Right
     }
 
+    export enum Layout {
+        Column,
+        Row,
+        Grid
+    }
+
     export enum StyleProperty {
         //% block="padding"
         Padding,
@@ -78,6 +84,10 @@ namespace miniMenu {
         BorderWidth,
         //% block="scroll speed"
         ScrollSpeed,
+        //% block="rows"
+        Rows,
+        //% block="columns"
+        Columns
     }
 
     export enum StyleKind {
@@ -213,227 +223,171 @@ namespace miniMenu {
             return this.contentWidth + (style.padding << 1) + (style.horizontalMargin << 1) + (style.borderWidth << 1) + (this.icon ? style.iconPadding : 0);
         }
 
-        drawTo(left: number, top: number, target: Image, style: Style, width: number, height: number, cutTop: boolean, scrollTick: number) {
-            if (height <= 0) return;
+        drawTo(left: number, top: number, target: Image, style: Style, width: number, height: number, cutTop: boolean, cutLeft: boolean, scrollTick: number, maxWidth = 0, maxHeight = 0) {
+            if (height <= 0 || width <= 0) return;
 
-            const backgroundWidth = width - (style.horizontalMargin << 1) - (style.borderWidth << 1);
+            if (!maxWidth) {
+                maxWidth = this.getWidth(style);
+            }
 
-            const iconOnly = !!style.iconOnly;
+            if (!maxHeight) {
+                maxHeight = this.getHeight(style);
+            }
 
-            let textTop: number;
-            let availableTextHeight: number;
+            const widthOfText = this.font.charWidth * this.text.length;
+
+            let borderLeft = left + style.horizontalMargin;
+            let borderTop = top + style.verticalMargin;
+            let borderRight = left + maxWidth - style.horizontalMargin;
+            let borderBottom = top + maxHeight - style.verticalMargin;
+
+            let contentLeft = borderLeft + style.borderWidth + style.padding;
+            let contentTop = borderTop + style.borderWidth + style.padding;
+            let contentRight = left + maxWidth - style.horizontalMargin - style.borderWidth - style.padding;
+            let contentBottom = top + maxHeight - style.verticalMargin - style.borderWidth - style.padding;
+
+            let textLeft: number;
+            let textTop = contentTop + ((contentBottom - contentTop) >> 1) - (this.font.charHeight >> 1);
+            let textRight: number;
+            let textBottom = textTop + this.font.charHeight;
+
+            let iconLeft: number;
             let iconTop: number;
-            let availableIconHeight: number;
+            let iconRight: number;
+            let iconBottom: number;
 
-            const maxHeight = this.getHeight(style);
+            let cutoffLeft: number;
+            let cutoffTop: number;
+            let cutoffRight: number;
+            let cutoffBottom: number;
+
+            if (cutLeft) {
+                cutoffLeft = left + maxWidth - width;
+                cutoffRight = left + maxWidth;
+            }
+            else {
+                cutoffLeft = left;
+                cutoffRight = left + width;
+            }
 
             if (cutTop) {
-                const cutoffHeight = this.getHeight(style) - height;
-
-                if (style.borderWidth) {
-                    fillVerticalRegion(
-                        target,
-                        left + style.horizontalMargin,
-                        Math.max(top + style.verticalMargin, top + cutoffHeight),
-                        width - (style.horizontalMargin << 1),
-                        top + style.verticalMargin + maxHeight - (style.verticalMargin << 1),
-                        style.borderColor
-                    );
-                }
-
-                fillVerticalRegion(
-                    target,
-                    left + style.horizontalMargin + style.borderWidth,
-                    Math.max(top + style.verticalMargin + style.borderWidth, top + cutoffHeight),
-                    backgroundWidth,
-                    top + style.verticalMargin + style.borderWidth + maxHeight - (style.verticalMargin << 1) - (style.borderWidth << 1),
-                    style.background
-                );
-
-                textTop = Math.max(top + (maxHeight >> 1) - (this.font.charHeight >> 1), top + cutoffHeight);
-                const textBottom = Math.max(top + (maxHeight >> 1) + (this.font.charHeight >> 1), top + cutoffHeight)
-
-                availableTextHeight = textBottom - textTop;
-
-                if (this.icon) {
-                    iconTop = Math.max(top + (maxHeight >> 1) - (this.icon.height >> 1), top + cutoffHeight);
-                    const iconBottom = Math.max(top + (maxHeight >> 1) + (this.icon.height >> 1), top + cutoffHeight)
-
-                    availableIconHeight = iconBottom - iconTop;
-                }
+                cutoffTop = top + maxHeight - height;
+                cutoffBottom = top + maxHeight;
             }
             else {
-                if (style.borderWidth) {
-                    fillVerticalRegion(
-                        target,
-                        left + style.horizontalMargin,
-                        top + style.verticalMargin,
-                        width - (style.horizontalMargin << 1),
-                        Math.min(top + maxHeight - (style.verticalMargin << 1), top + height),
-                        style.borderColor
-                    )
-                }
-
-                fillVerticalRegion(
-                    target,
-                    left + style.horizontalMargin + style.borderWidth,
-                    top + style.verticalMargin + style.borderWidth,
-                    backgroundWidth,
-                    Math.min(top - style.verticalMargin - style.borderWidth + maxHeight, top + height),
-                    style.background
-                )
-
-                textTop = top + (maxHeight >> 1) - (this.font.charHeight >> 1);
-                const textBottom = Math.min(top + (maxHeight >> 1) + (this.font.charHeight >> 1), top + height)
-                availableTextHeight = textBottom - textTop;
-
-                if (this.icon) {
-                    iconTop = top + (maxHeight >> 1) - (this.icon.height >> 1);
-                    const iconBottom = Math.min(top + (maxHeight >> 1) + (this.icon.height >> 1), top + height)
-                    availableIconHeight = iconBottom - iconTop;
-                }
+                cutoffTop = top;
+                cutoffBottom = top + height;
             }
-
-            const widthOfText = this.text.length * this.font.charWidth;
-            let availableTextWidth = backgroundWidth - (style.padding << 1);
-            let textAreaLeft = left + style.horizontalMargin + style.padding + style.borderWidth;
 
             if (this.icon) {
-                if (iconOnly) {
+                iconTop = contentTop + ((contentBottom - contentTop) >> 1) - (this.icon.height >> 1);
+                iconBottom = iconTop + this.icon.height
 
+                if (style.iconOnly) {
                     if (style.alignment === Alignment.Left) {
-                        this.drawPartialIcon(target, availableIconHeight, textAreaLeft, iconTop, this.icon.width, cutTop)
+                        iconLeft = contentLeft;
                     }
                     else if (style.alignment === Alignment.Right) {
-                        this.drawPartialIcon(
-                            target,
-                            availableIconHeight,
-                            textAreaLeft + availableTextWidth - this.icon.width,
-                            iconTop,
-                            this.icon.width,
-                            cutTop
-                        );
+                        iconLeft = contentRight - this.icon.width;
                     }
                     else {
-                        this.drawPartialIcon(
-                            target,
-                            availableIconHeight,
-                            textAreaLeft + (availableTextWidth >> 1) - (this.icon.width >> 1),
-                            iconTop,
-                            this.icon.width,
-                            cutTop
-                        );
+                        iconLeft = contentLeft + ((contentRight - contentLeft) >> 1) - (this.icon.width >> 1);
+                    }
+                }
+                else if (style.alignment !== Alignment.Left && this.icon.width + widthOfText + style.iconPadding < contentRight - contentLeft) {
+                    if (style.alignment === Alignment.Right) {
+                        iconLeft = contentRight - widthOfText - style.iconPadding - this.icon.width;
+                    }
+                    else {
+                        iconLeft = contentLeft + ((contentRight - contentLeft) >> 1) - ((this.icon.width + widthOfText + style.iconPadding) >> 1);
                     }
                 }
                 else {
-                    this.drawPartialIcon(target, availableIconHeight, textAreaLeft, iconTop, this.icon.width, cutTop)
+                    iconLeft = contentLeft;
                 }
 
-                availableTextWidth -= this.icon.width + style.iconPadding;
-                textAreaLeft += this.icon.width + style.iconPadding
+                iconRight = iconLeft + this.icon.width;
+                textLeft = iconRight + style.iconPadding;
             }
-
-            if (iconOnly) return;
-
-            if (style.alignment === Alignment.Left || widthOfText >= availableTextWidth) {
-                if (widthOfText <= availableTextWidth) {
-                    this.printPartialText(
-                        target,
-                        availableTextHeight,
-                        textAreaLeft,
-                        textTop,
-                        availableTextWidth,
-                        style.foreground,
-                        cutTop
-                    );
+            else if (style.alignment !== Alignment.Left && widthOfText < (contentRight - contentLeft)) {
+                if (style.alignment === Alignment.Right) {
+                    textLeft = contentRight - widthOfText;
                 }
                 else {
-                    if (scrollTick) {
-                        const maxScroll = widthOfText - availableTextWidth + this.font.charWidth;
-                        const animationLength = (100 + maxScroll + 100) << 2;
-
-                        scrollTick = scrollTick % animationLength;
-
-                        this.printScrolled(
-                            target,
-                            Math.min(Math.max((scrollTick - 100) >> 2, 0), maxScroll),
-                            textAreaLeft,
-                            textTop,
-                            availableTextWidth,
-                            style.foreground,
-                        )
-                    }
-                    else {
-                        this.printPartialText(
-                            target,
-                            availableTextHeight,
-                            textAreaLeft,
-                            textTop,
-                            availableTextWidth - this.font.charWidth,
-                            style.foreground,
-                            cutTop
-                        );
-
-                        if (availableTextHeight >= this.font.charHeight || (cutTop && availableTextHeight > 1)) {
-                            // draw ellipsis
-                            target.setPixel(
-                                textAreaLeft + availableTextWidth - this.font.charWidth + 1,
-                                textTop + availableTextHeight - 2,
-                                style.foreground
-                            )
-                            target.setPixel(
-                                textAreaLeft + availableTextWidth - this.font.charWidth + 3,
-                                textTop + availableTextHeight - 2,
-                                style.foreground
-                            )
-                            target.setPixel(
-                                textAreaLeft + availableTextWidth - this.font.charWidth + 5,
-                                textTop + availableTextHeight - 2,
-                                style.foreground
-                            )
-                        }
-                    }
+                    textLeft = contentLeft + ((contentRight - contentLeft) >> 1) - (widthOfText >> 1)
                 }
             }
             else {
-                let drawLeft: number;
+                textLeft = contentLeft;
+            }
 
-                if (style.alignment === Alignment.Right) {
-                    drawLeft = textAreaLeft + availableTextWidth - widthOfText
-                }
-                else {
-                    drawLeft = textAreaLeft + (availableTextWidth >> 1) - (widthOfText >> 1)
-                }
+            textRight = Math.min(textLeft + widthOfText, contentRight);
 
-                if (this.icon) {
-                    target.drawTransparentImage(
-                        this.icon,
-                        drawLeft,
-                        textTop + (this.contentHeight >> 1) - (this.icon.height >> 1)
-                    )
-                    this.printPartialText(
-                        target,
-                        availableTextHeight,
-                        drawLeft,
-                        textTop + (this.contentHeight >> 1) - (this.font.charHeight >> 1),
-                        backgroundWidth - (style.padding << 1),
-                        style.foreground,
-                        cutTop
-                    );
-                }
-                else {
-                    this.printPartialText(
-                        target,
-                        availableTextHeight,
-                        drawLeft,
-                        textTop,
-                        backgroundWidth - (style.padding << 1),
-                        style.foreground,
-                        cutTop
-                    );
-                }
+            fillRegion(
+                target,
+                Math.max(borderLeft, cutoffLeft),
+                Math.max(borderTop, cutoffTop),
+                Math.min(borderRight, cutoffRight),
+                Math.min(borderBottom, cutoffBottom),
+                style.borderColor
+            );
+
+            fillRegion(
+                target,
+                Math.max(borderLeft + style.borderWidth, cutoffLeft),
+                Math.max(borderTop + style.borderWidth, cutoffTop),
+                Math.min(borderRight - style.borderWidth, cutoffRight),
+                Math.min(borderBottom - style.borderWidth, cutoffBottom),
+                style.background
+            );
+
+            if (this.icon) {
+                drawImageInRect(
+                    target,
+                    this.icon,
+                    Math.max(iconLeft, cutoffLeft),
+                    Math.max(iconTop, cutoffTop),
+                    Math.min(iconRight, cutoffRight),
+                    Math.min(iconBottom, cutoffBottom),
+                    cutLeft,
+                    cutTop
+                )
+
+                if (style.iconOnly) return;
+            }
+
+            if (scrollTick) {
+                const maxScroll = widthOfText - (textRight - textLeft) + this.font.charWidth;
+                const animationLength = (100 + maxScroll + 100) << 2;
+
+                scrollTick = scrollTick % animationLength;
+
+                this.printScrolled(
+                    target,
+                    Math.min(Math.max((scrollTick - 100) >> 2, 0), maxScroll),
+                    textLeft,
+                    textTop,
+                    textRight - textLeft,
+                    style.foreground
+                )
+            }
+            else {
+                const printableCharacters = Math.ceil((textRight - textLeft) / this.font.charWidth)
+                printTextInRect(
+                    target,
+                    this.text.substr(0, printableCharacters),
+                    Math.max(textLeft, cutoffLeft),
+                    Math.max(textTop, cutoffTop),
+                    Math.min(textRight, cutoffRight),
+                    Math.min(textBottom, cutoffBottom),
+                    style.foreground,
+                    cutLeft,
+                    cutTop,
+                    this.font
+                )
             }
         }
+
 
         protected printScrolled(target: Image, scroll: number, left: number, top: number, width: number, color: number) {
             const startCharacter = Math.idiv(scroll, this.font.charWidth);
@@ -467,71 +421,6 @@ namespace miniMenu {
                 this.font
             )
             target.drawTransparentImage(printCanvas, left + width - printCanvas.width, top);
-        }
-
-        protected printPartialText(target: Image, height: number, left: number, top: number, width: number, color: number, cutTop: boolean) {
-            const printableCharacters = Math.idiv(width, this.font.charWidth);
-
-            if (height <= 0) return
-            else if (height >= this.font.charHeight) {
-                target.print(this.text.substr(0, printableCharacters), left, top, color, this.font);
-                return;
-            }
-
-            const canvasCharacters = Math.idiv(printCanvas.width, this.font.charWidth);
-            if (cutTop) {
-                for (let i = 0; i < printableCharacters; i += canvasCharacters) {
-                    printCanvas.fill(0);
-                    printCanvas.print(
-                        this.text.substr(i, Math.min(canvasCharacters, printableCharacters - i)),
-                        0,
-                        height - this.font.charHeight,
-                        color,
-                        this.font
-                    );
-                    target.drawTransparentImage(printCanvas, left + i * this.font.charWidth, top);
-                }
-            }
-            else {
-                for (let i = 0; i < printableCharacters; i += canvasCharacters) {
-                    printCanvas.fill(0);
-                    printCanvas.print(
-                        this.text.substr(i, Math.min(canvasCharacters, printableCharacters - i)),
-                        0,
-                        printCanvas.height - height,
-                        color,
-                        this.font
-                    );
-                    target.drawTransparentImage(printCanvas, left + i * this.font.charWidth, top - printCanvas.height + height);
-                }
-            }
-        }
-
-        protected drawPartialIcon(target: Image, height: number, left: number, top: number, width: number, cutTop: boolean) {
-            if (height <= 0) return
-            else if (height >= this.icon.height) {
-                target.drawTransparentImage(this.icon, left, top);
-                return;
-            }
-
-            if (printCanvas.height < height) {
-                printCanvas = image.create(printCanvas.width, height)
-            }
-
-            if (cutTop) {
-                for (let x = 0; x < this.icon.width; x += printCanvas.width) {
-                    printCanvas.fill(0);
-                    printCanvas.drawTransparentImage(this.icon, -x, height - this.icon.height)
-                    target.drawTransparentImage(printCanvas, left + x, top);
-                }
-            }
-            else {
-                for (let x = 0; x < this.icon.width; x += printCanvas.width) {
-                    printCanvas.fill(0);
-                    printCanvas.drawTransparentImage(this.icon, -x, printCanvas.height - height)
-                    target.drawTransparentImage(printCanvas, left + x, top - (printCanvas.height - height));
-                }
-            }
         }
     }
 
@@ -574,14 +463,18 @@ namespace miniMenu {
         selectedIndex: number;
         buttonEventsEnabled: boolean;
 
-        scroll: number;
-        targetScroll: number;
+        yScroll: number;
+        targetYScroll: number;
+        xScroll: number;
+        targetXScroll: number;
 
         scrollAnimationTick: number;
         titleAnimationTick: number;
 
         title: MenuItem;
         scrollSpeed: number;
+        columns: number;
+        rows: number;
 
         protected buttonHandlers: any;
 
@@ -601,10 +494,15 @@ namespace miniMenu {
 
             this.onButtonEvent(controller.up, () => this.moveSelection(MoveDirection.Up));
             this.onButtonEvent(controller.down, () => this.moveSelection(MoveDirection.Down));
-            this.scroll = 0;
+            this.yScroll = 0;
+            this.targetYScroll = 0;
+            this.xScroll = 0;
+            this.targetXScroll = 0;
             this.scrollAnimationTick = -1;
             this.titleAnimationTick = 0;
             this.scrollSpeed = 150;
+            this.columns = 0;
+            this.rows = 0;
         }
 
         get width(): number {
@@ -618,87 +516,100 @@ namespace miniMenu {
         draw(drawLeft: number, drawTop: number) {
             if (!this.items) return;
 
-            const width = this.getWidth();
+            if (this.columns <= 1 && this.rows === 0) {
+                this.drawSingleColumn(drawLeft, drawTop);
+                return;
+            }
+            else if (this.columns === 0 && this.rows === 1) {
+                this.drawSingleRow(drawLeft, drawTop);
+                return;
+            }
 
+            const menuTop = drawTop;
+            const menuWidth = this.getWidth();
+            const menuHeight = this.getHeight();
+            const widthPerColumn = (menuWidth / this.columns) | 0;
+            const heightPerRow = (menuHeight / this.rows) | 0;
+
+            let index = 0;
             let current: MenuItem;
-            let currentHeight = 0;
             let style: Style;
             let isSelected: boolean;
 
-            const height = this.getHeight();
+            let xOffset = -this.xScroll;
+            let yOffset = -this.yScroll;
 
-            if (this.title) {
-                currentHeight = this.title.getHeight(this.titleStyle);
-                this.title.drawTo(
-                    drawLeft,
-                    drawTop,
-                    screen,
-                    this.titleStyle,
-                    width,
-                    currentHeight,
-                    true,
-                    this.titleAnimationTick
-                )
-            }
+            for (let row = 0; row < this.rows; row++) {
+                for (let col = 0; col < this.columns; col ++) {
+                    isSelected = index === this.selectedIndex;
+                    style = isSelected ? this.selectedStyle : this.defaultStyle;
+                    current = this.items[index];
 
-            let offset = -(this.scroll | 0);
-            const menuTop = drawTop + currentHeight;
-            const menuHeight = height - currentHeight;
+                    if (isSelected) {
+                        if (yOffset < 0) this.targetYScroll = (yOffset + (this.yScroll | 0));
+                        else if (yOffset > menuHeight - heightPerRow) this.targetYScroll = yOffset + (this.yScroll | 0) + heightPerRow - menuHeight;
+                        else this.targetYScroll = this.yScroll
 
-            for (let i = 0; i < this.items.length; i++) {
-                current = this.items[i];
-                isSelected = this.selectedIndex === i
-                style = isSelected ? this.selectedStyle : this.defaultStyle;
-                currentHeight = current.getHeight(style);
+                        if (xOffset < 0) this.targetXScroll = (xOffset + (this.xScroll | 0));
+                        else if (xOffset > menuWidth - widthPerColumn) this.targetXScroll = xOffset + (this.xScroll | 0) + menuWidth - widthPerColumn;
+                        else this.targetXScroll = this.xScroll
+                    }
 
-                if (isSelected) {
-                    if (offset < 0) this.targetScroll = (offset + (this.scroll | 0));
-                    else if (offset > menuHeight - currentHeight) this.targetScroll = offset + (this.scroll | 0) + currentHeight - menuHeight;
-                    else this.targetScroll = this.scroll
+                    if (yOffset < 0) {
+                        current.drawTo(
+                            drawLeft + xOffset,
+                            menuTop + yOffset,
+                            screen,
+                            style,
+                            widthPerColumn,
+                            heightPerRow + yOffset,
+                            true,
+                            false,
+                            isSelected ? this.scrollAnimationTick : 0,
+                            this.width
+                        )
+                    }
+                    else {
+                        current.drawTo(
+                            drawLeft + xOffset,
+                            menuTop + yOffset,
+                            screen,
+                            style,
+                            widthPerColumn,
+                            Math.min(heightPerRow, menuHeight - yOffset),
+                            false,
+                            false,
+                            isSelected ? this.scrollAnimationTick : 0,
+                            this.width
+                        )
+                    }
+
+                    xOffset += widthPerColumn;
+                    index ++;
                 }
-
-
-                if (offset < -currentHeight) {
-                    offset += currentHeight;
-                    continue;
-                }
-
-                if (offset < 0) {
-                    current.drawTo(
-                        drawLeft,
-                        menuTop + offset,
-                        screen,
-                        style,
-                        width,
-                        currentHeight + offset,
-                        true,
-                        isSelected ? this.scrollAnimationTick : 0
-                    )
-                }
-                else {
-                    current.drawTo(
-                        drawLeft,
-                        menuTop + offset,
-                        screen,
-                        style,
-                        width,
-                        Math.min(currentHeight, menuHeight - offset),
-                        false,
-                        isSelected ? this.scrollAnimationTick : 0
-                    )
-                }
-
-                offset += currentHeight;
+                xOffset = -this.xScroll
+                yOffset += heightPerRow;
             }
         }
 
         update(deltaTimeMillis: number) {
-            if (this.scroll < this.targetScroll) this.scroll += 1;
-            else if (this.scroll > this.targetScroll) this.scroll -= 1;
+            if (Math.abs(this.yScroll - this.targetYScroll) <= 1) {
+                this.yScroll = this.targetYScroll
+            }
+            else {
+                this.yScroll += (this.targetYScroll - this.yScroll) / 10;
+            }
+                        
+            if (Math.abs(this.xScroll - this.targetXScroll) <= 1) {
+                this.xScroll = this.targetXScroll
+            }
+            else {
+                this.xScroll += (this.targetXScroll - this.xScroll) / 10;
+            }
 
             const deltaTick = (deltaTimeMillis / 1000) * this.scrollSpeed;
 
-            if (this.scroll === this.targetScroll) {
+            if (this.yScroll === this.targetYScroll && this.xScroll === this.targetXScroll) {
                 this.scrollAnimationTick += deltaTick
             }
             else {
@@ -771,6 +682,178 @@ namespace miniMenu {
                 case MenuStyleProperty.ScrollSpeed:
                     this.scrollSpeed = value;
                     break;
+                case MenuStyleProperty.Columns:
+                    this.columns = Math.max(value | 0, 0);
+                    break;
+                case MenuStyleProperty.Rows:
+                    this.rows = Math.max(value | 0, 0);
+                    break;
+            }
+        }
+
+
+        protected drawSingleColumn(drawLeft: number, drawTop: number) {
+            if (!this.items) return;
+
+            const width = this.getWidth();
+
+            let current: MenuItem;
+            let currentHeight = 0;
+            let style: Style;
+            let isSelected: boolean;
+
+            const height = this.getHeight();
+
+            if (this.title) {
+                currentHeight = this.title.getHeight(this.titleStyle);
+                this.title.drawTo(
+                    drawLeft,
+                    drawTop,
+                    screen,
+                    this.titleStyle,
+                    width,
+                    currentHeight,
+                    true,
+                    false,
+                    this.titleAnimationTick,
+                    this.width
+                )
+            }
+
+            let offset = -(this.yScroll | 0);
+            const menuTop = drawTop + currentHeight;
+            const menuHeight = height - currentHeight;
+
+            for (let i = 0; i < this.items.length; i++) {
+                current = this.items[i];
+                isSelected = this.selectedIndex === i
+                style = isSelected ? this.selectedStyle : this.defaultStyle;
+                currentHeight = current.getHeight(style);
+
+                if (isSelected) {
+                    if (offset < 0) this.targetYScroll = (offset + (this.yScroll | 0));
+                    else if (offset > menuHeight - currentHeight) this.targetYScroll = offset + (this.yScroll | 0) + currentHeight - menuHeight;
+                    else this.targetYScroll = this.yScroll
+                }
+
+
+                if (offset < -currentHeight) {
+                    offset += currentHeight;
+                    continue;
+                }
+
+                if (offset < 0) {
+                    current.drawTo(
+                        drawLeft,
+                        menuTop + offset,
+                        screen,
+                        style,
+                        width,
+                        currentHeight + offset,
+                        true,
+                        false,
+                        isSelected ? this.scrollAnimationTick : 0,
+                        this.width
+                    )
+                }
+                else {
+                    current.drawTo(
+                        drawLeft,
+                        menuTop + offset,
+                        screen,
+                        style,
+                        width,
+                        Math.min(currentHeight, menuHeight - offset),
+                        false,
+                        false,
+                        isSelected ? this.scrollAnimationTick : 0,
+                        this.width
+                    )
+                }
+
+                offset += currentHeight;
+            }
+        }
+
+        protected drawSingleRow(drawLeft: number, drawTop: number) {
+            if (!this.items) return;
+
+            const width = this.getWidth();
+
+            let current: MenuItem;
+            let currentWidth = 0;
+            let style: Style;
+            let isSelected: boolean;
+
+            const height = this.getHeight();
+
+            // if (this.title) {
+            //     currentWidth = this.title.getWidth(this.titleStyle);
+            //     this.title.drawTo(
+            //         drawLeft,
+            //         drawTop,
+            //         screen,
+            //         this.titleStyle,
+            //         width,
+            //         currentWidth,
+            //         true,
+            //         this.titleAnimationTick
+            //     )
+            // }
+
+            let offset = -(this.xScroll | 0);
+            const menuTop = drawTop;
+            const menuHeight = height;
+
+            for (let i = 0; i < this.items.length; i++) {
+                current = this.items[i];
+                isSelected = this.selectedIndex === i
+                style = isSelected ? this.selectedStyle : this.defaultStyle;
+                currentWidth = Math.min(current.getWidth(style), width);
+
+                if (isSelected) {
+                    if (offset < 0) this.targetXScroll = (offset + (this.xScroll | 0));
+                    else if (offset > width - currentWidth) this.targetXScroll = offset + (this.xScroll | 0) + currentWidth - width;
+                    else this.targetXScroll = this.xScroll
+                }
+
+                if (offset < -currentWidth || offset >= width) {
+                    offset += currentWidth;
+                    continue;
+                }
+
+                if (offset < 0) {
+                    current.drawTo(
+                        drawLeft + offset,
+                        menuTop,
+                        screen,
+                        style,
+                        currentWidth + offset,
+                        menuHeight,
+                        false,
+                        true,
+                        isSelected ? this.scrollAnimationTick : 0,
+                        this.width,
+                        height
+                    )
+                }
+                else {
+                    current.drawTo(
+                        drawLeft + offset,
+                        menuTop,
+                        screen,
+                        style,
+                        Math.min(currentWidth, width - offset),
+                        menuHeight,
+                        false,
+                        false,
+                        isSelected ? this.scrollAnimationTick : 0,
+                        this.width,
+                        height
+                    )
+                }
+
+                offset += currentWidth;
             }
         }
 
@@ -813,35 +896,219 @@ namespace miniMenu {
         if (!color) return;
         target.fillRect(left, top, width, bottom - top, color);
     }
+
+    function fillRegion(target: Image, left: number, top: number, right: number, bottom: number, color: number) {
+        if (!color) return;
+        target.fillRect(left, top, right - left, bottom - top, color);
+    }
+
+    export function drawImageInRect(target: Image, src: Image, left: number, top: number, right: number, bottom: number, cutLeft: boolean, cutTop: boolean) {
+        const width = Math.min(right - left, src.width);
+        const height = Math.min(bottom - top, src.height);
+
+        if (width <= 0 || height <= 0) return;
+
+        if (printCanvas.width < src.width || printCanvas.height < src.height) {
+            printCanvas = image.create(Math.max(printCanvas.width, src.width), Math.max(printCanvas.height, src.height));
+        }
+        else {
+            printCanvas.fill(0);
+        }
+
+        if (cutLeft) {
+            if (cutTop) {
+                printCanvas.drawTransparentImage(
+                    src,
+                    width - src.width,
+                    height - src.height, 
+                );
+                target.drawTransparentImage(
+                    printCanvas,
+                    left,
+                    top
+                );
+            }
+            else {
+                printCanvas.drawTransparentImage(
+                    src,
+                    width - src.width,
+                    printCanvas.height - height,
+                );
+                target.drawTransparentImage(
+                    printCanvas,
+                    left,
+                    top + printCanvas.height - height
+                );
+            }
+        }
+        else {
+            if (cutTop) {
+                printCanvas.drawTransparentImage(
+                    src,
+                    printCanvas.width - width,
+                    height - src.height,
+                );
+                target.drawTransparentImage(
+                    printCanvas,
+                    left + width - printCanvas.width,
+                    top
+                );
+            }
+            else {
+                printCanvas.drawTransparentImage(
+                    src,
+                    printCanvas.width - width,
+                    printCanvas.height - height,
+                );
+                target.drawTransparentImage(
+                    printCanvas,
+                    left + width - printCanvas.width,
+                    top + printCanvas.height - height
+                );
+            }
+        }
+    }
+
+    export function printTextInRect(target: Image, text: string, left: number, top: number, right: number, bottom: number, color: number, cutLeft: boolean, cutTop: boolean, font: image.Font) {
+        const width = right - left;
+        const height = bottom - top;
+
+        const textWidth = text.length * font.charWidth;
+
+        if (textWidth <= width && font.charHeight <= height) {
+            target.print(text, left, top, color, font);
+            return;
+        }
+
+        const printableCharacters = Math.idiv(width, font.charWidth)
+
+        // Optimize to print as many of the characters in one go as possible
+        if (font.charHeight <= height) {
+            const offset = width - printableCharacters * font.charWidth;
+
+            printCanvas.fill(0)
+            if (cutLeft) {
+                target.print(text.substr(text.length - printableCharacters), right - printableCharacters * font.charWidth, top, color, font);
+                printCanvas.print(text.charAt(text.length - printableCharacters - 1), -(font.charWidth - offset), 0, color, font);
+                target.drawTransparentImage(printCanvas, left, top);
+            }
+            else {
+                target.print(text.substr(0, printableCharacters), left, top, color, font)
+                printCanvas.print(text.charAt(printableCharacters), printCanvas.width - offset, 0, color, font);
+                target.drawTransparentImage(printCanvas, left + width - printCanvas.width, top);
+            }
+
+            return;
+        }
+
+        const offset = width - printableCharacters * font.charWidth;
+
+        printCanvas.fill(0)
+        const canvasCharacters = Math.idiv(printCanvas.width, font.charWidth);
+
+        if (cutLeft) {
+            if (cutTop) {
+                for (let i = 0; i < printableCharacters; i += canvasCharacters) {
+                    printCanvas.fill(0);
+                    printCanvas.print(
+                        text.substr(text.length - printableCharacters + i, Math.min(canvasCharacters, printableCharacters - i)),
+                        0,
+                        height - font.charHeight,
+                        color,
+                        font
+                    );
+                    target.drawTransparentImage(printCanvas, left + i * font.charWidth + offset, top);
+                }
+
+                if (text.length > printableCharacters) {
+                    printCanvas.fill(0);
+                    printCanvas.print(
+                        text.charAt(text.length - printableCharacters - 1),
+                        -(font.charWidth - offset),
+                        height - font.charHeight,
+                        color,
+                        font
+                    );
+                    target.drawTransparentImage(printCanvas, left, top)
+                }
+            }
+            else {
+                for (let i = 0; i < printableCharacters; i += canvasCharacters) {
+                    printCanvas.fill(0);
+                    printCanvas.print(
+                        text.substr(text.length - printableCharacters + i, Math.min(canvasCharacters, printableCharacters - i)),
+                        0,
+                        printCanvas.height - height,
+                        color,
+                        font
+                    );
+                    target.drawTransparentImage(printCanvas, left + i * font.charWidth + offset, top - printCanvas.height + height);
+                }
+
+                if (text.length > printableCharacters) {
+                    printCanvas.fill(0);
+                    printCanvas.print(
+                        text.charAt(text.length - printableCharacters - 1),
+                        -(font.charWidth - offset),
+                        printCanvas.height - height,
+                        color,
+                        font
+                    );
+                    target.drawTransparentImage(printCanvas, left, top - printCanvas.height + height)
+                }
+            }
+        }
+        else {
+            if (cutTop) {
+                for (let i = 0; i < printableCharacters; i += canvasCharacters) {
+                    printCanvas.fill(0);
+                    printCanvas.print(
+                        text.substr(i, Math.min(canvasCharacters, printableCharacters - i)),
+                        0,
+                        height - font.charHeight,
+                        color,
+                        font
+                    );
+                    target.drawTransparentImage(printCanvas, left + i * font.charWidth, top);
+                }
+
+                if (text.length > printableCharacters) {
+                    printCanvas.fill(0);
+                    printCanvas.print(
+                        text.charAt(printableCharacters),
+                        printCanvas.width - offset,
+                        height - font.charHeight,
+                        color,
+                        font
+                    );
+                    target.drawTransparentImage(printCanvas, left + width - printCanvas.width, top)
+                }
+            }
+            else {
+                for (let i = 0; i < printableCharacters; i += canvasCharacters) {
+                    printCanvas.fill(0);
+                    printCanvas.print(
+                        text.substr(i, Math.min(canvasCharacters, printableCharacters - i)),
+                        0,
+                        printCanvas.height - height,
+                        color,
+                        font
+                    );
+                    target.drawTransparentImage(printCanvas, left + i * font.charWidth, top - printCanvas.height + height);
+                }
+
+                if (text.length > printableCharacters) {
+                    printCanvas.fill(0);
+                    printCanvas.print(
+                        text.charAt(printableCharacters),
+                        printCanvas.width - offset,
+                        printCanvas.height - height,
+                        color,
+                        font
+                    );
+                    target.drawTransparentImage(printCanvas, left + width - printCanvas.width, top - printCanvas.height + height)
+                }
+            }
+        }
+    }
 }
-
-// const m = new miniMenu.MenuSprite();
-// m.setButtonEventsEnabled(true)
-
-// m.setMenuItems([
-//     miniMenu.createMenuItem("Hello", img`
-//         . . . . . . . e c 7 . . . . . .
-//         . . . . e e e c 7 7 e e . . . .
-//         . . c e e e e c 7 e 2 2 e e . .
-//         . c e e e e e c 6 e e 2 2 2 e .
-//         . c e e e 2 e c c 2 4 5 4 2 e .
-//         c e e e 2 2 2 2 2 2 4 5 5 2 2 e
-//         c e e 2 2 2 2 2 2 2 2 4 4 2 2 e
-//         c e e 2 2 2 2 2 2 2 2 2 2 2 2 e
-//         c e e 2 2 2 2 2 2 2 2 2 2 2 2 e
-//         c e e 2 2 2 2 2 2 2 2 2 2 2 2 e
-//         c e e 2 2 2 2 2 2 2 2 2 2 4 2 e
-//         . e e e 2 2 2 2 2 2 2 2 2 4 e .
-//         . 2 e e 2 2 2 2 2 2 2 2 4 2 e .
-//         . . 2 e e 2 2 2 2 2 4 4 2 e . .
-//         . . . 2 2 e e 4 4 4 2 e e . . .
-//         . . . . . 2 2 e e e e . . . . .
-//     `),
-//     miniMenu.createMenuItem("Goodbye"),
-//     miniMenu.createMenuItem("I am well today")
-// ])
-
-// m.setFlag(SpriteFlag.StayInScreen, true);
-// m.setFlag(SpriteFlag.BounceOnWall, true);
-// m.vx = 10;
-// m.vy = 10;
