@@ -539,8 +539,8 @@ namespace miniMenu {
             let style: Style;
             let isSelected: boolean;
 
-            let xOffset = -this.xScroll;
-            let yOffset = -this.yScroll;
+            let xOffset = -(this.xScroll | 0);
+            let yOffset = -(this.yScroll | 0);
 
             const totalRows = Math.idiv(this.items.length, this.columns)
 
