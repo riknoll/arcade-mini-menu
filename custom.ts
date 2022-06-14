@@ -510,13 +510,15 @@ namespace miniMenu {
             let xOffset = -(this.xScroll | 0);
             let yOffset = -(this.yScroll | 0);
 
-            const totalRows = Math.idiv(this.items.length, this.columns)
+            const totalRows = Math.ceil(this.items.length / this.columns)
 
             for (let row = 0; row < totalRows; row++) {
                 for (let col = 0; col < this.columns; col ++) {
                     isSelected = index === this.selectedIndex;
                     style = isSelected ? this.selectedStyle : this.defaultStyle;
                     current = this.items[index];
+
+                    if (!current) return;
 
                     if (isSelected) {
                         if (yOffset < 0) this.targetYScroll = (yOffset + (this.yScroll | 0));
@@ -624,6 +626,9 @@ namespace miniMenu {
                 else if (direction === MoveDirection.Down) {
                     this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
                 }
+                else {
+                    return
+                }
                 this.scrollAnimationTick = 0;
             }
             else if (this.columns === 0 && this.rows === 1) {
@@ -633,27 +638,44 @@ namespace miniMenu {
                 else if (direction === MoveDirection.Right) {
                     this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
                 }
+                else {
+                    return;
+                }
                 this.scrollAnimationTick = 0;
             }
             else {
                 let column = this.selectedIndex % this.columns;
-                const row = Math.idiv(this.selectedIndex, this.columns);
+                let row = Math.idiv(this.selectedIndex, this.columns);
+
+                const maxRows = Math.ceil(this.items.length / this.columns);
 
                 if (direction === MoveDirection.Up) {
-                    this.selectedIndex = (this.selectedIndex + this.items.length - this.columns) % this.items.length;
+                    row = (row + maxRows - 1) % maxRows;
+                    
+                    if (column + row * this.columns >= this.items.length) {
+                        row = maxRows - 2;
+                    }
                 }
                 else if (direction === MoveDirection.Down) {
-                    this.selectedIndex = (this.selectedIndex + this.columns) % this.items.length;
+                    row = (row + 1) % maxRows;
+                    if (column + row * this.columns >= this.items.length) {
+                        row = 0
+                    }
                 }
                 else if (direction === MoveDirection.Left) {
                     column = (column + this.columns - 1) % this.columns
-                    this.selectedIndex = column + row * this.columns
+                    if (column + row * this.columns >= this.items.length) {
+                        column = (this.items.length - 1) % this.columns
+                    }
                 }
                 else if (direction === MoveDirection.Right) {
                     column = (column + 1) % this.columns
-                    this.selectedIndex = column + row * this.columns
+                    if (column + row * this.columns >= this.items.length) {
+                        column = 0;
+                    }
                 }
 
+                this.selectedIndex = column + row * this.columns
                 this.scrollAnimationTick = 0
             }
         }

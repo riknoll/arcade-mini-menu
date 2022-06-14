@@ -312,7 +312,7 @@ myMenu = miniMenu.createMenu(
     miniMenu.createMenuItem("I mean... I say it at the beginning and end of every stream"),
     miniMenu.createMenuItem("pay attention please"),
     miniMenu.createMenuItem("I mean... I say it at the beginning and end of every stream"),
-    miniMenu.createMenuItem("hi")
+    // miniMenu.createMenuItem("hi")
 )
 scene.setBackgroundColor(6)
 miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Width, 80)
