@@ -362,13 +362,16 @@ namespace miniMenu {
 
                 scrollTick = scrollTick % animationLength;
 
-                this.printScrolled(
+                printScrolledText(
                     target,
-                    Math.min(Math.max((scrollTick - 100) >> 2, 0), maxScroll),
+                    this.text,
                     textLeft,
                     textTop,
-                    textRight - textLeft,
-                    style.foreground
+                    textRight,
+                    textBottom,
+                    style.foreground,
+                    Math.min(Math.max((scrollTick - 100) >> 2, 0), maxScroll),
+                    this.font
                 )
             }
             else {
@@ -386,41 +389,6 @@ namespace miniMenu {
                     this.font
                 )
             }
-        }
-
-
-        protected printScrolled(target: Image, scroll: number, left: number, top: number, width: number, color: number) {
-            const startCharacter = Math.idiv(scroll, this.font.charWidth);
-            const offset = scroll % this.font.charWidth;
-            const lastCharacter = startCharacter + Math.floor(width / this.font.charWidth);
-
-            // Print the non-partial text first
-            target.print(
-                this.text.substr(startCharacter + 1, lastCharacter - startCharacter - 1),
-                left + this.font.charWidth - offset,
-                top,
-                color,
-                this.font
-            );
-
-            printCanvas.fill(0);
-            printCanvas.print(
-                this.text.charAt(startCharacter),
-                -offset,
-                0,
-                color
-            )
-            target.drawTransparentImage(printCanvas, left, top);
-
-            printCanvas.fill(0);
-            printCanvas.print(
-                this.text.charAt(lastCharacter),
-                printCanvas.width - (this.font.charWidth - ((lastCharacter - startCharacter + 1) * this.font.charWidth - width)) - offset,
-                0,
-                color,
-                this.font
-            )
-            target.drawTransparentImage(printCanvas, left + width - printCanvas.width, top);
         }
     }
 
@@ -1164,5 +1132,48 @@ namespace miniMenu {
                 }
             }
         }
+    }
+
+    export function printScrolledText(target: Image, text: string, left: number, top: number, right: number, bottom: number, color: number, scroll: number, font: image.Font) {
+        const startCharacter = Math.idiv(scroll, font.charWidth);
+        const visibleCharacters = Math.ceil((right - left) / font.charWidth);
+
+        if (visibleCharacters <= 1) return;
+        
+        printCanvas.fill(0);
+        printCanvas.print(
+            text.charAt(startCharacter),
+            -(scroll % font.charWidth),
+            0,
+            color,
+            font
+        );
+        target.drawTransparentImage(printCanvas, left, top);
+
+        target.print(
+            text.substr(startCharacter + 1, visibleCharacters - 2),
+            left + font.charWidth - (scroll % font.charWidth),
+            top,
+            color,
+            font
+        );
+
+        const charLeft = left - scroll + (startCharacter + visibleCharacters - 1) * font.charWidth;
+
+        console.log(`${charLeft} ${right}`)
+
+        printCanvas.fill(0);
+        printCanvas.print(
+            text.charAt(startCharacter + visibleCharacters - 1),
+            printCanvas.width - (right - charLeft),
+            0,
+            color,
+            font
+        );
+        target.drawTransparentImage(
+            printCanvas,
+            right - printCanvas.width,
+            top
+        )
     }
 }
