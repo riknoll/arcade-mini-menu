@@ -103,7 +103,11 @@ namespace miniMenu {
         //% block=up
         Up,
         //% block=down
-        Down
+        Down,
+        //% block=left
+        Left,
+        //% block=right
+        Right
     }
 
     export class Style {
@@ -491,6 +495,8 @@ namespace miniMenu {
 
             this.onButtonEvent(controller.up, () => this.moveSelection(MoveDirection.Up));
             this.onButtonEvent(controller.down, () => this.moveSelection(MoveDirection.Down));
+            this.onButtonEvent(controller.left, () => this.moveSelection(MoveDirection.Left));
+            this.onButtonEvent(controller.right, () => this.moveSelection(MoveDirection.Right));
             this.yScroll = 0;
             this.targetYScroll = 0;
             this.xScroll = 0;
@@ -642,13 +648,46 @@ namespace miniMenu {
         //% direction.shadow=mini_menu_move_direction
         moveSelection(direction: number) {
             if (this.items.length === 0) return;
-            if (direction === MoveDirection.Up) {
-                this.selectedIndex = (this.selectedIndex + this.items.length - 1) % this.items.length;
+
+            if (this.columns <= 1 && this.rows === 0) {
+                if (direction === MoveDirection.Up) {
+                    this.selectedIndex = (this.selectedIndex + this.items.length - 1) % this.items.length;
+                }
+                else if (direction === MoveDirection.Down) {
+                    this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
+                }
+                this.scrollAnimationTick = 0;
+            }
+            else if (this.columns === 0 && this.rows === 1) {
+                if (direction === MoveDirection.Left) {
+                    this.selectedIndex = (this.selectedIndex + this.items.length - 1) % this.items.length;
+                }
+                else if (direction === MoveDirection.Right) {
+                    this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
+                }
+                this.scrollAnimationTick = 0;
             }
             else {
-                this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
+                let column = this.selectedIndex % this.columns;
+                const row = Math.idiv(this.selectedIndex, this.columns);
+
+                if (direction === MoveDirection.Up) {
+                    this.selectedIndex = (this.selectedIndex + this.items.length - this.columns) % this.items.length;
+                }
+                else if (direction === MoveDirection.Down) {
+                    this.selectedIndex = (this.selectedIndex + this.columns) % this.items.length;
+                }
+                else if (direction === MoveDirection.Left) {
+                    column = (column + this.columns - 1) % this.columns
+                    this.selectedIndex = column + row * this.columns
+                }
+                else if (direction === MoveDirection.Right) {
+                    column = (column + 1) % this.columns
+                    this.selectedIndex = column + row * this.columns
+                }
+
+                this.scrollAnimationTick = 0
             }
-            this.scrollAnimationTick = 0
         }
 
         //% blockId=mini_menu_sprite_close_menu
