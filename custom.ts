@@ -42,12 +42,6 @@ namespace miniMenu {
         Right
     }
 
-    export enum Layout {
-        Column,
-        Row,
-        Grid
-    }
-
     export enum StyleProperty {
         //% block="padding"
         Padding,
@@ -87,7 +81,9 @@ namespace miniMenu {
         //% block="rows"
         Rows,
         //% block="columns"
-        Columns
+        Columns,
+        //% block="infinite scroll",
+        InfiniteScroll
     }
 
     export enum StyleKind {
@@ -475,6 +471,7 @@ namespace miniMenu {
         scrollSpeed: number;
         columns: number;
         rows: number;
+        infiniteScroll: boolean;
 
         protected buttonHandlers: any;
 
@@ -528,8 +525,8 @@ namespace miniMenu {
             const menuTop = drawTop;
             const menuWidth = this.getWidth();
             const menuHeight = this.getHeight();
-            const widthPerColumn = (menuWidth / this.columns) | 0;
-            const heightPerRow = (menuHeight / this.rows) | 0;
+            const widthPerColumn = (menuWidth / Math.max(this.columns, 1)) | 0;
+            const heightPerRow = (menuHeight / Math.max(this.rows, 1)) | 0;
 
             let index = 0;
             let current: MenuItem;
@@ -539,7 +536,9 @@ namespace miniMenu {
             let xOffset = -this.xScroll;
             let yOffset = -this.yScroll;
 
-            for (let row = 0; row < this.rows; row++) {
+            const totalRows = Math.idiv(this.items.length, this.columns)
+
+            for (let row = 0; row < totalRows; row++) {
                 for (let col = 0; col < this.columns; col ++) {
                     isSelected = index === this.selectedIndex;
                     style = isSelected ? this.selectedStyle : this.defaultStyle;
@@ -566,7 +565,8 @@ namespace miniMenu {
                             true,
                             false,
                             isSelected ? this.scrollAnimationTick : 0,
-                            this.width
+                            widthPerColumn,
+                            heightPerRow
                         )
                     }
                     else {
@@ -580,7 +580,8 @@ namespace miniMenu {
                             false,
                             false,
                             isSelected ? this.scrollAnimationTick : 0,
-                            this.width
+                            widthPerColumn,
+                            heightPerRow
                         )
                     }
 
@@ -688,9 +689,11 @@ namespace miniMenu {
                 case MenuStyleProperty.Rows:
                     this.rows = Math.max(value | 0, 0);
                     break;
+                case MenuStyleProperty.InfiniteScroll:
+                    this.infiniteScroll = !!value;
+                    break;
             }
         }
-
 
         protected drawSingleColumn(drawLeft: number, drawTop: number) {
             if (!this.items) return;
