@@ -574,14 +574,14 @@ namespace miniMenu {
                 this.yScroll = this.targetYScroll
             }
             else {
-                this.yScroll += (this.targetYScroll - this.yScroll) / 10;
+                this.yScroll += (this.targetYScroll - this.yScroll) / 5;
             }
                         
             if (Math.abs(this.xScroll - this.targetXScroll) <= 1) {
                 this.xScroll = this.targetXScroll
             }
             else {
-                this.xScroll += (this.targetXScroll - this.xScroll) / 10;
+                this.xScroll += (this.targetXScroll - this.xScroll) / 5;
             }
 
             const deltaTick = (deltaTimeMillis / 1000) * this.scrollSpeed;
