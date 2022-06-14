@@ -101,3 +101,173 @@ myMenu.setPosition(36, 60)
 miniMenu.onItemSelected(myMenu, controller.A, function (selection) {
     myMenu.sayText(selection)
 })
+
+myMenu = miniMenu.createMenu(
+    miniMenu.createMenuItem("Hello my name is not lucas", img`
+        . . . . . . . 6 . . . . . . . .
+        . . . . . . 8 6 6 . . . 6 8 . .
+        . . . e e e 8 8 6 6 . 6 7 8 . .
+        . . e 2 2 2 2 e 8 6 6 7 6 . . .
+        . e 2 2 4 4 2 7 7 7 7 7 8 6 . .
+        . e 2 4 4 2 6 7 7 7 6 7 6 8 8 .
+        e 2 4 5 2 2 6 7 7 6 2 7 7 6 . .
+        e 2 4 4 2 2 6 7 6 2 2 6 7 7 6 .
+        e 2 4 2 2 2 6 6 2 2 2 e 7 7 6 .
+        e 2 4 2 2 4 2 2 2 4 2 2 e 7 6 .
+        e 2 4 2 2 2 2 2 2 2 2 2 e c 6 .
+        e 2 2 2 2 2 2 2 4 e 2 e e c . .
+        e e 2 e 2 2 4 2 2 e e e c . . .
+        e e e e 2 e 2 2 e e e c . . . .
+        e e e 2 e e c e c c c . . . . .
+        . c c c c c c c . . . . . . . .
+    `),
+    miniMenu.createMenuItem("It's richard! did you forget that?", img`
+        . . . . . . . . . . . 6 6 6 6 6
+        . . . . . . . . . 6 6 7 7 7 7 8
+        . . . . . . 8 8 8 7 7 8 8 6 8 8
+        . . e e e e c 6 6 8 8 . 8 7 8 .
+        . e 2 5 4 2 e c 8 . . . 6 7 8 .
+        e 2 4 2 2 2 2 2 c . . . 6 7 8 .
+        e 2 2 2 2 2 2 2 c . . . 8 6 8 .
+        e 2 e e 2 2 2 2 e e e e c 6 8 .
+        c 2 e e 2 2 2 2 e 2 5 4 2 c 8 .
+        . c 2 e e e 2 e 2 4 2 2 2 2 c .
+        . . c 2 2 2 e e 2 2 2 2 2 2 2 e
+        . . . e c c e c 2 2 2 2 2 2 2 e
+        . . . . . . . c 2 e e 2 2 e 2 c
+        . . . . . . . c e e e e e e 2 c
+        . . . . . . . . c e 2 2 2 2 c .
+        . . . . . . . . . c c c c c . .
+    `),
+    miniMenu.createMenuItem("I mean... I say it at the beginning and end of every stream", img`
+        . . . . . . . e c 7 . . . . . .
+        . . . . e e e c 7 7 e e . . . .
+        . . c e e e e c 7 e 2 2 e e . .
+        . c e e e e e c 6 e e 2 2 2 e .
+        . c e e e 2 e c c 2 4 5 4 2 e .
+        c e e e 2 2 2 2 2 2 4 5 5 2 2 e
+        c e e 2 2 2 2 2 2 2 2 4 4 2 2 e
+        c e e 2 2 2 2 2 2 2 2 2 2 2 2 e
+        c e e 2 2 2 2 2 2 2 2 2 2 2 2 e
+        c e e 2 2 2 2 2 2 2 2 2 2 2 2 e
+        c e e 2 2 2 2 2 2 2 2 2 2 4 2 e
+        . e e e 2 2 2 2 2 2 2 2 2 4 e .
+        . 2 e e 2 2 2 2 2 2 2 2 4 2 e .
+        . . 2 e e 2 2 2 2 2 4 4 2 e . .
+        . . . 2 2 e e 4 4 4 2 e e . . .
+        . . . . . 2 2 e e e e . . . . .
+    `),
+    miniMenu.createMenuItem("pay attention please", img`
+        4 4 4 . . 4 4 4 4 4 . . . . . .
+        4 5 5 4 4 5 5 5 5 5 4 4 . . . .
+        b 4 5 5 1 5 1 1 1 5 5 5 4 . . .
+        . b 5 5 5 5 1 1 5 5 1 1 5 4 . .
+        . b d 5 5 5 5 5 5 5 5 1 1 5 4 .
+        b 4 5 5 5 5 5 5 5 5 5 5 1 5 4 .
+        c d 5 5 5 5 5 5 5 5 5 5 5 5 5 4
+        c d 4 5 5 5 5 5 5 5 5 5 5 1 5 4
+        c 4 5 5 5 d 5 5 5 5 5 5 5 5 5 4
+        c 4 d 5 4 5 d 5 5 5 5 5 5 5 5 4
+        . c 4 5 5 5 5 d d d 5 5 5 5 5 b
+        . c 4 d 5 4 5 d 4 4 d 5 5 5 4 c
+        . . c 4 4 d 4 4 4 4 4 d d 5 d c
+        . . . c 4 4 4 4 4 4 4 4 5 5 5 4
+        . . . . c c b 4 4 4 b b 4 5 4 4
+        . . . . . . c c c c c c b b 4 .
+    `)
+)
+scene.setBackgroundColor(6)
+miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.IconOnly, 1)
+miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Width, 20)
+miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Height, 20)
+// miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Columns, 2)
+// miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Rows, 1)
+myMenu.setPosition(140, 60)
+miniMenu.onItemSelected(myMenu, controller.A, function (selection) {
+    myMenu.sayText(selection)
+})
+
+myMenu = miniMenu.createMenu(
+    miniMenu.createMenuItem("Hello my name is not lucas", img`
+        . . . . . . . 6 . . . . . . . .
+        . . . . . . 8 6 6 . . . 6 8 . .
+        . . . e e e 8 8 6 6 . 6 7 8 . .
+        . . e 2 2 2 2 e 8 6 6 7 6 . . .
+        . e 2 2 4 4 2 7 7 7 7 7 8 6 . .
+        . e 2 4 4 2 6 7 7 7 6 7 6 8 8 .
+        e 2 4 5 2 2 6 7 7 6 2 7 7 6 . .
+        e 2 4 4 2 2 6 7 6 2 2 6 7 7 6 .
+        e 2 4 2 2 2 6 6 2 2 2 e 7 7 6 .
+        e 2 4 2 2 4 2 2 2 4 2 2 e 7 6 .
+        e 2 4 2 2 2 2 2 2 2 2 2 e c 6 .
+        e 2 2 2 2 2 2 2 4 e 2 e e c . .
+        e e 2 e 2 2 4 2 2 e e e c . . .
+        e e e e 2 e 2 2 e e e c . . . .
+        e e e 2 e e c e c c c . . . . .
+        . c c c c c c c . . . . . . . .
+    `),
+    miniMenu.createMenuItem("It's richard! did you forget that?", img`
+        . . . . . . . . . . . 6 6 6 6 6
+        . . . . . . . . . 6 6 7 7 7 7 8
+        . . . . . . 8 8 8 7 7 8 8 6 8 8
+        . . e e e e c 6 6 8 8 . 8 7 8 .
+        . e 2 5 4 2 e c 8 . . . 6 7 8 .
+        e 2 4 2 2 2 2 2 c . . . 6 7 8 .
+        e 2 2 2 2 2 2 2 c . . . 8 6 8 .
+        e 2 e e 2 2 2 2 e e e e c 6 8 .
+        c 2 e e 2 2 2 2 e 2 5 4 2 c 8 .
+        . c 2 e e e 2 e 2 4 2 2 2 2 c .
+        . . c 2 2 2 e e 2 2 2 2 2 2 2 e
+        . . . e c c e c 2 2 2 2 2 2 2 e
+        . . . . . . . c 2 e e 2 2 e 2 c
+        . . . . . . . c e e e e e e 2 c
+        . . . . . . . . c e 2 2 2 2 c .
+        . . . . . . . . . c c c c c . .
+    `),
+    miniMenu.createMenuItem("I mean... I say it at the beginning and end of every stream", img`
+        . . . . . . . e c 7 . . . . . .
+        . . . . e e e c 7 7 e e . . . .
+        . . c e e e e c 7 e 2 2 e e . .
+        . c e e e e e c 6 e e 2 2 2 e .
+        . c e e e 2 e c c 2 4 5 4 2 e .
+        c e e e 2 2 2 2 2 2 4 5 5 2 2 e
+        c e e 2 2 2 2 2 2 2 2 4 4 2 2 e
+        c e e 2 2 2 2 2 2 2 2 2 2 2 2 e
+        c e e 2 2 2 2 2 2 2 2 2 2 2 2 e
+        c e e 2 2 2 2 2 2 2 2 2 2 2 2 e
+        c e e 2 2 2 2 2 2 2 2 2 2 4 2 e
+        . e e e 2 2 2 2 2 2 2 2 2 4 e .
+        . 2 e e 2 2 2 2 2 2 2 2 4 2 e .
+        . . 2 e e 2 2 2 2 2 4 4 2 e . .
+        . . . 2 2 e e 4 4 4 2 e e . . .
+        . . . . . 2 2 e e e e . . . . .
+    `),
+    miniMenu.createMenuItem("pay attention please", img`
+        4 4 4 . . 4 4 4 4 4 . . . . . .
+        4 5 5 4 4 5 5 5 5 5 4 4 . . . .
+        b 4 5 5 1 5 1 1 1 5 5 5 4 . . .
+        . b 5 5 5 5 1 1 5 5 1 1 5 4 . .
+        . b d 5 5 5 5 5 5 5 5 1 1 5 4 .
+        b 4 5 5 5 5 5 5 5 5 5 5 1 5 4 .
+        c d 5 5 5 5 5 5 5 5 5 5 5 5 5 4
+        c d 4 5 5 5 5 5 5 5 5 5 5 1 5 4
+        c 4 5 5 5 d 5 5 5 5 5 5 5 5 5 4
+        c 4 d 5 4 5 d 5 5 5 5 5 5 5 5 4
+        . c 4 5 5 5 5 d d d 5 5 5 5 5 b
+        . c 4 d 5 4 5 d 4 4 d 5 5 5 4 c
+        . . c 4 4 d 4 4 4 4 4 d d 5 d c
+        . . . c 4 4 4 4 4 4 4 4 5 5 5 4
+        . . . . c c b 4 4 4 b b 4 5 4 4
+        . . . . . . c c c c c c b b 4 .
+    `)
+)
+scene.setBackgroundColor(6)
+miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.IconOnly, 1)
+miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Width, 20)
+miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Height, 20)
+// miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Columns, 2)
+miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Rows, 1)
+myMenu.setPosition(140, 90)
+miniMenu.onItemSelected(myMenu, controller.A, function (selection) {
+    myMenu.sayText(selection)
+})

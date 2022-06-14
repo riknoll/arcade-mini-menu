@@ -734,6 +734,10 @@ namespace miniMenu {
                     if (offset < 0) this.targetYScroll = (offset + (this.yScroll | 0));
                     else if (offset > menuHeight - currentHeight) this.targetYScroll = offset + (this.yScroll | 0) + currentHeight - menuHeight;
                     else this.targetYScroll = this.yScroll
+
+                    if (this.targetYScroll !== this.yScroll) {
+                        this.scrollAnimationTick = 0;
+                    }
                 }
 
 
@@ -786,24 +790,28 @@ namespace miniMenu {
             let isSelected: boolean;
 
             const height = this.getHeight();
+            let menuTop = drawTop;
+            let menuHeight = height;
 
-            // if (this.title) {
-            //     currentWidth = this.title.getWidth(this.titleStyle);
-            //     this.title.drawTo(
-            //         drawLeft,
-            //         drawTop,
-            //         screen,
-            //         this.titleStyle,
-            //         width,
-            //         currentWidth,
-            //         true,
-            //         this.titleAnimationTick
-            //     )
-            // }
+            if (this.title) {
+                const titleHeight = this.title.getHeight(this.titleStyle);
+                menuHeight -= titleHeight;
+                menuTop += titleHeight;
+
+                this.title.drawTo(
+                    drawLeft,
+                    drawTop,
+                    screen,
+                    this.titleStyle,
+                    width,
+                    titleHeight,
+                    false,
+                    false,
+                    this.titleAnimationTick
+                )
+            }
 
             let offset = -(this.xScroll | 0);
-            const menuTop = drawTop;
-            const menuHeight = height;
 
             for (let i = 0; i < this.items.length; i++) {
                 current = this.items[i];
@@ -815,6 +823,10 @@ namespace miniMenu {
                     if (offset < 0) this.targetXScroll = (offset + (this.xScroll | 0));
                     else if (offset > width - currentWidth) this.targetXScroll = offset + (this.xScroll | 0) + currentWidth - width;
                     else this.targetXScroll = this.xScroll
+
+                    if (this.targetXScroll !== this.xScroll) {
+                        this.scrollAnimationTick = 0;
+                    }
                 }
 
                 if (offset < -currentWidth || offset >= width) {
@@ -937,7 +949,7 @@ namespace miniMenu {
                 target.drawTransparentImage(
                     printCanvas,
                     left,
-                    top + printCanvas.height - height
+                    top + height - printCanvas.height
                 );
             }
         }
@@ -963,7 +975,7 @@ namespace miniMenu {
                 target.drawTransparentImage(
                     printCanvas,
                     left + width - printCanvas.width,
-                    top + printCanvas.height - height
+                    top + height - printCanvas.height
                 );
             }
         }
