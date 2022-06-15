@@ -325,3 +325,5 @@ myMenu.setPosition(36, 74)
 miniMenu.onItemSelected(myMenu, controller.A, function (selection) {
     myMenu.sayText(selection)
 })
+
+miniMenu.setMenuTitle(myMenu, "title")

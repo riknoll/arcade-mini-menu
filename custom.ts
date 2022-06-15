@@ -357,7 +357,7 @@ namespace miniMenu {
             }
 
             if (scrollTick) {
-                const maxScroll = widthOfText - (textRight - textLeft) + this.font.charWidth;
+                const maxScroll = widthOfText - (textRight - textLeft);
                 const animationLength = (100 + maxScroll + 100) << 2;
 
                 scrollTick = scrollTick % animationLength;
@@ -487,85 +487,35 @@ namespace miniMenu {
         draw(drawLeft: number, drawTop: number) {
             if (!this.items) return;
 
+            const height = this.getHeight();
+            let titleHeight = 0
+
+            if (this.title) {
+                titleHeight = this.title.getHeight(this.titleStyle);
+                const width = this.getWidth();
+                this.title.drawTo(
+                    drawLeft,
+                    drawTop,
+                    screen,
+                    this.titleStyle,
+                    width,
+                    titleHeight,
+                    false,
+                    false,
+                    this.titleAnimationTick,
+                    width,
+                    titleHeight
+                )
+            }
+
             if (this.columns <= 1 && this.rows === 0) {
-                this.drawSingleColumn(drawLeft, drawTop);
-                return;
+                this.drawSingleColumn(drawLeft, drawTop + titleHeight, height - titleHeight);
             }
             else if (this.columns === 0 && this.rows === 1) {
-                this.drawSingleRow(drawLeft, drawTop);
-                return;
+                this.drawSingleRow(drawLeft, drawTop + titleHeight, height - titleHeight);
             }
-
-            const menuTop = drawTop;
-            const menuWidth = this.getWidth();
-            const menuHeight = this.getHeight();
-            const widthPerColumn = (menuWidth / Math.max(this.columns, 1)) | 0;
-            const heightPerRow = (menuHeight / Math.max(this.rows, 1)) | 0;
-
-            let index = 0;
-            let current: MenuItem;
-            let style: Style;
-            let isSelected: boolean;
-
-            let xOffset = -(this.xScroll | 0);
-            let yOffset = -(this.yScroll | 0);
-
-            const totalRows = Math.ceil(this.items.length / this.columns)
-
-            for (let row = 0; row < totalRows; row++) {
-                for (let col = 0; col < this.columns; col ++) {
-                    isSelected = index === this.selectedIndex;
-                    style = isSelected ? this.selectedStyle : this.defaultStyle;
-                    current = this.items[index];
-
-                    if (!current) return;
-
-                    if (isSelected) {
-                        if (yOffset < 0) this.targetYScroll = (yOffset + (this.yScroll | 0));
-                        else if (yOffset > menuHeight - heightPerRow) this.targetYScroll = yOffset + (this.yScroll | 0) + heightPerRow - menuHeight;
-                        else this.targetYScroll = this.yScroll
-
-                        if (xOffset < 0) this.targetXScroll = (xOffset + (this.xScroll | 0));
-                        else if (xOffset > menuWidth - widthPerColumn) this.targetXScroll = xOffset + (this.xScroll | 0) + menuWidth - widthPerColumn;
-                        else this.targetXScroll = this.xScroll
-                    }
-
-                    if (yOffset < 0) {
-                        current.drawTo(
-                            drawLeft + xOffset,
-                            menuTop + yOffset,
-                            screen,
-                            style,
-                            widthPerColumn,
-                            heightPerRow + yOffset,
-                            true,
-                            false,
-                            isSelected ? this.scrollAnimationTick : 0,
-                            widthPerColumn,
-                            heightPerRow
-                        )
-                    }
-                    else {
-                        current.drawTo(
-                            drawLeft + xOffset,
-                            menuTop + yOffset,
-                            screen,
-                            style,
-                            widthPerColumn,
-                            Math.min(heightPerRow, menuHeight - yOffset),
-                            false,
-                            false,
-                            isSelected ? this.scrollAnimationTick : 0,
-                            widthPerColumn,
-                            heightPerRow
-                        )
-                    }
-
-                    xOffset += widthPerColumn;
-                    index ++;
-                }
-                xOffset = -this.xScroll
-                yOffset += heightPerRow;
+            else {
+                this.drawGrid(drawLeft, drawTop + titleHeight, height - titleHeight)
             }
         }
 
@@ -724,7 +674,7 @@ namespace miniMenu {
             }
         }
 
-        protected drawSingleColumn(drawLeft: number, drawTop: number) {
+        protected drawSingleColumn(drawLeft: number, drawTop: number, menuHeight: number) {
             if (!this.items) return;
 
             const width = this.getWidth();
@@ -734,27 +684,7 @@ namespace miniMenu {
             let style: Style;
             let isSelected: boolean;
 
-            const height = this.getHeight();
-
-            if (this.title) {
-                currentHeight = this.title.getHeight(this.titleStyle);
-                this.title.drawTo(
-                    drawLeft,
-                    drawTop,
-                    screen,
-                    this.titleStyle,
-                    width,
-                    currentHeight,
-                    true,
-                    false,
-                    this.titleAnimationTick,
-                    this.width
-                )
-            }
-
             let offset = -(this.yScroll | 0);
-            const menuTop = drawTop + currentHeight;
-            const menuHeight = height - currentHeight;
 
             for (let i = 0; i < this.items.length; i++) {
                 current = this.items[i];
@@ -781,7 +711,7 @@ namespace miniMenu {
                 if (offset < 0) {
                     current.drawTo(
                         drawLeft,
-                        menuTop + offset,
+                        drawTop + offset,
                         screen,
                         style,
                         width,
@@ -795,7 +725,7 @@ namespace miniMenu {
                 else {
                     current.drawTo(
                         drawLeft,
-                        menuTop + offset,
+                        drawTop + offset,
                         screen,
                         style,
                         width,
@@ -811,7 +741,7 @@ namespace miniMenu {
             }
         }
 
-        protected drawSingleRow(drawLeft: number, drawTop: number) {
+        protected drawSingleRow(drawLeft: number, drawTop: number, menuHeight: number) {
             if (!this.items) return;
 
             const width = this.getWidth();
@@ -820,28 +750,6 @@ namespace miniMenu {
             let currentWidth = 0;
             let style: Style;
             let isSelected: boolean;
-
-            const height = this.getHeight();
-            let menuTop = drawTop;
-            let menuHeight = height;
-
-            if (this.title) {
-                const titleHeight = this.title.getHeight(this.titleStyle);
-                menuHeight -= titleHeight;
-                menuTop += titleHeight;
-
-                this.title.drawTo(
-                    drawLeft,
-                    drawTop,
-                    screen,
-                    this.titleStyle,
-                    width,
-                    titleHeight,
-                    false,
-                    false,
-                    this.titleAnimationTick
-                )
-            }
 
             let offset = -(this.xScroll | 0);
 
@@ -869,7 +777,7 @@ namespace miniMenu {
                 if (offset < 0) {
                     current.drawTo(
                         drawLeft + offset,
-                        menuTop,
+                        drawTop,
                         screen,
                         style,
                         currentWidth + offset,
@@ -878,13 +786,13 @@ namespace miniMenu {
                         true,
                         isSelected ? this.scrollAnimationTick : 0,
                         this.width,
-                        height
+                        menuHeight
                     )
                 }
                 else {
                     current.drawTo(
                         drawLeft + offset,
-                        menuTop,
+                        drawTop,
                         screen,
                         style,
                         Math.min(currentWidth, width - offset),
@@ -893,11 +801,86 @@ namespace miniMenu {
                         false,
                         isSelected ? this.scrollAnimationTick : 0,
                         this.width,
-                        height
+                        menuHeight
                     )
                 }
 
                 offset += currentWidth;
+            }
+        }
+
+        drawGrid(drawLeft: number, drawTop: number, menuHeight: number) {
+            if (!this.items) return;
+
+            const menuTop = drawTop;
+            const menuWidth = this.getWidth();
+            const widthPerColumn = (menuWidth / Math.max(this.columns, 1)) | 0;
+            const heightPerRow = (menuHeight / Math.max(this.rows, 1)) | 0;
+
+            let index = 0;
+            let current: MenuItem;
+            let style: Style;
+            let isSelected: boolean;
+
+            let xOffset = -(this.xScroll | 0);
+            let yOffset = -(this.yScroll | 0);
+
+            const totalRows = Math.ceil(this.items.length / this.columns)
+
+            for (let row = 0; row < totalRows; row++) {
+                for (let col = 0; col < this.columns; col++) {
+                    isSelected = index === this.selectedIndex;
+                    style = isSelected ? this.selectedStyle : this.defaultStyle;
+                    current = this.items[index];
+
+                    if (!current) return;
+
+                    if (isSelected) {
+                        if (yOffset < 0) this.targetYScroll = (yOffset + (this.yScroll | 0));
+                        else if (yOffset > menuHeight - heightPerRow) this.targetYScroll = yOffset + (this.yScroll | 0) + heightPerRow - menuHeight;
+                        else this.targetYScroll = this.yScroll
+
+                        if (xOffset < 0) this.targetXScroll = (xOffset + (this.xScroll | 0));
+                        else if (xOffset > menuWidth - widthPerColumn) this.targetXScroll = xOffset + (this.xScroll | 0) + menuWidth - widthPerColumn;
+                        else this.targetXScroll = this.xScroll
+                    }
+
+                    if (yOffset < 0) {
+                        current.drawTo(
+                            drawLeft + xOffset,
+                            menuTop + yOffset,
+                            screen,
+                            style,
+                            widthPerColumn,
+                            heightPerRow + yOffset,
+                            true,
+                            false,
+                            isSelected ? this.scrollAnimationTick : 0,
+                            widthPerColumn,
+                            heightPerRow
+                        )
+                    }
+                    else {
+                        current.drawTo(
+                            drawLeft + xOffset,
+                            menuTop + yOffset,
+                            screen,
+                            style,
+                            widthPerColumn,
+                            Math.min(heightPerRow, menuHeight - yOffset),
+                            false,
+                            false,
+                            isSelected ? this.scrollAnimationTick : 0,
+                            widthPerColumn,
+                            heightPerRow
+                        )
+                    }
+
+                    xOffset += widthPerColumn;
+                    index++;
+                }
+                xOffset = -this.xScroll
+                yOffset += heightPerRow;
             }
         }
 
