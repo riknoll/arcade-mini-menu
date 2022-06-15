@@ -320,10 +320,14 @@ miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Height, 40)
 miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Columns, 2)
 miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Rows, 2)
 // miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.Padding, 1)
-// miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.BorderColor, 15)
+miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.BorderColor, 15)
+miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.Border, miniMenu.packMargin(0, 1, 2, 3))
 myMenu.setPosition(36, 74)
 miniMenu.onItemSelected(myMenu, controller.A, function (selection) {
     myMenu.sayText(selection)
 })
 
-miniMenu.setMenuTitle(myMenu, "title")
+// miniMenu.setMenuTitle(myMenu, "title")
+
+let testMargin = miniMenu.packMargin(0, 1, 2, 3);
+console.log(`${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Left)} ${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Up)} ${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Right)} ${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Down)}`)

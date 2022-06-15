@@ -51,14 +51,12 @@ namespace miniMenu {
         Background,
         //% block="border color"
         BorderColor,
-        //% block="border width"
-        BorderWidth,
+        //% block="border"
+        Border,
         //% block="border radius"
         BorderRadius,
-        //% block="vertical margin"
-        VerticalMargin,
-        //% block="horizontal margin"
-        HorizontalMargin,
+        //% block="margin"
+        Margin,
         //% block="icon padding"
         IconPadding,
         //% block="alignment"
@@ -115,10 +113,9 @@ namespace miniMenu {
         foreground: number;
         background: number;
         borderColor: number;
-        borderWidth: number;
+        border: number;
         borderRadius: number;
-        verticalMargin: number;
-        horizontalMargin: number;
+        margin: number;
         iconPadding: number;
         iconOnly: number;
         alignment: Alignment;
@@ -128,10 +125,9 @@ namespace miniMenu {
             this.foreground = 1;
             this.background = 15;
             this.borderColor = 1;
-            this.borderWidth = 0;
+            this.border = 0;
             this.borderRadius = 0;
-            this.verticalMargin = 0;
-            this.horizontalMargin = 0;
+            this.margin = 0;
             this.iconPadding = 0;
             this.iconOnly = 0;
             this.alignment = Alignment.Left
@@ -143,10 +139,10 @@ namespace miniMenu {
             res.foreground = this.foreground;
             res.background = this.background;
             res.borderColor = this.borderColor;
-            res.borderWidth = this.borderWidth;
+            res.border = this.border;
             res.borderRadius = this.borderRadius;
-            res.verticalMargin = this.verticalMargin;
-            res.horizontalMargin = this.horizontalMargin;
+            res.margin = this.margin;
+            res.margin = this.margin;
             res.iconPadding = this.iconPadding;
             res.alignment = this.alignment;
             return res;
@@ -166,17 +162,14 @@ namespace miniMenu {
                 case StyleProperty.BorderColor:
                     this.borderColor = value;
                     break;
-                case StyleProperty.BorderWidth:
-                    this.borderWidth = value;
+                case StyleProperty.Border:
+                    this.border = value;
                     break;
                 case StyleProperty.BorderRadius:
                     this.borderRadius = value;
                     break;
-                case StyleProperty.VerticalMargin:
-                    this.verticalMargin = value;
-                    break;
-                case StyleProperty.HorizontalMargin:
-                    this.horizontalMargin = value;
+                case StyleProperty.Margin:
+                    this.margin = value;
                     break;
                 case StyleProperty.IconPadding:
                     this.iconPadding = value;
@@ -213,14 +206,33 @@ namespace miniMenu {
         }
 
         getHeight(style: Style) {
-            return this.contentHeight + (style.padding << 1) + (style.verticalMargin << 1) + (style.borderWidth << 1);
+            return this.contentHeight +
+                unpackMargin(style.padding, MoveDirection.Up) +
+                unpackMargin(style.padding, MoveDirection.Down) +
+                unpackMargin(style.margin, MoveDirection.Up) +
+                unpackMargin(style.margin, MoveDirection.Down) +
+                unpackMargin(style.border, MoveDirection.Up) +
+                unpackMargin(style.border, MoveDirection.Down);
         }
 
         getWidth(style: Style) {
             if (style.iconOnly) {
-                return (this.icon ? this.icon.width : 0) + (style.padding << 1) + (style.horizontalMargin << 1) + (style.borderWidth << 1)
+                return (this.icon ? this.icon.width : 0) +
+                    unpackMargin(style.padding, MoveDirection.Left) +
+                    unpackMargin(style.padding, MoveDirection.Right) +
+                    unpackMargin(style.margin, MoveDirection.Left) +
+                    unpackMargin(style.margin, MoveDirection.Right) +
+                    unpackMargin(style.border, MoveDirection.Left) +
+                    unpackMargin(style.border, MoveDirection.Right);
             }
-            return this.contentWidth + (style.padding << 1) + (style.horizontalMargin << 1) + (style.borderWidth << 1) + (this.icon ? style.iconPadding : 0);
+            return this.contentWidth +
+                unpackMargin(style.padding, MoveDirection.Left) +
+                unpackMargin(style.padding, MoveDirection.Right) +
+                unpackMargin(style.margin, MoveDirection.Left) +
+                unpackMargin(style.margin, MoveDirection.Right) +
+                unpackMargin(style.border, MoveDirection.Left) +
+                unpackMargin(style.border, MoveDirection.Right)
+                 + (this.icon ? style.iconPadding : 0);
         }
 
         drawTo(left: number, top: number, target: Image, style: Style, width: number, height: number, cutTop: boolean, cutLeft: boolean, scrollTick: number, maxWidth = 0, maxHeight = 0) {
@@ -236,15 +248,15 @@ namespace miniMenu {
 
             const widthOfText = this.font.charWidth * this.text.length;
 
-            let borderLeft = left + style.horizontalMargin;
-            let borderTop = top + style.verticalMargin;
-            let borderRight = left + maxWidth - style.horizontalMargin;
-            let borderBottom = top + maxHeight - style.verticalMargin;
+            let borderLeft = left + unpackMargin(style.margin, MoveDirection.Left);
+            let borderTop = top + unpackMargin(style.margin, MoveDirection.Up);
+            let borderRight = left + maxWidth - unpackMargin(style.margin, MoveDirection.Right);
+            let borderBottom = top + maxHeight - unpackMargin(style.margin, MoveDirection.Down);
 
-            let contentLeft = borderLeft + style.borderWidth + style.padding;
-            let contentTop = borderTop + style.borderWidth + style.padding;
-            let contentRight = left + maxWidth - style.horizontalMargin - style.borderWidth - style.padding;
-            let contentBottom = top + maxHeight - style.verticalMargin - style.borderWidth - style.padding;
+            let contentLeft = borderLeft + unpackMargin(style.border, MoveDirection.Left) + unpackMargin(style.padding, MoveDirection.Left);
+            let contentTop = borderTop + unpackMargin(style.border, MoveDirection.Up) + unpackMargin(style.padding, MoveDirection.Up);
+            let contentRight = borderRight - unpackMargin(style.border, MoveDirection.Right) - unpackMargin(style.padding, MoveDirection.Right);
+            let contentBottom = borderBottom - unpackMargin(style.border, MoveDirection.Down) - unpackMargin(style.padding, MoveDirection.Down);
 
             let textLeft: number;
             let textTop = contentTop + ((contentBottom - contentTop) >> 1) - (this.font.charHeight >> 1);
@@ -334,10 +346,10 @@ namespace miniMenu {
 
             fillRegion(
                 target,
-                Math.max(borderLeft + style.borderWidth, cutoffLeft),
-                Math.max(borderTop + style.borderWidth, cutoffTop),
-                Math.min(borderRight - style.borderWidth, cutoffRight),
-                Math.min(borderBottom - style.borderWidth, cutoffBottom),
+                Math.max(borderLeft + unpackMargin(style.border, MoveDirection.Left), cutoffLeft),
+                Math.max(borderTop + unpackMargin(style.border, MoveDirection.Up), cutoffTop),
+                Math.min(borderRight - unpackMargin(style.border, MoveDirection.Right), cutoffRight),
+                Math.min(borderBottom - unpackMargin(style.border, MoveDirection.Down), cutoffBottom),
                 style.background
             );
 
@@ -1165,8 +1177,6 @@ namespace miniMenu {
 
         const charLeft = left - scroll + (startCharacter + visibleCharacters - 1) * font.charWidth;
 
-        console.log(`${charLeft} ${right}`)
-
         printCanvas.fill(0);
         printCanvas.print(
             text.charAt(startCharacter + visibleCharacters - 1),
@@ -1180,5 +1190,28 @@ namespace miniMenu {
             right - printCanvas.width,
             top
         )
+    }
+
+    export function unpackMargin(margin: number, direction: MoveDirection) {
+        if (margin < 0xff) {
+            return margin;
+        }
+
+        switch (direction) {
+            case MoveDirection.Up:
+                return (margin & 0xff) - 1
+            case MoveDirection.Right:
+                return ((margin >> 8) & 0xff) - 1
+            case MoveDirection.Down:
+                return ((margin >> 16) & 0xff) - 1
+            case MoveDirection.Left:
+                return ((margin >> 24) & 0xff) - 1
+        }
+
+        return margin;
+    }
+
+    export function packMargin(left: number, top: number, right: number, bottom: number) {
+        return ((top + 1) & 0xff) | (((right + 1) & 0xff) << 8) | (((bottom + 1) & 0xff) << 16) | (((left + 1) & 0xff) << 24)
     }
 }
