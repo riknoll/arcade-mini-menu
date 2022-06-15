@@ -60,63 +60,6 @@ namespace miniMenu {
         return m;
     }
 
-    //% blockId=mini_menu_on_button_pressed
-    //% block="$menu on $button pressed with $selection"
-    //% menu.shadow=variables_get
-    //% menu.defl=myMenu
-    //% handlerStatement
-    //% draggableParameters=reporter
-    export function onItemSelected(menu: MenuSprite, button: controller.Button, handler: (selection: string) => void) {
-        menu.onButtonEvent(button, handler);
-    }
-
-    //% blockId=mini_menu_set_style_property
-    //% block="set $kind style for $menu $property to $value"
-    //% menu.shadow=variables_get
-    //% menu.defl=myMenu
-    //% inlineInputMode=inline
-    export function setStyleProperty(menu: MenuSprite, kind: StyleKind, property: StyleProperty, value: number) {
-        switch (kind) {
-            case StyleKind.Default:
-                menu.defaultStyle.setProperty(property, value);
-                break;
-            case StyleKind.Selected:
-                menu.selectedStyle.setProperty(property, value);
-                break;
-            case StyleKind.Title:
-                menu.titleStyle.setProperty(property, value);
-                break;
-            case StyleKind.DefaultAndSelected:
-                menu.defaultStyle.setProperty(property, value);
-                menu.selectedStyle.setProperty(property, value);
-                break;
-            case StyleKind.All:
-                menu.defaultStyle.setProperty(property, value);
-                menu.selectedStyle.setProperty(property, value);
-                menu.titleStyle.setProperty(property, value);
-                break;
-        }
-    }
-
-    //% blockId=mini_menu_set_menu_style_property
-    //% block="set menu style for $menu $property to $value"
-    //% menu.shadow=variables_get
-    //% menu.defl=myMenu
-    //% inlineInputMode=inline
-    export function setMenuStyleProperty(menu: MenuSprite, property: MenuStyleProperty, value: number) {
-        menu.setProperty(property, value);
-    }
-
-    //% blockId=mini_menu_set_menu_title
-    //% block="set $menu title to $title"
-    //% menu.shadow=variables_get
-    //% menu.defl=myMenu
-    //% title.defl="title"
-    //% inlineInputMode=inline
-    export function setMenuTitle(menu: MenuSprite, title: string) {
-        menu.title = new miniMenu.MenuItem(title, undefined);
-    }
-
     //% blockId=mini_menu_move_direction
     //% block="$move"
     //% shim=TD_ID

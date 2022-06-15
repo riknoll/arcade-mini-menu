@@ -709,6 +709,63 @@ namespace miniMenu {
             this.destroy();
         }
 
+        //% blockId=mini_menu_on_button_pressed
+        //% block="$this on $button pressed with $selection"
+        //% this.shadow=variables_get
+        //% this.defl=myMenu
+        //% handlerStatement
+        //% draggableParameters=reporter
+        onItemSelected(button: controller.Button, handler: (selection: string) => void) {
+            this.onButtonEvent(button, handler);
+        }
+
+        //% blockId=mini_menu_set_style_property
+        //% block="set $kind style for $this $property to $value"
+        //% this.shadow=variables_get
+        //% this.defl=myMenu
+        //% inlineInputMode=inline
+        setStyleProperty(kind: StyleKind, property: StyleProperty, value: number) {
+            switch (kind) {
+                case StyleKind.Default:
+                    this.defaultStyle.setProperty(property, value);
+                    break;
+                case StyleKind.Selected:
+                    this.selectedStyle.setProperty(property, value);
+                    break;
+                case StyleKind.Title:
+                    this.titleStyle.setProperty(property, value);
+                    break;
+                case StyleKind.DefaultAndSelected:
+                    this.defaultStyle.setProperty(property, value);
+                    this.selectedStyle.setProperty(property, value);
+                    break;
+                case StyleKind.All:
+                    this.defaultStyle.setProperty(property, value);
+                    this.selectedStyle.setProperty(property, value);
+                    this.titleStyle.setProperty(property, value);
+                    break;
+            }
+        }
+
+        //% blockId=mini_menu_set_menu_style_property
+        //% block="set menu style for $menu $property to $value"
+        //% menu.shadow=variables_get
+        //% menu.defl=myMenu
+        //% inlineInputMode=inline
+        setMenuStyleProperty(property: MenuStyleProperty, value: number) {
+            this.setProperty(property, value);
+        }
+
+        //% blockId=mini_menu_set_menu_title
+        //% block="set $this title to $title"
+        //% this.shadow=variables_get
+        //% this.defl=myMenu
+        //% title.defl="title"
+        //% inlineInputMode=inline
+        setTitle(title: string) {
+            this.title = new miniMenu.MenuItem(title, undefined);
+        }
+
         fireButtonEvent(button: controller.Button) {
             if (!this.buttonEventsEnabled) return;
 

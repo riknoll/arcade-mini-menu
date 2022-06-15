@@ -41,16 +41,16 @@ let myMenu = miniMenu.createMenu(
     miniMenu.createMenuItem("pay attention please")
 )
 scene.setBackgroundColor(6)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Width, 80)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Height, 20)
-// miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Columns, 2)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Rows, 1)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Width, 80)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(36, 10)
-miniMenu.onItemSelected(myMenu, controller.A, function (selection) {
+myMenu.onItemSelected(controller.A, function (selection) {
     myMenu.sayText(selection)
 })
-// miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.Selected, miniMenu.StyleProperty.BorderColor, 9)
-// miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.Selected, miniMenu.StyleProperty.BorderWidth, 4)
+// myMenu.setStyleProperty(miniMenu.StyleKind.Selected, miniMenu.StyleProperty.BorderColor, 9)
+// myMenu.setStyleProperty(miniMenu.StyleKind.Selected, miniMenu.StyleProperty.BorderWidth, 4)
 
 myMenu = miniMenu.createMenu(
     miniMenu.createMenuItem("Hello my name is not lucas", img`
@@ -93,12 +93,12 @@ myMenu = miniMenu.createMenu(
     miniMenu.createMenuItem("pay attention please")
 )
 scene.setBackgroundColor(6)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Width, 80)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Height, 40)
-// miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Columns, 2)
-// miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Rows, 1)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Width, 80)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 40)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(36, 32)
-miniMenu.onItemSelected(myMenu, controller.A, function (selection) {
+myMenu.onItemSelected(controller.A, function (selection) {
     myMenu.sayText(selection)
 })
 
@@ -177,13 +177,13 @@ myMenu = miniMenu.createMenu(
     `)
 )
 scene.setBackgroundColor(6)
-miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.IconOnly, 1)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Width, 20)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Height, 20)
-// miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Columns, 2)
-// miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Rows, 1)
+myMenu.setStyleProperty(miniMenu.StyleKind.All, miniMenu.StyleProperty.IconOnly, 1)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Width, 20)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(140, 60)
-miniMenu.onItemSelected(myMenu, controller.A, function (selection) {
+myMenu.onItemSelected(controller.A, function (selection) {
     myMenu.sayText(selection)
 })
 
@@ -262,13 +262,13 @@ myMenu = miniMenu.createMenu(
     `)
 )
 scene.setBackgroundColor(6)
-miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.IconOnly, 1)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Width, 20)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Height, 20)
-// miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Columns, 2)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Rows, 1)
+myMenu.setStyleProperty(miniMenu.StyleKind.All, miniMenu.StyleProperty.IconOnly, 1)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Width, 20)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(140, 90)
-miniMenu.onItemSelected(myMenu, controller.A, function (selection) {
+myMenu.onItemSelected(controller.A, function (selection) {
     myMenu.sayText(selection)
 })
 
@@ -315,24 +315,24 @@ myMenu = miniMenu.createMenu(
     // miniMenu.createMenuItem("hi")
 )
 scene.setBackgroundColor(6)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Width, 80)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Height, 40)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Columns, 2)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Rows, 2)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.BorderColor, 2)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Border, miniMenu.packMargin(1, 2, 3, 4))
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Padding, miniMenu.packMargin(1, 2, 3, 4))
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.BackgroundColor, 3)
-miniMenu.setMenuStyleProperty(myMenu, miniMenu.MenuStyleProperty.Rows, 2)
-// miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.Padding, 1)
-// miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.BorderColor, 15)
-// miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.Border, miniMenu.packMargin(0, 1, 2, 3))
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Width, 80)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 40)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 2)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.BorderColor, 2)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Border, miniMenu.packMargin(1, 2, 3, 4))
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Padding, miniMenu.packMargin(1, 2, 3, 4))
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.BackgroundColor, 3)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 2)
+// myMenu.setStyleProperty(miniMenu.StyleKind.All, miniMenu.StyleProperty.Padding, 1)
+// myMenu.setStyleProperty(miniMenu.StyleKind.All, miniMenu.StyleProperty.BorderColor, 15)
+// myMenu.setStyleProperty(miniMenu.StyleKind.All, miniMenu.StyleProperty.Border, miniMenu.packMargin(0, 1, 2, 3))
 myMenu.setPosition(36, 74)
-miniMenu.onItemSelected(myMenu, controller.A, function (selection) {
+myMenu.onItemSelected(controller.A, function (selection) {
     myMenu.sayText(selection)
 })
 
-// miniMenu.setMenuTitle(myMenu, "title")
+// myMenu.setMenuTitle("title")
 
 let testMargin = miniMenu.packMargin(0, 1, 2, 3);
 console.log(`${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Left)} ${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Up)} ${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Right)} ${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Down)}`)
