@@ -463,6 +463,7 @@ namespace miniMenu {
         infiniteScroll: boolean;
 
         protected buttonHandlers: any;
+        protected itemSelectedHandler: (value: string) => void;
 
         constructor() {
             super(img`.`, SpriteKind.MiniMenu);
@@ -642,6 +643,8 @@ namespace miniMenu {
         moveSelection(direction: number) {
             if (this.items.length === 0) return;
 
+            let oldSelection = this.selectedIndex;
+
             if (this.columns <= 1 && this.rows === 0) {
                 if (direction === MoveDirection.Up) {
                     this.selectedIndex = (this.selectedIndex + this.items.length - 1) % this.items.length;
@@ -701,6 +704,10 @@ namespace miniMenu {
                 this.selectedIndex = column + row * this.columns
                 this.scrollAnimationTick = 0
             }
+
+            if (this.itemSelectedHandler && oldSelection !== this.selectedIndex) {
+                this.itemSelectedHandler(this.items[this.selectedIndex].text);
+            }
         }
 
         //% blockId=mini_menu_sprite_close_menu
@@ -720,8 +727,20 @@ namespace miniMenu {
         //% draggableParameters=reporter
         //% group="Controls"
         //% weight=100
-        onItemSelected(button: controller.Button, handler: (selection: string) => void) {
+        onButtonPressed(button: controller.Button, handler: (selection: string) => void) {
             this.onButtonEvent(button, handler);
+        }
+
+        //% blockId=mini_menu_on_selection_changed
+        //% block="$this on selection changed $selection"
+        //% this.shadow=variables_get
+        //% this.defl=myMenu
+        //% handlerStatement
+        //% draggableParameters=reporter
+        //% group="Controls"
+        //% weight=90
+        onSelectionChanged(handler: (selection: string) => void) {
+            this.itemSelectedHandler = handler;
         }
 
         //% blockId=mini_menu_set_style_property

@@ -46,7 +46,7 @@ myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
 myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(36, 10)
-myMenu.onItemSelected(controller.A, function (selection) {
+myMenu.onButtonPressed(controller.A, function (selection) {
     myMenu.sayText(selection)
 })
 // myMenu.setStyleProperty(miniMenu.StyleKind.Selected, miniMenu.StyleProperty.BorderColor, 9)
@@ -98,7 +98,7 @@ myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 40)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(36, 32)
-myMenu.onItemSelected(controller.A, function (selection) {
+myMenu.onButtonPressed(controller.A, function (selection) {
     myMenu.sayText(selection)
 })
 
@@ -183,7 +183,7 @@ myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(140, 60)
-myMenu.onItemSelected(controller.A, function (selection) {
+myMenu.onButtonPressed(controller.A, function (selection) {
     myMenu.sayText(selection)
 })
 
@@ -268,7 +268,7 @@ myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
 myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(140, 90)
-myMenu.onItemSelected(controller.A, function (selection) {
+myMenu.onButtonPressed(controller.A, function (selection) {
     myMenu.sayText(selection)
 })
 
@@ -328,7 +328,7 @@ myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 2)
 // myMenu.setStyleProperty(miniMenu.StyleKind.All, miniMenu.StyleProperty.BorderColor, 15)
 // myMenu.setStyleProperty(miniMenu.StyleKind.All, miniMenu.StyleProperty.Border, miniMenu.packMargin(0, 1, 2, 3))
 myMenu.setPosition(36, 74)
-myMenu.onItemSelected(controller.A, function (selection) {
+myMenu.onButtonPressed(controller.A, function (selection) {
     myMenu.sayText(selection)
 })
 
