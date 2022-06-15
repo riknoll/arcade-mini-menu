@@ -17,7 +17,7 @@ namespace miniMenu {
         constructor() {
             this.defaultStyle = new Style();
 
-            this.defaultStyle.iconPadding = 8;
+            this.defaultStyle.iconTextSpacing = 8;
             this.defaultStyle.padding = 2;
             this.defaultStyle.foreground = 15;
             this.defaultStyle.background = 1;
@@ -57,8 +57,8 @@ namespace miniMenu {
         BorderRadius,
         //% block="margin"
         Margin,
-        //% block="icon padding"
-        IconPadding,
+        //% block="icon-text spacing"
+        IconTextSpacing,
         //% block="alignment"
         Alignment,
         //% block="icon only"
@@ -70,18 +70,20 @@ namespace miniMenu {
         Width,
         //% block="height"
         Height,
+        //% block="border"
+        Border,
         //% block="border color"
         BorderColor,
-        //% block="border width"
-        BorderWidth,
+        //% block="padding"
+        Padding,
+        //% block="background color"
+        BackgroundColor,
         //% block="scroll speed"
         ScrollSpeed,
         //% block="rows"
         Rows,
         //% block="columns"
-        Columns,
-        //% block="infinite scroll",
-        InfiniteScroll
+        Columns
     }
 
     export enum StyleKind {
@@ -116,7 +118,7 @@ namespace miniMenu {
         border: number;
         borderRadius: number;
         margin: number;
-        iconPadding: number;
+        iconTextSpacing: number;
         iconOnly: number;
         alignment: Alignment;
 
@@ -128,7 +130,7 @@ namespace miniMenu {
             this.border = 0;
             this.borderRadius = 0;
             this.margin = 0;
-            this.iconPadding = 0;
+            this.iconTextSpacing = 0;
             this.iconOnly = 0;
             this.alignment = Alignment.Left
         }
@@ -143,7 +145,7 @@ namespace miniMenu {
             res.borderRadius = this.borderRadius;
             res.margin = this.margin;
             res.margin = this.margin;
-            res.iconPadding = this.iconPadding;
+            res.iconTextSpacing = this.iconTextSpacing;
             res.alignment = this.alignment;
             return res;
         }
@@ -171,8 +173,8 @@ namespace miniMenu {
                 case StyleProperty.Margin:
                     this.margin = value;
                     break;
-                case StyleProperty.IconPadding:
-                    this.iconPadding = value;
+                case StyleProperty.IconTextSpacing:
+                    this.iconTextSpacing = value;
                     break;
                 case StyleProperty.Alignment:
                     this.alignment = value;
@@ -232,7 +234,7 @@ namespace miniMenu {
                 unpackMargin(style.margin, MoveDirection.Right) +
                 unpackMargin(style.border, MoveDirection.Left) +
                 unpackMargin(style.border, MoveDirection.Right)
-                 + (this.icon ? style.iconPadding : 0);
+                 + (this.icon ? style.iconTextSpacing : 0);
         }
 
         drawTo(left: number, top: number, target: Image, style: Style, width: number, height: number, cutTop: boolean, cutLeft: boolean, scrollTick: number, maxWidth = 0, maxHeight = 0) {
@@ -306,12 +308,12 @@ namespace miniMenu {
                         iconLeft = contentLeft + ((contentRight - contentLeft) >> 1) - (this.icon.width >> 1);
                     }
                 }
-                else if (style.alignment !== Alignment.Left && this.icon.width + widthOfText + style.iconPadding < contentRight - contentLeft) {
+                else if (style.alignment !== Alignment.Left && this.icon.width + widthOfText + style.iconTextSpacing < contentRight - contentLeft) {
                     if (style.alignment === Alignment.Right) {
-                        iconLeft = contentRight - widthOfText - style.iconPadding - this.icon.width;
+                        iconLeft = contentRight - widthOfText - style.iconTextSpacing - this.icon.width;
                     }
                     else {
-                        iconLeft = contentLeft + ((contentRight - contentLeft) >> 1) - ((this.icon.width + widthOfText + style.iconPadding) >> 1);
+                        iconLeft = contentLeft + ((contentRight - contentLeft) >> 1) - ((this.icon.width + widthOfText + style.iconTextSpacing) >> 1);
                     }
                 }
                 else {
@@ -319,7 +321,7 @@ namespace miniMenu {
                 }
 
                 iconRight = iconLeft + this.icon.width;
-                textLeft = iconRight + style.iconPadding;
+                textLeft = iconRight + style.iconTextSpacing;
             }
             else if (style.alignment !== Alignment.Left && widthOfText < (contentRight - contentLeft)) {
                 if (style.alignment === Alignment.Right) {
@@ -455,6 +457,12 @@ namespace miniMenu {
         scrollSpeed: number;
         columns: number;
         rows: number;
+
+        border: number;
+        borderColor: number;
+        padding: number;
+        backgroundColor: number;
+
         infiniteScroll: boolean;
 
         protected buttonHandlers: any;
@@ -486,6 +494,10 @@ namespace miniMenu {
             this.scrollSpeed = 150;
             this.columns = 0;
             this.rows = 0;
+            this.backgroundColor = 0;
+            this.border = 0;
+            this.padding = 0;
+            this.borderColor = 0;
         }
 
         get width(): number {
@@ -499,35 +511,84 @@ namespace miniMenu {
         draw(drawLeft: number, drawTop: number) {
             if (!this.items) return;
 
+            const width = this.getWidth();
             const height = this.getHeight();
             let titleHeight = 0
 
-            if (this.title) {
-                titleHeight = this.title.getHeight(this.titleStyle);
-                const width = this.getWidth();
-                this.title.drawTo(
+            if (this.borderColor) {
+                fillRegion(
+                    screen,
                     drawLeft,
                     drawTop,
+                    drawLeft + width,
+                    drawTop + height,
+                    this.borderColor
+                )
+            }
+
+            if (this.backgroundColor) {
+                fillRegion(
+                    screen,
+                    drawLeft + unpackMargin(this.border, MoveDirection.Left),
+                    drawTop + unpackMargin(this.border, MoveDirection.Up),
+                    drawLeft + width - unpackMargin(this.border, MoveDirection.Right),
+                    drawTop + height - unpackMargin(this.border, MoveDirection.Down),
+                    this.backgroundColor
+                )
+            }
+
+            const contentWidth = width - 
+                unpackMargin(this.border, MoveDirection.Left) -
+                unpackMargin(this.border, MoveDirection.Right) -
+                unpackMargin(this.padding, MoveDirection.Left) -
+                unpackMargin(this.padding, MoveDirection.Right);
+            const contentHeight = height -
+                unpackMargin(this.border, MoveDirection.Up) -
+                unpackMargin(this.border, MoveDirection.Down) -
+                unpackMargin(this.padding, MoveDirection.Up) -
+                unpackMargin(this.padding, MoveDirection.Down);
+
+
+            if (this.title) {
+                titleHeight = this.title.getHeight(this.titleStyle);
+                this.title.drawTo(
+                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left),
+                    drawTop + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up),
                     screen,
                     this.titleStyle,
-                    width,
-                    titleHeight,
+                    contentWidth,
+                    Math.min(titleHeight, contentHeight),
                     false,
                     false,
                     this.titleAnimationTick,
-                    width,
+                    contentWidth,
                     titleHeight
                 )
             }
 
             if (this.columns <= 1 && this.rows === 0) {
-                this.drawSingleColumn(drawLeft, drawTop + titleHeight, height - titleHeight);
+                this.drawSingleColumn(
+                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left),
+                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up),
+                    contentWidth,
+                    contentHeight - titleHeight
+                );
             }
             else if (this.columns === 0 && this.rows === 1) {
-                this.drawSingleRow(drawLeft, drawTop + titleHeight, height - titleHeight);
+                this.drawSingleRow(
+                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left),
+                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up),
+                    contentWidth,
+                    contentHeight - titleHeight
+                );
             }
             else {
-                this.drawGrid(drawLeft, drawTop + titleHeight, height - titleHeight)
+                this.drawGrid(
+                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left),
+                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up),
+                    contentWidth,
+                    contentHeight - titleHeight
+                );
             }
         }
 
@@ -559,7 +620,6 @@ namespace miniMenu {
 
             if (this.scrollAnimationTick < 0) this.scrollAnimationTick = 0
             if (this.titleAnimationTick < 0) this.titleAnimationTick = 0
-
         }
 
         setMenuItems(items: MenuItem[]) {
@@ -680,13 +740,22 @@ namespace miniMenu {
                 case MenuStyleProperty.Rows:
                     this.rows = Math.max(value | 0, 0);
                     break;
-                case MenuStyleProperty.InfiniteScroll:
-                    this.infiniteScroll = !!value;
+                case MenuStyleProperty.Border:
+                    this.border = value | 0;
+                    break;
+                case MenuStyleProperty.Padding:
+                    this.padding = value | 0;
+                    break;
+                case MenuStyleProperty.BorderColor:
+                    this.borderColor = value | 0;
+                    break;
+                case MenuStyleProperty.BackgroundColor:
+                    this.backgroundColor = value | 0;
                     break;
             }
         }
 
-        protected drawSingleColumn(drawLeft: number, drawTop: number, menuHeight: number) {
+        protected drawSingleColumn(drawLeft: number, drawTop: number, menuWidth: number, menuHeight: number) {
             if (!this.items) return;
 
             const width = this.getWidth();
@@ -753,10 +822,8 @@ namespace miniMenu {
             }
         }
 
-        protected drawSingleRow(drawLeft: number, drawTop: number, menuHeight: number) {
+        protected drawSingleRow(drawLeft: number, drawTop: number, menuWidth: number, menuHeight: number) {
             if (!this.items) return;
-
-            const width = this.getWidth();
 
             let current: MenuItem;
             let currentWidth = 0;
@@ -769,11 +836,11 @@ namespace miniMenu {
                 current = this.items[i];
                 isSelected = this.selectedIndex === i
                 style = isSelected ? this.selectedStyle : this.defaultStyle;
-                currentWidth = Math.min(current.getWidth(style), width);
+                currentWidth = Math.min(current.getWidth(style), menuWidth);
 
                 if (isSelected) {
                     if (offset < 0) this.targetXScroll = (offset + (this.xScroll | 0));
-                    else if (offset > width - currentWidth) this.targetXScroll = offset + (this.xScroll | 0) + currentWidth - width;
+                    else if (offset > menuWidth - currentWidth) this.targetXScroll = offset + (this.xScroll | 0) + currentWidth - menuWidth;
                     else this.targetXScroll = this.xScroll
 
                     if (this.targetXScroll !== this.xScroll) {
@@ -781,7 +848,7 @@ namespace miniMenu {
                     }
                 }
 
-                if (offset < -currentWidth || offset >= width) {
+                if (offset < -currentWidth || offset >= menuWidth) {
                     offset += currentWidth;
                     continue;
                 }
@@ -807,7 +874,7 @@ namespace miniMenu {
                         drawTop,
                         screen,
                         style,
-                        Math.min(currentWidth, width - offset),
+                        Math.min(currentWidth, menuWidth - offset),
                         menuHeight,
                         false,
                         false,
@@ -821,11 +888,10 @@ namespace miniMenu {
             }
         }
 
-        drawGrid(drawLeft: number, drawTop: number, menuHeight: number) {
+        drawGrid(drawLeft: number, drawTop: number, menuWidth: number, menuHeight: number) {
             if (!this.items) return;
 
             const menuTop = drawTop;
-            const menuWidth = this.getWidth();
             const widthPerColumn = (menuWidth / Math.max(this.columns, 1)) | 0;
             const heightPerRow = (menuHeight / Math.max(this.rows, 1)) | 0;
 
@@ -910,7 +976,11 @@ namespace miniMenu {
                 max = Math.max(current.getWidth(style), max);
             }
 
-            return max;
+            return max +
+                unpackMargin(this.border, MoveDirection.Left) +
+                unpackMargin(this.border, MoveDirection.Right) +
+                unpackMargin(this.padding, MoveDirection.Left) +
+                unpackMargin(this.padding, MoveDirection.Right)
         }
 
         protected getHeight() {
@@ -927,7 +997,11 @@ namespace miniMenu {
                 sum += current.getHeight(style)
             }
 
-            return sum;
+            return sum +
+                unpackMargin(this.border, MoveDirection.Up) +
+                unpackMargin(this.border, MoveDirection.Down) +
+                unpackMargin(this.padding, MoveDirection.Up) +
+                unpackMargin(this.padding, MoveDirection.Down)
         }
     }
 
