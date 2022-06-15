@@ -3,9 +3,6 @@ namespace SpriteKind {
     export const MiniMenu = SpriteKind.create();
 }
 
-//% icon="\uf0c9"
-//% color="#36b58b"
-//% block="Mini Menu"
 namespace miniMenu {
     let stateStack: MiniMenuState[];
     let printCanvas: Image;
@@ -630,6 +627,8 @@ namespace miniMenu {
         //% block="$this set button events enabled $enabled"
         //% this.defl=myMenu
         //% enable.shadow=toggleOnOff
+        //% group="Controls"
+        //% weight=80
         setButtonEventsEnabled(enabled: boolean) {
             this.buttonEventsEnabled = enabled;
         }
@@ -638,6 +637,8 @@ namespace miniMenu {
         //% block="$this move selection $direction"
         //% this.defl=myMenu
         //% direction.shadow=mini_menu_move_direction
+        //% group="Controls"
+        //% weight=90
         moveSelection(direction: number) {
             if (this.items.length === 0) return;
 
@@ -705,6 +706,8 @@ namespace miniMenu {
         //% blockId=mini_menu_sprite_close_menu
         //% block="close $this"
         //% this.defl=myMenu
+        //% group="Create"
+        //% weight=30
         close() {
             this.destroy();
         }
@@ -715,15 +718,19 @@ namespace miniMenu {
         //% this.defl=myMenu
         //% handlerStatement
         //% draggableParameters=reporter
+        //% group="Controls"
+        //% weight=100
         onItemSelected(button: controller.Button, handler: (selection: string) => void) {
             this.onButtonEvent(button, handler);
         }
 
         //% blockId=mini_menu_set_style_property
-        //% block="set $kind style for $this $property to $value"
+        //% block="set $kind item style for $this $property to $value"
         //% this.shadow=variables_get
         //% this.defl=myMenu
         //% inlineInputMode=inline
+        //% group="Styling"
+        //% weight=50
         setStyleProperty(kind: StyleKind, property: StyleProperty, value: number) {
             switch (kind) {
                 case StyleKind.Default:
@@ -748,40 +755,14 @@ namespace miniMenu {
         }
 
         //% blockId=mini_menu_set_menu_style_property
-        //% block="set menu style for $menu $property to $value"
-        //% menu.shadow=variables_get
-        //% menu.defl=myMenu
-        //% inlineInputMode=inline
-        setMenuStyleProperty(property: MenuStyleProperty, value: number) {
-            this.setProperty(property, value);
-        }
-
-        //% blockId=mini_menu_set_menu_title
-        //% block="set $this title to $title"
+        //% block="set menu style for $this $property to $value"
         //% this.shadow=variables_get
         //% this.defl=myMenu
-        //% title.defl="title"
         //% inlineInputMode=inline
-        setTitle(title: string) {
-            this.title = new miniMenu.MenuItem(title, undefined);
-        }
-
-        fireButtonEvent(button: controller.Button) {
-            if (!this.buttonEventsEnabled) return;
-
-            const handler = this.buttonHandlers[button.id];
-
-            if (handler && this.items.length) {
-                handler(this.items[this.selectedIndex].text);
-            }
-        }
-
-        onButtonEvent(button: controller.Button, handler: (text: string) => void) {
-            this.buttonHandlers[button.id] = handler;
-        }
-
-        setProperty(style: MenuStyleProperty, value: number) {
-            switch (style) {
+        //% group="Styling"
+        //% weight=100
+        setMenuStyleProperty(property: MenuStyleProperty, value: number) {
+            switch (property) {
                 case MenuStyleProperty.Width:
                     this.customWidth = value;
                     break;
@@ -810,6 +791,32 @@ namespace miniMenu {
                     this.backgroundColor = value | 0;
                     break;
             }
+        }
+
+        //% blockId=mini_menu_set_menu_title
+        //% block="set $this title to $title"
+        //% this.shadow=variables_get
+        //% this.defl=myMenu
+        //% title.defl="title"
+        //% inlineInputMode=inline
+        //% group="Create"
+        //% weight=20
+        setTitle(title: string) {
+            this.title = new miniMenu.MenuItem(title, undefined);
+        }
+
+        fireButtonEvent(button: controller.Button) {
+            if (!this.buttonEventsEnabled) return;
+
+            const handler = this.buttonHandlers[button.id];
+
+            if (handler && this.items.length) {
+                handler(this.items[this.selectedIndex].text);
+            }
+        }
+
+        onButtonEvent(button: controller.Button, handler: (text: string) => void) {
+            this.buttonHandlers[button.id] = handler;
         }
 
         protected drawSingleColumn(drawLeft: number, drawTop: number, menuWidth: number, menuHeight: number) {
