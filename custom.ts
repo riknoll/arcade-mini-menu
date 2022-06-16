@@ -25,7 +25,7 @@ namespace miniMenu {
 
             for (const button of [controller.up, controller.right, controller.down, controller.menu, controller.left, controller.A, controller.B]) {
                 button.addEventListener(ControllerButtonEvent.Pressed, () => {
-                    for (const sprite of sprites.allOfKind(SpriteKind.MiniMenu)) {
+                    for (const sprite of sprites.allOfKind(SpriteKind.MiniMenu).filter(buttonEventsEnabled)) {
                         (sprite as MenuSprite).fireButtonEvent(button);
                     }
                 })
@@ -334,23 +334,27 @@ namespace miniMenu {
 
             textRight = Math.min(textLeft + widthOfText, contentRight);
 
-            fillRegion(
-                target,
-                Math.max(borderLeft, cutoffLeft),
-                Math.max(borderTop, cutoffTop),
-                Math.min(borderRight, cutoffRight),
-                Math.min(borderBottom, cutoffBottom),
-                style.borderColor
-            );
+            if (style.borderColor) {
+                fillRegion(
+                    target,
+                    Math.max(borderLeft, cutoffLeft),
+                    Math.max(borderTop, cutoffTop),
+                    Math.min(borderRight, cutoffRight),
+                    Math.min(borderBottom, cutoffBottom),
+                    style.borderColor
+                );
+            }
 
-            fillRegion(
-                target,
-                Math.max(borderLeft + unpackMargin(style.border, MoveDirection.Left), cutoffLeft),
-                Math.max(borderTop + unpackMargin(style.border, MoveDirection.Up), cutoffTop),
-                Math.min(borderRight - unpackMargin(style.border, MoveDirection.Right), cutoffRight),
-                Math.min(borderBottom - unpackMargin(style.border, MoveDirection.Down), cutoffBottom),
-                style.background
-            );
+            if (style.background) {
+                fillRegion(
+                    target,
+                    Math.max(borderLeft + unpackMargin(style.border, MoveDirection.Left), cutoffLeft),
+                    Math.max(borderTop + unpackMargin(style.border, MoveDirection.Up), cutoffTop),
+                    Math.min(borderRight - unpackMargin(style.border, MoveDirection.Right), cutoffRight),
+                    Math.min(borderBottom - unpackMargin(style.border, MoveDirection.Down), cutoffBottom),
+                    style.background
+                );
+            }
 
             if (this.icon) {
                 drawImageInRect(
@@ -824,6 +828,20 @@ namespace miniMenu {
             this.title = new miniMenu.MenuItem(title, undefined);
         }
 
+        //% blockId=mini_menu_set_menu_dimensions
+        //% block="set $this width $width height $height"
+        //% this.shadow=variables_get
+        //% this.defl=myMenu
+        //% width.defl=100
+        //% height.defl=100
+        //% inlineInputMode=inline
+        //% group="Create"
+        //% weight=30
+        setDimensions(width: number, height: number) {
+            this.setMenuStyleProperty(MenuStyleProperty.Width, width);
+            this.setMenuStyleProperty(MenuStyleProperty.Height, height);
+        }
+
         fireButtonEvent(button: controller.Button) {
             if (!this.buttonEventsEnabled) return;
 
@@ -1048,18 +1066,35 @@ namespace miniMenu {
         protected getWidth() {
             if (this.customWidth !== undefined) return this.customWidth;
 
-            let max = 0;
-
+            let contentWidth: number;
             let current: MenuItem;
             let style: Style;
 
-            for (let i = 0; i < this.items.length; i++) {
-                current = this.items[i];
-                style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
-                max = Math.max(current.getWidth(style), max);
+            if (this.columns <= 1 && this.rows === 0) {
+                for (let i = 0; i < this.items.length; i++) {
+                    current = this.items[i];
+                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    contentWidth = Math.max(current.getWidth(style), contentWidth);
+                }
+
+            }
+            else if (this.columns === 0 && this.rows === 1) {
+                for (let i = 0; i < this.items.length; i++) {
+                    current = this.items[i];
+                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    contentWidth += current.getWidth(style)
+                }
+            }
+            else {
+                for (let i = 0; i < this.items.length; i++) {
+                    current = this.items[i];
+                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    contentWidth = Math.max(current.getWidth(style), contentWidth);
+                }
+                contentWidth *= this.columns;
             }
 
-            return max +
+            return contentWidth +
                 unpackMargin(this.border, MoveDirection.Left) +
                 unpackMargin(this.border, MoveDirection.Right) +
                 unpackMargin(this.padding, MoveDirection.Left) +
@@ -1069,18 +1104,35 @@ namespace miniMenu {
         protected getHeight() {
             if (this.customHeight !== undefined) return this.customHeight;
 
-            let sum = 0;
-
+            let contentHeight = 0;
             let current: MenuItem;
             let style: Style;
 
-            for (let i = 0; i < this.items.length; i++) {
-                current = this.items[i];
-                style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
-                sum += current.getHeight(style)
+            if (this.columns <= 1 && this.rows === 0) {
+                for (let i = 0; i < this.items.length; i++) {
+                    current = this.items[i];
+                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    contentHeight += current.getHeight(style)
+                }
+
+            }
+            else if (this.columns === 0 && this.rows === 1) {
+                for (let i = 0; i < this.items.length; i++) {
+                    current = this.items[i];
+                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    contentHeight = Math.max(current.getHeight(style), contentHeight)
+                }
+            }
+            else {
+                for (let i = 0; i < this.items.length; i++) {
+                    current = this.items[i];
+                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    contentHeight = Math.max(current.getHeight(style), contentHeight)
+                }
+                contentHeight *= this.rows;
             }
 
-            return sum +
+            return contentHeight +
                 unpackMargin(this.border, MoveDirection.Up) +
                 unpackMargin(this.border, MoveDirection.Down) +
                 unpackMargin(this.padding, MoveDirection.Up) +
@@ -1370,5 +1422,9 @@ namespace miniMenu {
 
     export function packMargin(left: number, top: number, right: number, bottom: number) {
         return ((top + 1) & 0xff) | (((right + 1) & 0xff) << 8) | (((bottom + 1) & 0xff) << 16) | (((left + 1) & 0xff) << 24)
+    }
+
+    function buttonEventsEnabled(sprite: Sprite) {
+        return !!((sprite as MenuSprite).buttonEventsEnabled)
     }
 }

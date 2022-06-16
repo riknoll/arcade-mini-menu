@@ -69,6 +69,26 @@ namespace miniMenu {
         return m;
     }
 
+    //% blockId=mini_menu_create_menu_from_array
+    //% block="create menu sprite from $items"
+    //% blockSetVariable=myMenu
+    //% items.shadow=lists_create_with
+    //% items.defl=mini_menu_create_menu_item
+    //% group="Create"
+    //% weight=99
+    export function createMenuFromArray(
+        items: MenuItem[]
+    ) {
+        _init();
+
+        const m = new MenuSprite();
+        // FIXME: slice here?
+        m.setMenuItems(items);
+        m.setButtonEventsEnabled(true);
+
+        return m;
+    }
+
     //% blockId=mini_menu_move_direction
     //% block="$move"
     //% shim=TD_ID
