@@ -1066,7 +1066,7 @@ namespace miniMenu {
         protected getWidth() {
             if (this.customWidth !== undefined) return this.customWidth;
 
-            let contentWidth: number;
+            let contentWidth = 0;
             let current: MenuItem;
             let style: Style;
 

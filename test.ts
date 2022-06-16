@@ -335,7 +335,6 @@ myMenu.onButtonPressed(controller.A, function (selection) {
 // myMenu.setMenuTitle("title")
 
 let testMargin = miniMenu.packMargin(0, 1, 2, 3);
-console.log(`${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Left)} ${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Up)} ${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Right)} ${miniMenu.unpackMargin(testMargin, miniMenu.MoveDirection.Down)}`)
 
 
 myMenu = miniMenu.createMenu(
@@ -347,6 +346,6 @@ myMenu = miniMenu.createMenu(
     miniMenu.createMenuItem("Friday"),
     miniMenu.createMenuItem("Saturday")
 )
-myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
-myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
-myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Width, 100)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Width, 100)
