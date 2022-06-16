@@ -50,8 +50,6 @@ namespace miniMenu {
         BorderColor,
         //% block="border"
         Border,
-        //% block="border radius"
-        BorderRadius,
         //% block="margin"
         Margin,
         //% block="icon-text spacing"
@@ -113,7 +111,6 @@ namespace miniMenu {
         background: number;
         borderColor: number;
         border: number;
-        borderRadius: number;
         margin: number;
         iconTextSpacing: number;
         iconOnly: number;
@@ -125,7 +122,6 @@ namespace miniMenu {
             this.background = 15;
             this.borderColor = 1;
             this.border = 0;
-            this.borderRadius = 0;
             this.margin = 0;
             this.iconTextSpacing = 0;
             this.iconOnly = 0;
@@ -139,7 +135,6 @@ namespace miniMenu {
             res.background = this.background;
             res.borderColor = this.borderColor;
             res.border = this.border;
-            res.borderRadius = this.borderRadius;
             res.margin = this.margin;
             res.margin = this.margin;
             res.iconTextSpacing = this.iconTextSpacing;
@@ -164,9 +159,6 @@ namespace miniMenu {
                 case StyleProperty.Border:
                     this.border = value;
                     break;
-                case StyleProperty.BorderRadius:
-                    this.borderRadius = value;
-                    break;
                 case StyleProperty.Margin:
                     this.margin = value;
                     break;
@@ -184,54 +176,50 @@ namespace miniMenu {
     }
 
     export class MenuItem {
-        contentHeight: number;
-        contentWidth: number;
         font: image.Font;
 
         constructor(public text: string, public icon: Image) {
             this.font = image.getFontForText(text);
-            this.font.charHeight = image.getFontForText(text).charHeight;
-            this.font.charWidth = image.getFontForText(text).charWidth;
-
-            this.contentHeight = Math.max(
-                this.font.charHeight,
-                icon ? icon.height : 0
-            )
-
-            this.contentWidth = image.getFontForText(text).charWidth * text.length;
-            if (icon) {
-                this.contentWidth += icon.width;
-            }
         }
 
         getHeight(style: Style) {
-            return this.contentHeight +
+            const allPadding =
                 unpackMargin(style.padding, MoveDirection.Up) +
                 unpackMargin(style.padding, MoveDirection.Down) +
                 unpackMargin(style.margin, MoveDirection.Up) +
                 unpackMargin(style.margin, MoveDirection.Down) +
                 unpackMargin(style.border, MoveDirection.Up) +
                 unpackMargin(style.border, MoveDirection.Down);
+
+            if (style.iconOnly) {
+                return (this.icon ? this.icon.height : 0) + allPadding
+            }
+            else if (this.icon) {
+                return Math.max(this.icon.height, this.font.charHeight) + allPadding;
+            }
+            else {
+                return this.font.charHeight + allPadding
+            }
         }
 
         getWidth(style: Style) {
-            if (style.iconOnly) {
-                return (this.icon ? this.icon.width : 0) +
-                    unpackMargin(style.padding, MoveDirection.Left) +
-                    unpackMargin(style.padding, MoveDirection.Right) +
-                    unpackMargin(style.margin, MoveDirection.Left) +
-                    unpackMargin(style.margin, MoveDirection.Right) +
-                    unpackMargin(style.border, MoveDirection.Left) +
-                    unpackMargin(style.border, MoveDirection.Right);
-            }
-            return this.contentWidth +
+            const allPadding =
                 unpackMargin(style.padding, MoveDirection.Left) +
                 unpackMargin(style.padding, MoveDirection.Right) +
                 unpackMargin(style.margin, MoveDirection.Left) +
                 unpackMargin(style.margin, MoveDirection.Right) +
                 unpackMargin(style.border, MoveDirection.Left) +
-                unpackMargin(style.border, MoveDirection.Right)
-                 + (this.icon ? style.iconTextSpacing : 0);
+                unpackMargin(style.border, MoveDirection.Right);
+            
+            if (style.iconOnly) {
+                return (this.icon ? this.icon.width : 0) + allPadding
+            }
+            else if (this.icon) {
+                return this.icon.width + style.iconTextSpacing + this.text.length * this.font.charWidth + allPadding;
+            }
+            else {
+                return this.text.length * this.font.charWidth + allPadding
+            }
         }
 
         drawTo(left: number, top: number, target: Image, style: Style, width: number, height: number, cutTop: boolean, cutLeft: boolean, scrollTick: number, maxWidth = 0, maxHeight = 0) {
