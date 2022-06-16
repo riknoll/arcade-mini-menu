@@ -947,7 +947,7 @@ namespace miniMenu {
                         false,
                         true,
                         isSelected ? this.scrollAnimationTick : 0,
-                        this.width,
+                        currentWidth,
                         menuHeight
                     )
                 }
@@ -962,7 +962,7 @@ namespace miniMenu {
                         false,
                         false,
                         isSelected ? this.scrollAnimationTick : 0,
-                        this.width,
+                        currentWidth,
                         menuHeight
                     )
                 }
