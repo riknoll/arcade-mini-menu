@@ -349,3 +349,25 @@ myMenu = miniMenu.createMenu(
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Width, 100)
+
+myMenu.setFrame(img`
+    . . . . a a a a a a a . . . .
+    . . a a a a a a a a a a a . .
+    . a a a a a a a a a a a a a .
+    a a a a a c c c c c a a a a .
+    a a a a c 1 1 1 1 1 c a a a a
+    a a a c 1 1 1 1 1 1 1 a a a a
+    a a a c 1 1 1 1 1 1 1 a a a a
+    a a a c 1 1 1 1 1 1 1 a a a a
+    a a a c 1 1 1 1 1 1 1 a a a a
+    a a a c 1 1 1 1 1 1 1 a a a a
+    a a a a a 1 1 1 1 1 a a a a a
+    a a a a a a a a a a a a a a a
+    . a a a a a a a a a a a a a .
+    . . a a a a a a a a a a a . .
+    . . . a a a a a a a a a . . .
+`)
+
+
+
+myMenu.top = 20

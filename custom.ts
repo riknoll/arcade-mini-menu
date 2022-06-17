@@ -6,6 +6,9 @@ namespace SpriteKind {
 namespace miniMenu {
     let stateStack: MiniMenuState[];
     let printCanvas: Image;
+    let frameCanvas: Image;
+
+    const FRAME_WIDTH = 5;
 
     class MiniMenuState {
         defaultStyle: Style;
@@ -453,6 +456,7 @@ namespace miniMenu {
         backgroundColor: number;
 
         infiniteScroll: boolean;
+        frame: Image;
 
         protected buttonHandlers: any;
         protected itemSelectedHandler: (value: string) => void;
@@ -504,14 +508,26 @@ namespace miniMenu {
             const width = this.getWidth();
             const height = this.getHeight();
             let titleHeight = 0
+            let frameWidth = this.frame ? FRAME_WIDTH : 0;
+
+            if (this.frame) {
+                drawFrame(
+                    screen,
+                    this.frame,
+                    drawLeft,
+                    drawTop,
+                    drawLeft + width,
+                    drawTop + height
+                );
+            }
 
             if (this.borderColor) {
                 fillRegion(
                     screen,
-                    drawLeft,
-                    drawTop,
-                    drawLeft + width,
-                    drawTop + height,
+                    drawLeft + frameWidth,
+                    drawTop + frameWidth,
+                    drawLeft + width - frameWidth ,
+                    drawTop + height - frameWidth,
                     this.borderColor
                 )
             }
@@ -519,10 +535,10 @@ namespace miniMenu {
             if (this.backgroundColor) {
                 fillRegion(
                     screen,
-                    drawLeft + unpackMargin(this.border, MoveDirection.Left),
-                    drawTop + unpackMargin(this.border, MoveDirection.Up),
-                    drawLeft + width - unpackMargin(this.border, MoveDirection.Right),
-                    drawTop + height - unpackMargin(this.border, MoveDirection.Down),
+                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + frameWidth,
+                    drawTop + unpackMargin(this.border, MoveDirection.Up) + frameWidth,
+                    drawLeft + width - unpackMargin(this.border, MoveDirection.Right) - frameWidth,
+                    drawTop + height - unpackMargin(this.border, MoveDirection.Down) - frameWidth,
                     this.backgroundColor
                 )
             }
@@ -531,19 +547,21 @@ namespace miniMenu {
                 unpackMargin(this.border, MoveDirection.Left) -
                 unpackMargin(this.border, MoveDirection.Right) -
                 unpackMargin(this.padding, MoveDirection.Left) -
-                unpackMargin(this.padding, MoveDirection.Right);
+                unpackMargin(this.padding, MoveDirection.Right) -
+                (frameWidth << 1);
             const contentHeight = height -
                 unpackMargin(this.border, MoveDirection.Up) -
                 unpackMargin(this.border, MoveDirection.Down) -
                 unpackMargin(this.padding, MoveDirection.Up) -
-                unpackMargin(this.padding, MoveDirection.Down);
+                unpackMargin(this.padding, MoveDirection.Down) -
+                (frameWidth << 1);
 
 
             if (this.title) {
                 titleHeight = this.title.getHeight(this.titleStyle);
                 this.title.drawTo(
-                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left),
-                    drawTop + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up),
+                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left) + frameWidth,
+                    drawTop + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up) + frameWidth,
                     screen,
                     this.titleStyle,
                     contentWidth,
@@ -558,24 +576,24 @@ namespace miniMenu {
 
             if (this.columns <= 1 && this.rows === 0) {
                 this.drawSingleColumn(
-                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left),
-                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up),
+                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left) + frameWidth,
+                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up) + frameWidth,
                     contentWidth,
                     contentHeight - titleHeight
                 );
             }
             else if (this.columns === 0 && this.rows === 1) {
                 this.drawSingleRow(
-                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left),
-                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up),
+                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left) + frameWidth,
+                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up) + frameWidth,
                     contentWidth,
                     contentHeight - titleHeight
                 );
             }
             else {
                 this.drawGrid(
-                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left),
-                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up),
+                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left) + frameWidth,
+                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up) + frameWidth,
                     contentWidth,
                     contentHeight - titleHeight
                 );
@@ -830,6 +848,26 @@ namespace miniMenu {
             this.setMenuStyleProperty(MenuStyleProperty.Height, height);
         }
 
+
+        //% blockId=mini_menu_set_menu_frame
+        //% block="set $this frame to $frame"
+        //% this.shadow=variables_get
+        //% this.defl=myMenu
+        //% frame.fieldEditor="sprite"
+        //% frame.fieldOptions.taggedTemplate="img"
+        //% frame.fieldOptions.decompileIndirectFixedInstances="true"
+        //% frame.fieldOptions.decompileArgumentAsString="true"
+        //% frame.fieldOptions.filter="dialog"
+        //% frame.fieldOptions.initWidth=15
+        //% frame.fieldOptions.initHeight=15
+        //% frame.fieldOptions.disableResize="true"
+        //% inlineInputMode=inline
+        //% group="Styling"
+        //% weight=100
+        setFrame(frame: Image) {
+            this.frame = frame;
+        }
+
         fireButtonEvent(button: controller.Button) {
             if (!this.buttonEventsEnabled) return;
 
@@ -846,8 +884,6 @@ namespace miniMenu {
 
         protected drawSingleColumn(drawLeft: number, drawTop: number, menuWidth: number, menuHeight: number) {
             if (!this.items) return;
-
-            const width = this.getWidth();
 
             let current: MenuItem;
             let currentHeight = 0;
@@ -884,7 +920,7 @@ namespace miniMenu {
                         drawTop + offset,
                         screen,
                         style,
-                        width,
+                        menuWidth,
                         currentHeight + offset,
                         true,
                         false,
@@ -898,7 +934,7 @@ namespace miniMenu {
                         drawTop + offset,
                         screen,
                         style,
-                        width,
+                        menuWidth,
                         Math.min(currentHeight, menuHeight - offset),
                         false,
                         false,
@@ -1086,7 +1122,8 @@ namespace miniMenu {
                 unpackMargin(this.border, MoveDirection.Left) +
                 unpackMargin(this.border, MoveDirection.Right) +
                 unpackMargin(this.padding, MoveDirection.Left) +
-                unpackMargin(this.padding, MoveDirection.Right)
+                unpackMargin(this.padding, MoveDirection.Right) +
+                (this.frame ? (FRAME_WIDTH << 1) : 0)
         }
 
         protected getHeight() {
@@ -1124,7 +1161,8 @@ namespace miniMenu {
                 unpackMargin(this.border, MoveDirection.Up) +
                 unpackMargin(this.border, MoveDirection.Down) +
                 unpackMargin(this.padding, MoveDirection.Up) +
-                unpackMargin(this.padding, MoveDirection.Down)
+                unpackMargin(this.padding, MoveDirection.Down) +
+                (this.frame ? (FRAME_WIDTH << 1) : 0)
         }
     }
 
@@ -1387,6 +1425,81 @@ namespace miniMenu {
             right - printCanvas.width,
             top
         )
+    }
+
+    export function drawFrame(target: Image, frame: Image, left: number, top: number, right: number, bottom: number) {
+        if (!frameCanvas) frameCanvas = image.create(FRAME_WIDTH, FRAME_WIDTH);
+
+        // top left
+        frameCanvas.fill(0);
+        frameCanvas.drawTransparentImage(frame, 0, 0);
+        target.drawTransparentImage(frameCanvas, left, top);
+
+        // top right
+        frameCanvas.fill(0);
+        frameCanvas.drawTransparentImage(frame, -(FRAME_WIDTH << 1), 0);
+        target.drawTransparentImage(frameCanvas, right - FRAME_WIDTH, top);
+
+        // bottom left
+        frameCanvas.fill(0);
+        frameCanvas.drawTransparentImage(frame, 0, -(FRAME_WIDTH << 1));
+        target.drawTransparentImage(frameCanvas, left, bottom - FRAME_WIDTH);
+
+        // bottom right
+        frameCanvas.fill(0);
+        frameCanvas.drawTransparentImage(frame, -(FRAME_WIDTH << 1), -(FRAME_WIDTH << 1));
+        target.drawTransparentImage(frameCanvas, right - FRAME_WIDTH, bottom - FRAME_WIDTH);
+
+        // left side
+        let visibleSegments = Math.ceil(((bottom - FRAME_WIDTH) - (top + FRAME_WIDTH)) / FRAME_WIDTH);
+        let cutoff = visibleSegments * FRAME_WIDTH - ((bottom - FRAME_WIDTH) - (top + FRAME_WIDTH));
+        
+        frameCanvas.fill(0);
+        frameCanvas.drawTransparentImage(frame, 0, -FRAME_WIDTH);
+
+        for (let i = 0; i < visibleSegments - 1; i++) {
+            target.drawTransparentImage(frameCanvas, left, top + FRAME_WIDTH + (FRAME_WIDTH * i));
+        }
+
+        frameCanvas.fillRect(0, FRAME_WIDTH - cutoff, FRAME_WIDTH, FRAME_WIDTH, 0);
+        target.drawTransparentImage(frameCanvas, left, top + FRAME_WIDTH * visibleSegments);
+
+        // right side
+        frameCanvas.fill(0);
+        frameCanvas.drawTransparentImage(frame, -(FRAME_WIDTH << 1), -FRAME_WIDTH);
+
+        for (let i = 0; i < visibleSegments - 1; i++) {
+            target.drawTransparentImage(frameCanvas, right - FRAME_WIDTH, top + FRAME_WIDTH + (FRAME_WIDTH * i));
+        }
+
+        frameCanvas.fillRect(0, FRAME_WIDTH - cutoff, FRAME_WIDTH, FRAME_WIDTH, 0);
+        target.drawTransparentImage(frameCanvas, right - FRAME_WIDTH, top + FRAME_WIDTH * visibleSegments);
+
+        // top side
+        visibleSegments = Math.ceil(((right - FRAME_WIDTH) - (left + FRAME_WIDTH)) / FRAME_WIDTH);
+        cutoff = visibleSegments * FRAME_WIDTH - ((right - FRAME_WIDTH) - (left + FRAME_WIDTH));
+
+        frameCanvas.fill(0);
+        frameCanvas.drawTransparentImage(frame, -FRAME_WIDTH, 0);
+
+        for (let i = 0; i < visibleSegments - 1; i++) {
+            target.drawTransparentImage(frameCanvas, left + FRAME_WIDTH + (FRAME_WIDTH * i), top);
+        }
+
+        frameCanvas.fillRect(FRAME_WIDTH - cutoff, 0, FRAME_WIDTH, FRAME_WIDTH, 0);
+        target.drawTransparentImage(frameCanvas, left + FRAME_WIDTH * visibleSegments, top);
+
+        // bottom side
+        frameCanvas.fill(0);
+        frameCanvas.drawTransparentImage(frame, -FRAME_WIDTH, -(FRAME_WIDTH << 1));
+
+        for (let i = 0; i < visibleSegments - 1; i++) {
+            target.drawTransparentImage(frameCanvas, left + FRAME_WIDTH + (FRAME_WIDTH * i), bottom - FRAME_WIDTH);
+        }
+
+        frameCanvas.fillRect(FRAME_WIDTH - cutoff, 0, FRAME_WIDTH, FRAME_WIDTH, 0);
+        target.drawTransparentImage(frameCanvas, left + FRAME_WIDTH * visibleSegments, bottom - FRAME_WIDTH);
+
     }
 
     export function unpackMargin(margin: number, direction: MoveDirection) {
