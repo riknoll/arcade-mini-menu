@@ -1,5 +1,5 @@
 {
-    "name": "new menu",
+    "name": "arcade-mini-menu",
     "description": "",
     "dependencies": {
         "device": "*"
