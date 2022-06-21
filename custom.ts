@@ -459,7 +459,7 @@ namespace miniMenu {
         frame: Image;
 
         protected buttonHandlers: any;
-        protected itemSelectedHandler: (value: string) => void;
+        protected itemSelectedHandler: (value: string, selectedIndex: number) => void;
 
         constructor() {
             super(img`.`, SpriteKind.MiniMenu);
@@ -716,7 +716,7 @@ namespace miniMenu {
             }
 
             if (this.itemSelectedHandler && oldSelection !== this.selectedIndex) {
-                this.itemSelectedHandler(this.items[this.selectedIndex].text);
+                this.itemSelectedHandler(this.items[this.selectedIndex].text, this.selectedIndex);
             }
         }
 
@@ -737,25 +737,25 @@ namespace miniMenu {
         //% draggableParameters=reporter
         //% group="Controls"
         //% weight=100
-        onButtonPressed(button: controller.Button, handler: (selection: string) => void) {
+        onButtonPressed(button: controller.Button, handler: (selection: string, selectedIndex: number) => void) {
             this.onButtonEvent(button, handler);
         }
 
         //% blockId=mini_menu_on_selection_changed
-        //% block="$this on selection changed $selection"
+        //% block="$this on selection changed $selection $selectedIndex"
         //% this.shadow=variables_get
         //% this.defl=myMenu
         //% handlerStatement
         //% draggableParameters=reporter
         //% group="Controls"
         //% weight=90
-        onSelectionChanged(handler: (selection: string) => void) {
+        onSelectionChanged(handler: (selection: string, selectedIndex: number) => void) {
             this.itemSelectedHandler = handler;
 
             // This event is often used to display information about the selected item, so
             // run the handler immediately to prevent the user from having to duplicate code
             // for the first selected item
-            if (handler && this.items && this.items.length) handler(this.items[this.selectedIndex].text);
+            if (handler && this.items && this.items.length) handler(this.items[this.selectedIndex].text, this.selectedIndex);
         }
 
         //% blockId=mini_menu_set_style_property
@@ -879,11 +879,11 @@ namespace miniMenu {
             const handler = this.buttonHandlers[button.id];
 
             if (handler && this.items.length) {
-                handler(this.items[this.selectedIndex].text);
+                handler(this.items[this.selectedIndex].text, this.selectedIndex);
             }
         }
 
-        onButtonEvent(button: controller.Button, handler: (text: string) => void) {
+        onButtonEvent(button: controller.Button, handler: (text: string, selectedIndex: number) => void) {
             this.buttonHandlers[button.id] = handler;
         }
 
