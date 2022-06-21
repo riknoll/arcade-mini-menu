@@ -751,6 +751,11 @@ namespace miniMenu {
         //% weight=90
         onSelectionChanged(handler: (selection: string) => void) {
             this.itemSelectedHandler = handler;
+
+            // This event is often used to display information about the selected item, so
+            // run the handler immediately to prevent the user from having to duplicate code
+            // for the first selected item
+            if (handler && this.items && this.items.length) handler(this.items[this.selectedIndex].text);
         }
 
         //% blockId=mini_menu_set_style_property
