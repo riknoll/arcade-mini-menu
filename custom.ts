@@ -506,7 +506,7 @@ namespace miniMenu {
             const width = this.getWidth();
             const height = this.getHeight();
             let titleHeight = 0
-            let frameWidth = this.frame ? (this.frame.width / 3) | 0 : 0;
+            let frameWidth = this.frame ? Math.idiv(this.frame.width, 3) : 0;
 
             if (this.frame) {
                 drawFrame(
@@ -1137,7 +1137,7 @@ namespace miniMenu {
                 unpackMargin(this.border, MoveDirection.Right) +
                 unpackMargin(this.padding, MoveDirection.Left) +
                 unpackMargin(this.padding, MoveDirection.Right) +
-                (this.frame ? (((this.frame.width / 3) | 0) << 1) : 0)
+                (this.frame ? (Math.idiv(this.frame.width, 3) << 1) : 0)
         }
 
         protected getHeight() {
@@ -1176,7 +1176,7 @@ namespace miniMenu {
                 unpackMargin(this.border, MoveDirection.Down) +
                 unpackMargin(this.padding, MoveDirection.Up) +
                 unpackMargin(this.padding, MoveDirection.Down) +
-                (this.frame ? (((this.frame.width / 3) | 0) << 1) : 0)
+                (this.frame ? (Math.idiv(this.frame.width, 3) << 1) : 0)
         }
     }
 
@@ -1442,7 +1442,7 @@ namespace miniMenu {
     }
 
     export function drawFrame(target: Image, frame: Image, left: number, top: number, right: number, bottom: number) {
-        const frameWidth = (frame.width / 3) | 0;
+        const frameWidth = Math.idiv(frame.width, 3);
 
         if (!frameCanvas || frameCanvas.width !== frameWidth) frameCanvas = image.create(frameWidth, frameWidth);
 
