@@ -8,8 +8,6 @@ namespace miniMenu {
     let printCanvas: Image;
     let frameCanvas: Image;
 
-    const FRAME_WIDTH = 5;
-
     class MiniMenuState {
         defaultStyle: Style;
         selectedStyle: Style;
@@ -508,7 +506,7 @@ namespace miniMenu {
             const width = this.getWidth();
             const height = this.getHeight();
             let titleHeight = 0
-            let frameWidth = this.frame ? FRAME_WIDTH : 0;
+            let frameWidth = this.frame ? (this.frame.width / 3) | 0 : 0;
 
             if (this.frame) {
                 drawFrame(
@@ -863,19 +861,24 @@ namespace miniMenu {
         //% block="set $this frame to $frame"
         //% this.shadow=variables_get
         //% this.defl=myMenu
-        //% frame.fieldEditor="sprite"
-        //% frame.fieldOptions.taggedTemplate="img"
-        //% frame.fieldOptions.decompileIndirectFixedInstances="true"
-        //% frame.fieldOptions.decompileArgumentAsString="true"
-        //% frame.fieldOptions.filter="dialog"
-        //% frame.fieldOptions.initWidth=15
-        //% frame.fieldOptions.initHeight=15
-        //% frame.fieldOptions.disableResize="true"
+        //% frame.shadow=dialog_image_picker
         //% inlineInputMode=inline
         //% group="Styling"
         //% weight=100
         //% blockGap=8
         setFrame(frame: Image) {
+            if (!frame) {
+                this.frame = frame;
+                return;
+            }
+
+            // For performance reasons, the frame image needs to be at least 12x12
+            if (frame.width !== frame.height || Math.idiv(frame.width, 3) * 3 !== frame.width || frame.width < 12) {
+                const newFrame = image.create(Math.max(frame.width, 12), Math.max(frame.width, 12));
+                newFrame.drawTransparentImage(frame, 0, 0);
+                frame = newFrame;
+            }
+
             this.frame = frame;
         }
 
@@ -1134,7 +1137,7 @@ namespace miniMenu {
                 unpackMargin(this.border, MoveDirection.Right) +
                 unpackMargin(this.padding, MoveDirection.Left) +
                 unpackMargin(this.padding, MoveDirection.Right) +
-                (this.frame ? (FRAME_WIDTH << 1) : 0)
+                (this.frame ? (((this.frame.width / 3) | 0) << 1) : 0)
         }
 
         protected getHeight() {
@@ -1173,7 +1176,7 @@ namespace miniMenu {
                 unpackMargin(this.border, MoveDirection.Down) +
                 unpackMargin(this.padding, MoveDirection.Up) +
                 unpackMargin(this.padding, MoveDirection.Down) +
-                (this.frame ? (FRAME_WIDTH << 1) : 0)
+                (this.frame ? (((this.frame.width / 3) | 0) << 1) : 0)
         }
     }
 
@@ -1439,7 +1442,9 @@ namespace miniMenu {
     }
 
     export function drawFrame(target: Image, frame: Image, left: number, top: number, right: number, bottom: number) {
-        if (!frameCanvas) frameCanvas = image.create(FRAME_WIDTH, FRAME_WIDTH);
+        const frameWidth = (frame.width / 3) | 0;
+
+        if (!frameCanvas || frameCanvas.width !== frameWidth) frameCanvas = image.create(frameWidth, frameWidth);
 
         // top left
         frameCanvas.fill(0);
@@ -1448,68 +1453,68 @@ namespace miniMenu {
 
         // top right
         frameCanvas.fill(0);
-        frameCanvas.drawTransparentImage(frame, -(FRAME_WIDTH << 1), 0);
-        target.drawTransparentImage(frameCanvas, right - FRAME_WIDTH, top);
+        frameCanvas.drawTransparentImage(frame, -(frameWidth << 1), 0);
+        target.drawTransparentImage(frameCanvas, right - frameWidth, top);
 
         // bottom left
         frameCanvas.fill(0);
-        frameCanvas.drawTransparentImage(frame, 0, -(FRAME_WIDTH << 1));
-        target.drawTransparentImage(frameCanvas, left, bottom - FRAME_WIDTH);
+        frameCanvas.drawTransparentImage(frame, 0, -(frameWidth << 1));
+        target.drawTransparentImage(frameCanvas, left, bottom - frameWidth);
 
         // bottom right
         frameCanvas.fill(0);
-        frameCanvas.drawTransparentImage(frame, -(FRAME_WIDTH << 1), -(FRAME_WIDTH << 1));
-        target.drawTransparentImage(frameCanvas, right - FRAME_WIDTH, bottom - FRAME_WIDTH);
+        frameCanvas.drawTransparentImage(frame, -(frameWidth << 1), -(frameWidth << 1));
+        target.drawTransparentImage(frameCanvas, right - frameWidth, bottom - frameWidth);
 
         // left side
-        let visibleSegments = Math.ceil(((bottom - FRAME_WIDTH) - (top + FRAME_WIDTH)) / FRAME_WIDTH);
-        let cutoff = visibleSegments * FRAME_WIDTH - ((bottom - FRAME_WIDTH) - (top + FRAME_WIDTH));
+        let visibleSegments = Math.ceil(((bottom - frameWidth) - (top + frameWidth)) / frameWidth);
+        let cutoff = visibleSegments * frameWidth - ((bottom - frameWidth) - (top + frameWidth));
         
         frameCanvas.fill(0);
-        frameCanvas.drawTransparentImage(frame, 0, -FRAME_WIDTH);
+        frameCanvas.drawTransparentImage(frame, 0, -frameWidth);
 
         for (let i = 0; i < visibleSegments - 1; i++) {
-            target.drawTransparentImage(frameCanvas, left, top + FRAME_WIDTH + (FRAME_WIDTH * i));
+            target.drawTransparentImage(frameCanvas, left, top + frameWidth + (frameWidth * i));
         }
 
-        frameCanvas.fillRect(0, FRAME_WIDTH - cutoff, FRAME_WIDTH, FRAME_WIDTH, 0);
-        target.drawTransparentImage(frameCanvas, left, top + FRAME_WIDTH * visibleSegments);
+        frameCanvas.fillRect(0, frameWidth - cutoff, frameWidth, frameWidth, 0);
+        target.drawTransparentImage(frameCanvas, left, top + frameWidth * visibleSegments);
 
         // right side
         frameCanvas.fill(0);
-        frameCanvas.drawTransparentImage(frame, -(FRAME_WIDTH << 1), -FRAME_WIDTH);
+        frameCanvas.drawTransparentImage(frame, -(frameWidth << 1), -frameWidth);
 
         for (let i = 0; i < visibleSegments - 1; i++) {
-            target.drawTransparentImage(frameCanvas, right - FRAME_WIDTH, top + FRAME_WIDTH + (FRAME_WIDTH * i));
+            target.drawTransparentImage(frameCanvas, right - frameWidth, top + frameWidth + (frameWidth * i));
         }
 
-        frameCanvas.fillRect(0, FRAME_WIDTH - cutoff, FRAME_WIDTH, FRAME_WIDTH, 0);
-        target.drawTransparentImage(frameCanvas, right - FRAME_WIDTH, top + FRAME_WIDTH * visibleSegments);
+        frameCanvas.fillRect(0, frameWidth - cutoff, frameWidth, frameWidth, 0);
+        target.drawTransparentImage(frameCanvas, right - frameWidth, top + frameWidth * visibleSegments);
 
         // top side
-        visibleSegments = Math.ceil(((right - FRAME_WIDTH) - (left + FRAME_WIDTH)) / FRAME_WIDTH);
-        cutoff = visibleSegments * FRAME_WIDTH - ((right - FRAME_WIDTH) - (left + FRAME_WIDTH));
+        visibleSegments = Math.ceil(((right - frameWidth) - (left + frameWidth)) / frameWidth);
+        cutoff = visibleSegments * frameWidth - ((right - frameWidth) - (left + frameWidth));
 
         frameCanvas.fill(0);
-        frameCanvas.drawTransparentImage(frame, -FRAME_WIDTH, 0);
+        frameCanvas.drawTransparentImage(frame, -frameWidth, 0);
 
         for (let i = 0; i < visibleSegments - 1; i++) {
-            target.drawTransparentImage(frameCanvas, left + FRAME_WIDTH + (FRAME_WIDTH * i), top);
+            target.drawTransparentImage(frameCanvas, left + frameWidth + (frameWidth * i), top);
         }
 
-        frameCanvas.fillRect(FRAME_WIDTH - cutoff, 0, FRAME_WIDTH, FRAME_WIDTH, 0);
-        target.drawTransparentImage(frameCanvas, left + FRAME_WIDTH * visibleSegments, top);
+        frameCanvas.fillRect(frameWidth - cutoff, 0, frameWidth, frameWidth, 0);
+        target.drawTransparentImage(frameCanvas, left + frameWidth * visibleSegments, top);
 
         // bottom side
         frameCanvas.fill(0);
-        frameCanvas.drawTransparentImage(frame, -FRAME_WIDTH, -(FRAME_WIDTH << 1));
+        frameCanvas.drawTransparentImage(frame, -frameWidth, -(frameWidth << 1));
 
         for (let i = 0; i < visibleSegments - 1; i++) {
-            target.drawTransparentImage(frameCanvas, left + FRAME_WIDTH + (FRAME_WIDTH * i), bottom - FRAME_WIDTH);
+            target.drawTransparentImage(frameCanvas, left + frameWidth + (frameWidth * i), bottom - frameWidth);
         }
 
-        frameCanvas.fillRect(FRAME_WIDTH - cutoff, 0, FRAME_WIDTH, FRAME_WIDTH, 0);
-        target.drawTransparentImage(frameCanvas, left + FRAME_WIDTH * visibleSegments, bottom - FRAME_WIDTH);
+        frameCanvas.fillRect(frameWidth - cutoff, 0, frameWidth, frameWidth, 0);
+        target.drawTransparentImage(frameCanvas, left + frameWidth * visibleSegments, bottom - frameWidth);
 
     }
 
