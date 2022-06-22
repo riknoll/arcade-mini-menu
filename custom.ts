@@ -640,6 +640,7 @@ namespace miniMenu {
         //% enable.shadow=toggleOnOff
         //% group="Controls"
         //% weight=80
+        //% blockGap=8
         setButtonEventsEnabled(enabled: boolean) {
             this.buttonEventsEnabled = enabled;
         }
@@ -650,6 +651,7 @@ namespace miniMenu {
         //% direction.shadow=mini_menu_move_direction
         //% group="Controls"
         //% weight=90
+        //% blockGap=8
         moveSelection(direction: number) {
             if (this.items.length === 0) return;
 
@@ -724,7 +726,7 @@ namespace miniMenu {
         //% block="close $this"
         //% this.defl=myMenu
         //% group="Create"
-        //% weight=30
+        //% weight=10
         close() {
             this.destroy();
         }
@@ -737,6 +739,7 @@ namespace miniMenu {
         //% draggableParameters=reporter
         //% group="Controls"
         //% weight=100
+        //% blockGap=8
         onButtonPressed(button: controller.Button, handler: (selection: string, selectedIndex: number) => void) {
             this.onButtonEvent(button, handler);
         }
@@ -795,6 +798,7 @@ namespace miniMenu {
         //% inlineInputMode=inline
         //% group="Styling"
         //% weight=100
+        //% blockGap=8
         setMenuStyleProperty(property: MenuStyleProperty, value: number) {
             switch (property) {
                 case MenuStyleProperty.Width:
@@ -848,6 +852,7 @@ namespace miniMenu {
         //% inlineInputMode=inline
         //% group="Create"
         //% weight=30
+        //% blockGap=8
         setDimensions(width: number, height: number) {
             this.setMenuStyleProperty(MenuStyleProperty.Width, width);
             this.setMenuStyleProperty(MenuStyleProperty.Height, height);
@@ -869,6 +874,7 @@ namespace miniMenu {
         //% inlineInputMode=inline
         //% group="Styling"
         //% weight=100
+        //% blockGap=8
         setFrame(frame: Image) {
             this.frame = frame;
         }
