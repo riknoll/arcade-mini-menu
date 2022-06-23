@@ -347,7 +347,9 @@ myMenu = miniMenu.createMenu(
     miniMenu.createMenuItem("Saturday")
 )
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
-// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 40)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Width, 60)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.ScrollIndicatorColor, 2)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Width, 100)
 
 myMenu.setFrame(img`
@@ -371,3 +373,4 @@ myMenu.setFrame(img`
 
 
 myMenu.top = 20
+myMenu.x = 80

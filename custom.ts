@@ -4,6 +4,8 @@ namespace SpriteKind {
 }
 
 namespace miniMenu {
+    const SCROLL_INDICATOR_WIDTH = 7;
+    
     let stateStack: MiniMenuState[];
     let printCanvas: Image;
     let frameCanvas: Image;
@@ -79,7 +81,9 @@ namespace miniMenu {
         //% block="rows"
         Rows,
         //% block="columns"
-        Columns
+        Columns,
+        //% block="scroll indicator"
+        ScrollIndicatorColor
     }
 
     export enum StyleKind {
@@ -453,7 +457,9 @@ namespace miniMenu {
         padding: number;
         backgroundColor: number;
 
-        infiniteScroll: boolean;
+        scrollColor: number;
+
+        maxScroll: number;
         frame: Image;
 
         protected buttonHandlers: any;
@@ -508,14 +514,17 @@ namespace miniMenu {
             let titleHeight = 0
             let frameWidth = this.frame ? Math.idiv(this.frame.width, 3) : 0;
 
+            const scrollWidth = (this.scrollColor ? (this.isVerticalScroll() ? SCROLL_INDICATOR_WIDTH + 1 : 0) : 0);
+            const scrollHeight = (this.scrollColor ? (this.isVerticalScroll() ? 0 : SCROLL_INDICATOR_WIDTH + 1) : 0);
+
             if (this.frame) {
                 drawFrame(
                     screen,
                     this.frame,
                     drawLeft,
                     drawTop,
-                    drawLeft + width,
-                    drawTop + height
+                    drawLeft + width - scrollWidth,
+                    drawTop + height - scrollHeight
                 );
             }
 
@@ -546,13 +555,15 @@ namespace miniMenu {
                 unpackMargin(this.border, MoveDirection.Right) -
                 unpackMargin(this.padding, MoveDirection.Left) -
                 unpackMargin(this.padding, MoveDirection.Right) -
-                (frameWidth << 1);
+                (frameWidth << 1) -
+                scrollWidth;
             const contentHeight = height -
                 unpackMargin(this.border, MoveDirection.Up) -
                 unpackMargin(this.border, MoveDirection.Down) -
                 unpackMargin(this.padding, MoveDirection.Up) -
                 unpackMargin(this.padding, MoveDirection.Down) -
-                (frameWidth << 1);
+                (frameWidth << 1) - 
+                scrollHeight;
 
 
             if (this.title) {
@@ -595,6 +606,51 @@ namespace miniMenu {
                     contentWidth,
                     contentHeight - titleHeight
                 );
+            }
+
+            if (this.scrollColor) {
+                if (this.isVerticalScroll()) {
+                    if (this.targetYScroll >= 1) {
+                        drawScrollIndicator(
+                            screen,
+                            drawTop,
+                            drawLeft + width - SCROLL_INDICATOR_WIDTH,
+                            MoveDirection.Up,
+                            this.scrollColor
+                        )
+                    }
+
+                    if (this.targetYScroll < this.maxScroll - 1) {
+                        drawScrollIndicator(
+                            screen,
+                            drawTop + height - (SCROLL_INDICATOR_WIDTH >> 1) - 1,
+                            drawLeft + width - SCROLL_INDICATOR_WIDTH,
+                            MoveDirection.Down,
+                            this.scrollColor
+                        )
+                    }
+                }
+                else {
+                    if (this.targetXScroll >= 1) {
+                        drawScrollIndicator(
+                            screen,
+                            drawTop + height - SCROLL_INDICATOR_WIDTH,
+                            drawLeft,
+                            MoveDirection.Left,
+                            this.scrollColor
+                        )
+                    }
+
+                    if (this.targetXScroll < this.maxScroll - 1) {
+                        drawScrollIndicator(
+                            screen,
+                            drawTop + height - SCROLL_INDICATOR_WIDTH,
+                            drawLeft + width - (SCROLL_INDICATOR_WIDTH >> 1) - 1,
+                            MoveDirection.Right,
+                            this.scrollColor
+                        )
+                    }
+                }
             }
         }
 
@@ -826,6 +882,9 @@ namespace miniMenu {
                 case MenuStyleProperty.BackgroundColor:
                     this.backgroundColor = value | 0;
                     break;
+                case MenuStyleProperty.ScrollIndicatorColor:
+                    this.scrollColor = value | 0;
+                    break;
             }
         }
 
@@ -959,6 +1018,8 @@ namespace miniMenu {
 
                 offset += currentHeight;
             }
+
+            this.maxScroll = offset + (this.yScroll | 0) - menuHeight;
         }
 
         protected drawSingleRow(drawLeft: number, drawTop: number, menuWidth: number, menuHeight: number) {
@@ -1025,6 +1086,8 @@ namespace miniMenu {
 
                 offset += currentWidth;
             }
+
+            this.maxScroll = offset + (this.xScroll | 0) - menuWidth;
         }
 
         drawGrid(drawLeft: number, drawTop: number, menuWidth: number, menuHeight: number) {
@@ -1099,6 +1162,8 @@ namespace miniMenu {
                 xOffset = -this.xScroll
                 yOffset += heightPerRow;
             }
+
+            this.maxScroll = yOffset + (this.yScroll | 0) - menuHeight;
         }
 
         protected getWidth() {
@@ -1137,7 +1202,8 @@ namespace miniMenu {
                 unpackMargin(this.border, MoveDirection.Right) +
                 unpackMargin(this.padding, MoveDirection.Left) +
                 unpackMargin(this.padding, MoveDirection.Right) +
-                (this.frame ? (Math.idiv(this.frame.width, 3) << 1) : 0)
+                (this.frame ? (Math.idiv(this.frame.width, 3) << 1) : 0) +
+                (this.scrollColor ? (this.isVerticalScroll() ? SCROLL_INDICATOR_WIDTH + 1 : 0) : 0)
         }
 
         protected getHeight() {
@@ -1176,7 +1242,12 @@ namespace miniMenu {
                 unpackMargin(this.border, MoveDirection.Down) +
                 unpackMargin(this.padding, MoveDirection.Up) +
                 unpackMargin(this.padding, MoveDirection.Down) +
-                (this.frame ? (Math.idiv(this.frame.width, 3) << 1) : 0)
+                (this.frame ? (Math.idiv(this.frame.width, 3) << 1) : 0) +
+                (this.scrollColor ? (this.isVerticalScroll() ? 0 : SCROLL_INDICATOR_WIDTH + 1) : 0)
+        }
+
+        protected isVerticalScroll() {
+            return !(this.columns === 0 &&  this.rows === 1);
         }
     }
 
@@ -1541,7 +1612,30 @@ namespace miniMenu {
         return ((top + 1) & 0xff) | (((right + 1) & 0xff) << 8) | (((bottom + 1) & 0xff) << 16) | (((left + 1) & 0xff) << 24)
     }
 
+    export function drawScrollIndicator(target: Image, top: number, left: number, direction: MoveDirection, color: number) {
+        const offset = 4 - Math.idiv(game.runtime() % 1000, 250);
+
+        for (let i = 0; i < 4; i++) {
+            if (direction === MoveDirection.Up) {
+                target.fillRect(left + (3 - i), top + i + offset, 1 + (i << 1), 1, color)
+            }
+            else if (direction === MoveDirection.Down) {
+                target.fillRect(left + i, top + i - offset, 7 - (i << 1), 1, color)
+            }
+            else if (direction === MoveDirection.Left) {
+                target.fillRect(left + i + offset, top + (3 - i), 1, 1 + (i << 1), color)
+            }
+            else {
+                target.fillRect(left + i - offset, top + i, 1, 7 - (i << 1), color)
+            }
+        }
+    }
+
     function buttonEventsEnabled(sprite: Sprite) {
         return !!((sprite as MenuSprite).buttonEventsEnabled)
     }
 }
+
+// game.onShade(() => {
+//     miniMenu.drawScrollIndicator(screen, 10, 10, miniMenu.MoveDirection.Right, 3)
+// })
