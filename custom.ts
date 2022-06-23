@@ -365,7 +365,7 @@ namespace miniMenu {
             }
 
             if (scrollTick) {
-                const maxScroll = widthOfText - (textRight - textLeft);
+                const maxScroll = widthOfText - (Math.min(textRight, cutoffRight) - Math.max(textLeft, cutoffLeft));
                 const animationLength = (100 + maxScroll + 100) << 2;
 
                 scrollTick = scrollTick % animationLength;
@@ -373,9 +373,9 @@ namespace miniMenu {
                 printScrolledText(
                     target,
                     this.text,
-                    textLeft,
+                    Math.max(textLeft, cutoffLeft),
                     textTop,
-                    textRight,
+                    Math.min(textRight, cutoffRight),
                     textBottom,
                     style.foreground,
                     Math.min(Math.max((scrollTick - 100) >> 2, 0), maxScroll),
