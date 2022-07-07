@@ -5,7 +5,7 @@ namespace SpriteKind {
 
 namespace miniMenu {
     const SCROLL_INDICATOR_WIDTH = 7;
-    
+
     let stateStack: MiniMenuState[];
     let printCanvas: Image;
     let frameCanvas: Image;
@@ -215,7 +215,7 @@ namespace miniMenu {
                 unpackMargin(style.margin, MoveDirection.Right) +
                 unpackMargin(style.border, MoveDirection.Left) +
                 unpackMargin(style.border, MoveDirection.Right);
-            
+
             if (style.iconOnly) {
                 return (this.icon ? this.icon.width : 0) + allPadding
             }
@@ -550,7 +550,7 @@ namespace miniMenu {
                 )
             }
 
-            const contentWidth = width - 
+            const contentWidth = width -
                 unpackMargin(this.border, MoveDirection.Left) -
                 unpackMargin(this.border, MoveDirection.Right) -
                 unpackMargin(this.padding, MoveDirection.Left) -
@@ -562,7 +562,7 @@ namespace miniMenu {
                 unpackMargin(this.border, MoveDirection.Down) -
                 unpackMargin(this.padding, MoveDirection.Up) -
                 unpackMargin(this.padding, MoveDirection.Down) -
-                (frameWidth << 1) - 
+                (frameWidth << 1) -
                 scrollHeight;
 
 
@@ -661,7 +661,7 @@ namespace miniMenu {
             else {
                 this.yScroll += (this.targetYScroll - this.yScroll) / 5;
             }
-                        
+
             if (Math.abs(this.xScroll - this.targetXScroll) <= 1) {
                 this.xScroll = this.targetXScroll
             }
@@ -688,6 +688,11 @@ namespace miniMenu {
             this.items = items;
         }
 
+        /**
+         * Sets whether or not button events on this MenuSprite will be fired.
+         *
+         * @param enabled If true, button events are enabled. If false, they are disabled
+         */
         //% blockId=mini_menu_sprite_set_button_events_enabled
         //% block="$this set button events enabled $enabled"
         //% this.defl=myMenu
@@ -695,10 +700,16 @@ namespace miniMenu {
         //% group="Controls"
         //% weight=80
         //% blockGap=8
+        //% help=github:arcade-mini-menu/docs/set-button-events-enabled
         setButtonEventsEnabled(enabled: boolean) {
             this.buttonEventsEnabled = enabled;
         }
 
+        /**
+         * Moves the selection cursor in the MenuSprite in the given direction.
+         *
+         * @param direction The direction to move the cursor in
+         */
         //% blockId=mini_menu_sprite_move_selection_up
         //% block="$this move selection $direction"
         //% this.defl=myMenu
@@ -706,6 +717,7 @@ namespace miniMenu {
         //% group="Controls"
         //% weight=90
         //% blockGap=8
+        //% help=github:arcade-mini-menu/docs/move-selection
         moveSelection(direction: number) {
             if (this.items.length === 0) return;
 
@@ -743,7 +755,7 @@ namespace miniMenu {
 
                 if (direction === MoveDirection.Up) {
                     row = (row + maxRows - 1) % maxRows;
-                    
+
                     if (column + row * this.columns >= this.items.length) {
                         row = maxRows - 2;
                     }
@@ -776,15 +788,25 @@ namespace miniMenu {
             }
         }
 
+        /**
+         * Destroys the MenuSprite. This is exactly the same as using the destroy block in the Sprites category
+         */
         //% blockId=mini_menu_sprite_close_menu
         //% block="close $this"
         //% this.defl=myMenu
         //% group="Create"
         //% weight=10
+        //% help=github:arcade-mini-menu/docs/close
         close() {
             this.destroy();
         }
 
+        /**
+         * Runs some code whenever a button is pressed and the given MenuSprite has not been destroyed. Using this with one of the direction buttons will override the default behavior.
+         *
+         * @param button The button to listen to
+         * @param handler The code to run when the button is pressed
+         */
         //% blockId=mini_menu_on_button_pressed
         //% block="$this on $button pressed with $selection"
         //% this.shadow=variables_get
@@ -794,10 +816,16 @@ namespace miniMenu {
         //% group="Controls"
         //% weight=100
         //% blockGap=8
+        //% help=github:arcade-mini-menu/docs/on-button-pressed
         onButtonPressed(button: controller.Button, handler: (selection: string, selectedIndex: number) => void) {
             this.onButtonEvent(button, handler);
         }
 
+        /**
+         * Runs some code whenever the selection cursor in the specified MenuSprite moves. This will also fire once immediately when this function is called
+         *
+         * @param handler The code to run when the selection changes
+         */
         //% blockId=mini_menu_on_selection_changed
         //% block="$this on selection changed $selection $selectedIndex"
         //% this.shadow=variables_get
@@ -806,6 +834,7 @@ namespace miniMenu {
         //% draggableParameters=reporter
         //% group="Controls"
         //% weight=90
+        //% help=github:arcade-mini-menu/docs/on-selection-changed
         onSelectionChanged(handler: (selection: string, selectedIndex: number) => void) {
             this.itemSelectedHandler = handler;
 
@@ -815,6 +844,13 @@ namespace miniMenu {
             if (handler && this.items && this.items.length) handler(this.items[this.selectedIndex].text, this.selectedIndex);
         }
 
+        /**
+         * Sets a style property for the specified part of the MenuSprite. See the help page for more info on what these properties mean.
+         *
+         * @param kind The part of the MenuSprite to style
+         * @param property The property to set the value of
+         * @param value The value to set the property to
+         */
         //% blockId=mini_menu_set_style_property
         //% block="set $kind item style for $this $property to $value"
         //% this.shadow=variables_get
@@ -822,6 +858,7 @@ namespace miniMenu {
         //% inlineInputMode=inline
         //% group="Styling"
         //% weight=50
+        //% help=github:arcade-mini-menu/docs/set-style-property
         setStyleProperty(kind: StyleKind, property: StyleProperty, value: number) {
             switch (kind) {
                 case StyleKind.Default:
@@ -845,6 +882,12 @@ namespace miniMenu {
             }
         }
 
+        /**
+         * Sets a style property on a MenuSprite. See the help page for more info on what these properties mean.
+         *
+         * @param property The property to set the value of
+         * @param value The value to set the property to
+         */
         //% blockId=mini_menu_set_menu_style_property
         //% block="set menu style for $this $property to $value"
         //% this.shadow=variables_get
@@ -853,6 +896,7 @@ namespace miniMenu {
         //% group="Styling"
         //% weight=100
         //% blockGap=8
+        //% help=github:arcade-mini-menu/docs/set-menu-style-property
         setMenuStyleProperty(property: MenuStyleProperty, value: number) {
             switch (property) {
                 case MenuStyleProperty.Width:
@@ -888,6 +932,11 @@ namespace miniMenu {
             }
         }
 
+        /**
+         * Sets the title of the MenuSprite. The title is displayed above the menu can can be customized using the setStyleProperty function.
+         *
+         * @param title The title to set for the MenuSprite
+         */
         //% blockId=mini_menu_set_menu_title
         //% block="set $this title to $title"
         //% this.shadow=variables_get
@@ -896,10 +945,17 @@ namespace miniMenu {
         //% inlineInputMode=inline
         //% group="Create"
         //% weight=20
+        //% help=github:arcade-mini-menu/docs/set-title
         setTitle(title: string) {
             this.title = new miniMenu.MenuItem(title, undefined);
         }
 
+        /**
+         * Sets the width and height of the MenuSprite. If the width or height is too small to fit the menu's content, the menu will scroll.
+         *
+         * @param width The desired width of the MenuSprite or 0 for the content width
+         * @param height The desired height of the MenuSprite or 0 for the content height
+         */
         //% blockId=mini_menu_set_menu_dimensions
         //% block="set $this width $width height $height"
         //% this.shadow=variables_get
@@ -910,12 +966,17 @@ namespace miniMenu {
         //% group="Create"
         //% weight=30
         //% blockGap=8
+        //% help=github:arcade-mini-menu/docs/set-dimensions
         setDimensions(width: number, height: number) {
             this.setMenuStyleProperty(MenuStyleProperty.Width, width);
             this.setMenuStyleProperty(MenuStyleProperty.Height, height);
         }
 
-
+        /**
+         * Sets the frame for the MenuSprite. The image must be square and have a width and height that are divisible by 3
+         *
+         * @param frame An image to use as the template for drawing the MenuSprite's frame
+         */
         //% blockId=mini_menu_set_menu_frame
         //% block="set $this frame to $frame"
         //% this.shadow=variables_get
@@ -925,6 +986,7 @@ namespace miniMenu {
         //% group="Styling"
         //% weight=100
         //% blockGap=8
+        //% help=github:arcade-mini-menu/docs/set-frame
         setFrame(frame: Image) {
             if (!frame) {
                 this.frame = frame;
@@ -1279,7 +1341,7 @@ namespace miniMenu {
                 printCanvas.drawTransparentImage(
                     src,
                     width - src.width,
-                    height - src.height, 
+                    height - src.height,
                 );
                 target.drawTransparentImage(
                     printCanvas,
@@ -1476,7 +1538,7 @@ namespace miniMenu {
         const visibleCharacters = Math.ceil((right - left) / font.charWidth);
 
         if (visibleCharacters <= 1) return;
-        
+
         printCanvas.fill(0);
         printCanvas.print(
             text.charAt(startCharacter),
@@ -1540,7 +1602,7 @@ namespace miniMenu {
         // left side
         let visibleSegments = Math.ceil(((bottom - frameWidth) - (top + frameWidth)) / frameWidth);
         let cutoff = visibleSegments * frameWidth - ((bottom - frameWidth) - (top + frameWidth));
-        
+
         frameCanvas.fill(0);
         frameCanvas.drawTransparentImage(frame, 0, -frameWidth);
 
@@ -1635,7 +1697,3 @@ namespace miniMenu {
         return !!((sprite as MenuSprite).buttonEventsEnabled)
     }
 }
-
-// game.onShade(() => {
-//     miniMenu.drawScrollIndicator(screen, 10, 10, miniMenu.MoveDirection.Right, 3)
-// })
