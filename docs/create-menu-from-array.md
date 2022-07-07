@@ -6,6 +6,9 @@ Creates a MenuSprite from an array of MenuItems
 miniMenu.createMenuFromArray([])
 ```
 
+After you create the MenuSprite, any changes to the array passed into this function will affect the MenuSprite.
+That makes this function great to use for something like a player inventory which may gain or lose items over time.
+
 ## Parameters
 
 * **items** - an array of MenuItems to populate the menu with
