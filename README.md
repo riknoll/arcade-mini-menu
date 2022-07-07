@@ -1,3 +1,5 @@
+![arcade-mini-menu logo](./icon.png)
+
 # arcade-mini-menu
 
 This is an extension for [Microsoft MakeCode Arcade](https://arcade.makecode.com/) that allows you to create menus for your arcade game!
