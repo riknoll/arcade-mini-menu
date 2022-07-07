@@ -25,7 +25,8 @@
         "README.md",
         "assets.json",
         "custom.ts",
-        "api.ts"
+        "api.ts",
+        "icon.png"
     ],
     "testFiles": [
         "test.ts"
