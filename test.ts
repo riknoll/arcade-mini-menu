@@ -374,3 +374,22 @@ myMenu.setFrame(img`
 
 myMenu.top = 20
 myMenu.x = 80
+
+myMenu = miniMenu.createMenu(
+    miniMenu.createMenuItem("+"),
+    miniMenu.createMenuItem("-"),
+    miniMenu.createMenuItem("x"),
+    miniMenu.createMenuItem(":"),
+    miniMenu.createMenuItem("?")
+)
+myMenu.onButtonPressed(controller.A, function (selection, selectedIndex) {
+    myMenu.close()
+})
+myMenu.x = 150
+myMenu.y = 30
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Border, 1)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.BorderColor, 1)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Padding, 1)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.BackgroundColor, 3)
+myMenu.setStyleProperty(miniMenu.StyleKind.Selected, miniMenu.StyleProperty.Foreground, 1)
+myMenu.setStyleProperty(miniMenu.StyleKind.Selected, miniMenu.StyleProperty.Background, 3)

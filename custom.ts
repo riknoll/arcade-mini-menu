@@ -1537,7 +1537,7 @@ namespace miniMenu {
         const startCharacter = Math.idiv(scroll, font.charWidth);
         const visibleCharacters = Math.ceil((right - left) / font.charWidth);
 
-        if (visibleCharacters <= 1) return;
+        if (visibleCharacters < 1) return;
 
         printCanvas.fill(0);
         printCanvas.print(
