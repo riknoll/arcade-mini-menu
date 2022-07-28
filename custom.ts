@@ -11,10 +11,13 @@ namespace miniMenu {
     let frameCanvas: Image;
 
     class MiniMenuState {
+        menuStyle: MenuStyle;
         defaultStyle: Style;
         selectedStyle: Style;
+        titleStyle: Style;
 
         constructor() {
+            this.menuStyle = new MenuStyle();
             this.defaultStyle = new Style();
 
             this.defaultStyle.iconTextSpacing = 8;
@@ -25,6 +28,9 @@ namespace miniMenu {
             this.selectedStyle = this.defaultStyle.clone();
             this.selectedStyle.foreground = 1;
             this.selectedStyle.background = 3;
+
+            this.titleStyle = this.defaultStyle.clone();
+            this.titleStyle.background = 0;
 
             for (const button of [controller.up, controller.right, controller.down, controller.menu, controller.left, controller.A, controller.B]) {
                 button.addEventListener(ControllerButtonEvent.Pressed, () => {
@@ -83,7 +89,9 @@ namespace miniMenu {
         //% block="columns"
         Columns,
         //% block="scroll indicator"
-        ScrollIndicatorColor
+        ScrollIndicatorColor,
+        //% block="use as template"
+        UseAsTemplate
     }
 
     export enum StyleKind {
@@ -110,41 +118,353 @@ namespace miniMenu {
         Right
     }
 
-    export class Style {
-        padding: number;
-        foreground: number;
-        background: number;
-        borderColor: number;
-        border: number;
-        margin: number;
-        iconTextSpacing: number;
-        iconOnly: number;
-        alignment: Alignment;
+    export class MenuStyle {
+        _customWidth: number;
+        _customHeight: number;
+        _scrollSpeed: number;
+        _columns: number;
+        _rows: number;
+        _border: number;
+        _borderColor: number;
+        _padding: number;
+        _backgroundColor: number;
+        _scrollColor: number;
 
-        constructor() {
-            this.padding = 0;
-            this.foreground = 1;
-            this.background = 15;
-            this.borderColor = 1;
-            this.border = 0;
-            this.margin = 0;
-            this.iconTextSpacing = 0;
-            this.iconOnly = 0;
-            this.alignment = Alignment.Left
+        constructor(public parent?: MenuStyle) {
+            if (!parent) {
+                this.scrollSpeed = 150;
+                this.columns = 0;
+                this.rows = 0;
+                this.backgroundColor = 0;
+                this.border = 0;
+                this.padding = 0;
+                this.borderColor = 0;
+            }
         }
 
-        clone() {
+        get customWidth(): number {
+            if (this.parent && this._customWidth === undefined) {
+                return this.parent.customWidth;
+            }
+            return this._customWidth;
+        }
+
+        set customWidth(value: number) {
+            this._customWidth = value;
+        }
+
+        get customHeight(): number {
+            if (this.parent && this._customHeight === undefined) {
+                return this.parent.customHeight;
+            }
+            return this._customHeight;
+        }
+
+        set customHeight(value: number) {
+            this._customHeight = value;
+        }
+
+        get scrollSpeed(): number {
+            if (this.parent && this._scrollSpeed === undefined) {
+                return this.parent.scrollSpeed;
+            }
+            return this._scrollSpeed;
+        }
+
+        set scrollSpeed(value: number) {
+            this._scrollSpeed = value;
+        }
+
+        get columns(): number {
+            if (this.parent && this._columns === undefined) {
+                return this.parent.columns;
+            }
+            return this._columns;
+        }
+
+        set columns(value: number) {
+            this._columns = value;
+        }
+
+        get rows(): number {
+            if (this.parent && this._rows === undefined) {
+                return this.parent.rows;
+            }
+            return this._rows;
+        }
+
+        set rows(value: number) {
+            this._rows = value;
+        }
+
+        get border(): number {
+            if (this.parent && this._border === undefined) {
+                return this.parent.border;
+            }
+            return this._border;
+        }
+
+        set border(value: number) {
+            this._border = value;
+        }
+
+        get borderColor(): number {
+            if (this.parent && this._borderColor === undefined) {
+                return this.parent.borderColor;
+            }
+            return this._borderColor;
+        }
+
+        set borderColor(value: number) {
+            this._borderColor = value;
+        }
+
+        get padding(): number {
+            if (this.parent && this._padding === undefined) {
+                return this.parent.padding;
+            }
+            return this._padding;
+        }
+
+        set padding(value: number) {
+            this._padding = value;
+        }
+
+        get backgroundColor(): number {
+            if (this.parent && this._backgroundColor === undefined) {
+                return this.parent.backgroundColor;
+            }
+            return this._backgroundColor;
+        }
+
+        set backgroundColor(value: number) {
+            this._backgroundColor = value;
+        }
+
+        get scrollColor(): number {
+            if (this.parent && this._scrollColor === undefined) {
+                return this.parent.scrollColor;
+            }
+            return this._scrollColor;
+        }
+
+        set scrollColor(value: number) {
+            this._scrollColor = value;
+        }
+
+        setMenuStyleProperty(property: MenuStyleProperty, value: number) {
+            switch (property) {
+                case MenuStyleProperty.Width:
+                    this.customWidth = value;
+                    break;
+                case MenuStyleProperty.Height:
+                    this.customHeight = value;
+                    break;
+                case MenuStyleProperty.ScrollSpeed:
+                    this.scrollSpeed = value;
+                    break;
+                case MenuStyleProperty.Columns:
+                    this.columns = Math.max(value | 0, 0);
+                    break;
+                case MenuStyleProperty.Rows:
+                    this.rows = Math.max(value | 0, 0);
+                    break;
+                case MenuStyleProperty.Border:
+                    this.border = value | 0;
+                    break;
+                case MenuStyleProperty.Padding:
+                    this.padding = value | 0;
+                    break;
+                case MenuStyleProperty.BorderColor:
+                    this.borderColor = value | 0;
+                    break;
+                case MenuStyleProperty.BackgroundColor:
+                    this.backgroundColor = value | 0;
+                    break;
+                case MenuStyleProperty.ScrollIndicatorColor:
+                    this.scrollColor = value | 0;
+                    break;
+            }
+        }
+
+        copyTo(target: MenuStyle) {
+            target.customWidth = this.customWidth;
+            target.customHeight = this.customHeight;
+            target.scrollSpeed = this.scrollSpeed;
+            target.columns = this.columns;
+            target.rows = this.rows;
+            target.border = this.border;
+            target.borderColor = this.borderColor;
+            target.padding = this.padding;
+            target.backgroundColor = this.backgroundColor;
+            target.scrollColor = this.scrollColor;
+        }
+    }
+
+    export class Style {
+        _padding: number;
+        _foreground: number;
+        _background: number;
+        _borderColor: number;
+        _border: number;
+        _margin: number;
+        _iconTextSpacing: number;
+        _iconOnly: number;
+        _alignment: Alignment;
+
+        get padding(): number {
+            if (this._padding === undefined) {
+                return this.parent.padding;
+            }
+            return this._padding
+        }
+
+        set padding(value: number) {
+            this._padding = value;
+        }
+
+        get foreground(): number {
+            if (this._foreground === undefined) {
+                return this.parent.foreground;
+            }
+            return this._foreground
+        }
+
+        set foreground(value: number) {
+            this._foreground = value;
+        }
+
+        get background(): number {
+            if (this._background === undefined) {
+                return this.parent.background;
+            }
+            return this._background
+        }
+
+        set background(value: number) {
+            this._background = value;
+        }
+
+        get borderColor(): number {
+            if (this._borderColor === undefined) {
+                return this.parent.borderColor;
+            }
+            return this._borderColor
+        }
+
+        set borderColor(value: number) {
+            this._borderColor = value;
+        }
+
+        get border(): number {
+            if (this._border === undefined) {
+                return this.parent.border;
+            }
+            return this._border
+        }
+
+        set border(value: number) {
+            this._border = value;
+        }
+
+        get margin(): number {
+            if (this._margin === undefined) {
+                return this.parent.margin;
+            }
+            return this._margin
+        }
+
+        set margin(value: number) {
+            this._margin = value;
+        }
+
+        get iconTextSpacing(): number {
+            if (this._iconTextSpacing === undefined) {
+                return this.parent.iconTextSpacing;
+            }
+            return this._iconTextSpacing
+        }
+
+        set iconTextSpacing(value: number) {
+            this._iconTextSpacing = value;
+        }
+
+        get iconOnly(): number {
+            if (this._iconOnly === undefined) {
+                return this.parent.iconOnly;
+            }
+            return this._iconOnly
+        }
+
+        set iconOnly(value: number) {
+            this._iconOnly = value;
+        }
+
+        get alignment(): Alignment {
+            if (this._alignment === undefined) {
+                return this.parent.alignment;
+            }
+            return this._alignment
+        }
+
+        set alignment(value: Alignment) {
+            this._alignment = value;
+        }
+
+
+        constructor(public parent?: Style) {
+            if (!parent) {
+                this.padding = 0;
+                this.foreground = 1;
+                this.background = 15;
+                this.borderColor = 1;
+                this.border = 0;
+                this.margin = 0;
+                this.iconTextSpacing = 0;
+                this.iconOnly = 0;
+                this.alignment = Alignment.Left
+            }
+        }
+
+        clone(flattenInheritance = false) {
             const res = new Style();
-            res.padding = this.padding;
-            res.foreground = this.foreground;
-            res.background = this.background;
-            res.borderColor = this.borderColor;
-            res.border = this.border;
-            res.margin = this.margin;
-            res.margin = this.margin;
-            res.iconTextSpacing = this.iconTextSpacing;
-            res.alignment = this.alignment;
+            if (flattenInheritance) {
+                res.padding = this.padding;
+                res.foreground = this.foreground;
+                res.background = this.background;
+                res.borderColor = this.borderColor;
+                res.border = this.border;
+                res.margin = this.margin;
+                res.iconOnly = this.iconOnly;
+                res.iconTextSpacing = this.iconTextSpacing;
+                res.alignment = this.alignment;
+            }
+            else {
+                res._padding = this._padding;
+                res._foreground = this._foreground;
+                res._background = this._background;
+                res._borderColor = this._borderColor;
+                res._border = this._border;
+                res._margin = this._margin;
+                res._iconOnly = this._iconOnly;
+                res._iconTextSpacing = this._iconTextSpacing;
+                res._alignment = this._alignment;
+                res.parent = this.parent;
+            }
+
             return res;
+        }
+
+        copyTo(target: Style) {
+            target.padding = this.padding;
+            target.foreground = this.foreground;
+            target.background = this.background;
+            target.borderColor = this.borderColor;
+            target.border = this.border;
+            target.margin = this.margin;
+            target.iconOnly = this.iconOnly;
+            target.iconTextSpacing = this.iconTextSpacing;
+            target.alignment = this.alignment;
         }
 
         setProperty(prop: StyleProperty, value: number) {
@@ -196,8 +516,8 @@ namespace miniMenu {
                 unpackMargin(style.border, MoveDirection.Up) +
                 unpackMargin(style.border, MoveDirection.Down);
 
-            if (style.iconOnly) {
-                return (this.icon ? this.icon.height : 0) + allPadding
+            if (style.iconOnly && this.icon) {
+                return this.icon.height + allPadding
             }
             else if (this.icon) {
                 return Math.max(this.icon.height, this.font.charHeight) + allPadding;
@@ -216,8 +536,8 @@ namespace miniMenu {
                 unpackMargin(style.border, MoveDirection.Left) +
                 unpackMargin(style.border, MoveDirection.Right);
 
-            if (style.iconOnly) {
-                return (this.icon ? this.icon.width : 0) + allPadding
+            if (style.iconOnly && this.icon) {
+                return this.icon.width + allPadding
             }
             else if (this.icon) {
                 return this.icon.width + style.iconTextSpacing + this.text.length * this.font.charWidth + allPadding;
@@ -430,12 +750,11 @@ namespace miniMenu {
     export class MenuSprite extends sprites.ExtendableSprite {
         items: MenuItem[];
 
+        menuStyle: MenuStyle;
         titleStyle: Style;
         defaultStyle: Style;
         selectedStyle: Style;
 
-        customWidth: number;
-        customHeight: number;
         selectedIndex: number;
         buttonEventsEnabled: boolean;
 
@@ -448,16 +767,6 @@ namespace miniMenu {
         titleAnimationTick: number;
 
         title: MenuItem;
-        scrollSpeed: number;
-        columns: number;
-        rows: number;
-
-        border: number;
-        borderColor: number;
-        padding: number;
-        backgroundColor: number;
-
-        scrollColor: number;
 
         maxScroll: number;
         frame: Image;
@@ -468,10 +777,10 @@ namespace miniMenu {
         constructor() {
             super(img`.`, SpriteKind.MiniMenu);
             _init();
-            this.titleStyle = _state().defaultStyle.clone()
-            this.titleStyle.setProperty(StyleProperty.Background, 0)
-            this.defaultStyle = _state().defaultStyle.clone();
-            this.selectedStyle = _state().selectedStyle.clone();
+            this.menuStyle = new MenuStyle(_state().menuStyle)
+            this.titleStyle = new Style(_state().titleStyle)
+            this.defaultStyle = new Style(_state().defaultStyle)
+            this.selectedStyle = new Style(_state().selectedStyle)
 
             this.selectedIndex = 0;
             this.items = [];
@@ -489,13 +798,6 @@ namespace miniMenu {
             this.targetXScroll = 0;
             this.scrollAnimationTick = -1;
             this.titleAnimationTick = 0;
-            this.scrollSpeed = 150;
-            this.columns = 0;
-            this.rows = 0;
-            this.backgroundColor = 0;
-            this.border = 0;
-            this.padding = 0;
-            this.borderColor = 0;
         }
 
         get width(): number {
@@ -514,8 +816,8 @@ namespace miniMenu {
             let titleHeight = 0
             let frameWidth = this.frame ? Math.idiv(this.frame.width, 3) : 0;
 
-            const scrollWidth = (this.scrollColor ? (this.isVerticalScroll() ? SCROLL_INDICATOR_WIDTH + 1 : 0) : 0);
-            const scrollHeight = (this.scrollColor ? (this.isVerticalScroll() ? 0 : SCROLL_INDICATOR_WIDTH + 1) : 0);
+            const scrollWidth = (this.menuStyle.scrollColor ? (this.isVerticalScroll() ? SCROLL_INDICATOR_WIDTH + 1 : 0) : 0);
+            const scrollHeight = (this.menuStyle.scrollColor ? (this.isVerticalScroll() ? 0 : SCROLL_INDICATOR_WIDTH + 1) : 0);
 
             if (this.frame) {
                 drawFrame(
@@ -528,40 +830,40 @@ namespace miniMenu {
                 );
             }
 
-            if (this.borderColor) {
+            if (this.menuStyle.borderColor) {
                 fillRegion(
                     screen,
                     drawLeft + frameWidth,
                     drawTop + frameWidth,
-                    drawLeft + width - frameWidth ,
+                    drawLeft + width - frameWidth,
                     drawTop + height - frameWidth,
-                    this.borderColor
+                    this.menuStyle.borderColor
                 )
             }
 
-            if (this.backgroundColor) {
+            if (this.menuStyle.backgroundColor) {
                 fillRegion(
                     screen,
-                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + frameWidth,
-                    drawTop + unpackMargin(this.border, MoveDirection.Up) + frameWidth,
-                    drawLeft + width - unpackMargin(this.border, MoveDirection.Right) - frameWidth,
-                    drawTop + height - unpackMargin(this.border, MoveDirection.Down) - frameWidth,
-                    this.backgroundColor
+                    drawLeft + unpackMargin(this.menuStyle.border, MoveDirection.Left) + frameWidth,
+                    drawTop + unpackMargin(this.menuStyle.border, MoveDirection.Up) + frameWidth,
+                    drawLeft + width - unpackMargin(this.menuStyle.border, MoveDirection.Right) - frameWidth,
+                    drawTop + height - unpackMargin(this.menuStyle.border, MoveDirection.Down) - frameWidth,
+                    this.menuStyle.backgroundColor
                 )
             }
 
             const contentWidth = width -
-                unpackMargin(this.border, MoveDirection.Left) -
-                unpackMargin(this.border, MoveDirection.Right) -
-                unpackMargin(this.padding, MoveDirection.Left) -
-                unpackMargin(this.padding, MoveDirection.Right) -
+                unpackMargin(this.menuStyle.border, MoveDirection.Left) -
+                unpackMargin(this.menuStyle.border, MoveDirection.Right) -
+                unpackMargin(this.menuStyle.padding, MoveDirection.Left) -
+                unpackMargin(this.menuStyle.padding, MoveDirection.Right) -
                 (frameWidth << 1) -
                 scrollWidth;
             const contentHeight = height -
-                unpackMargin(this.border, MoveDirection.Up) -
-                unpackMargin(this.border, MoveDirection.Down) -
-                unpackMargin(this.padding, MoveDirection.Up) -
-                unpackMargin(this.padding, MoveDirection.Down) -
+                unpackMargin(this.menuStyle.border, MoveDirection.Up) -
+                unpackMargin(this.menuStyle.border, MoveDirection.Down) -
+                unpackMargin(this.menuStyle.padding, MoveDirection.Up) -
+                unpackMargin(this.menuStyle.padding, MoveDirection.Down) -
                 (frameWidth << 1) -
                 scrollHeight;
 
@@ -569,8 +871,8 @@ namespace miniMenu {
             if (this.title) {
                 titleHeight = this.title.getHeight(this.titleStyle);
                 this.title.drawTo(
-                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left) + frameWidth,
-                    drawTop + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up) + frameWidth,
+                    drawLeft + unpackMargin(this.menuStyle.border, MoveDirection.Left) + unpackMargin(this.menuStyle.padding, MoveDirection.Left) + frameWidth,
+                    drawTop + unpackMargin(this.menuStyle.border, MoveDirection.Up) + unpackMargin(this.menuStyle.padding, MoveDirection.Up) + frameWidth,
                     screen,
                     this.titleStyle,
                     contentWidth,
@@ -583,32 +885,32 @@ namespace miniMenu {
                 )
             }
 
-            if (this.columns <= 1 && this.rows === 0) {
+            if (this.menuStyle.columns <= 1 && this.menuStyle.rows === 0) {
                 this.drawSingleColumn(
-                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left) + frameWidth,
-                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up) + frameWidth,
+                    drawLeft + unpackMargin(this.menuStyle.border, MoveDirection.Left) + unpackMargin(this.menuStyle.padding, MoveDirection.Left) + frameWidth,
+                    drawTop + titleHeight + unpackMargin(this.menuStyle.border, MoveDirection.Up) + unpackMargin(this.menuStyle.padding, MoveDirection.Up) + frameWidth,
                     contentWidth,
                     contentHeight - titleHeight
                 );
             }
-            else if (this.columns === 0 && this.rows === 1) {
+            else if (this.menuStyle.columns === 0 && this.menuStyle.rows === 1) {
                 this.drawSingleRow(
-                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left) + frameWidth,
-                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up) + frameWidth,
+                    drawLeft + unpackMargin(this.menuStyle.border, MoveDirection.Left) + unpackMargin(this.menuStyle.padding, MoveDirection.Left) + frameWidth,
+                    drawTop + titleHeight + unpackMargin(this.menuStyle.border, MoveDirection.Up) + unpackMargin(this.menuStyle.padding, MoveDirection.Up) + frameWidth,
                     contentWidth,
                     contentHeight - titleHeight
                 );
             }
             else {
                 this.drawGrid(
-                    drawLeft + unpackMargin(this.border, MoveDirection.Left) + unpackMargin(this.padding, MoveDirection.Left) + frameWidth,
-                    drawTop + titleHeight + unpackMargin(this.border, MoveDirection.Up) + unpackMargin(this.padding, MoveDirection.Up) + frameWidth,
+                    drawLeft + unpackMargin(this.menuStyle.border, MoveDirection.Left) + unpackMargin(this.menuStyle.padding, MoveDirection.Left) + frameWidth,
+                    drawTop + titleHeight + unpackMargin(this.menuStyle.border, MoveDirection.Up) + unpackMargin(this.menuStyle.padding, MoveDirection.Up) + frameWidth,
                     contentWidth,
                     contentHeight - titleHeight
                 );
             }
 
-            if (this.scrollColor) {
+            if (this.menuStyle.scrollColor) {
                 if (this.isVerticalScroll()) {
                     if (this.targetYScroll >= 1) {
                         drawScrollIndicator(
@@ -616,7 +918,7 @@ namespace miniMenu {
                             drawTop,
                             drawLeft + width - SCROLL_INDICATOR_WIDTH,
                             MoveDirection.Up,
-                            this.scrollColor
+                            this.menuStyle.scrollColor
                         )
                     }
 
@@ -626,7 +928,7 @@ namespace miniMenu {
                             drawTop + height - (SCROLL_INDICATOR_WIDTH >> 1) - 1,
                             drawLeft + width - SCROLL_INDICATOR_WIDTH,
                             MoveDirection.Down,
-                            this.scrollColor
+                            this.menuStyle.scrollColor
                         )
                     }
                 }
@@ -637,7 +939,7 @@ namespace miniMenu {
                             drawTop + height - SCROLL_INDICATOR_WIDTH,
                             drawLeft,
                             MoveDirection.Left,
-                            this.scrollColor
+                            this.menuStyle.scrollColor
                         )
                     }
 
@@ -647,7 +949,7 @@ namespace miniMenu {
                             drawTop + height - SCROLL_INDICATOR_WIDTH,
                             drawLeft + width - (SCROLL_INDICATOR_WIDTH >> 1) - 1,
                             MoveDirection.Right,
-                            this.scrollColor
+                            this.menuStyle.scrollColor
                         )
                     }
                 }
@@ -669,7 +971,7 @@ namespace miniMenu {
                 this.xScroll += (this.targetXScroll - this.xScroll) / 5;
             }
 
-            const deltaTick = (deltaTimeMillis / 1000) * this.scrollSpeed;
+            const deltaTick = (deltaTimeMillis / 1000) * this.menuStyle.scrollSpeed;
 
             if (this.yScroll === this.targetYScroll && this.xScroll === this.targetXScroll) {
                 this.scrollAnimationTick += deltaTick
@@ -723,7 +1025,7 @@ namespace miniMenu {
 
             let oldSelection = this.selectedIndex;
 
-            if (this.columns <= 1 && this.rows === 0) {
+            if (this.menuStyle.columns <= 1 && this.menuStyle.rows === 0) {
                 if (direction === MoveDirection.Up) {
                     this.selectedIndex = (this.selectedIndex + this.items.length - 1) % this.items.length;
                 }
@@ -735,7 +1037,7 @@ namespace miniMenu {
                 }
                 this.scrollAnimationTick = 0;
             }
-            else if (this.columns === 0 && this.rows === 1) {
+            else if (this.menuStyle.columns === 0 && this.menuStyle.rows === 1) {
                 if (direction === MoveDirection.Left) {
                     this.selectedIndex = (this.selectedIndex + this.items.length - 1) % this.items.length;
                 }
@@ -748,38 +1050,38 @@ namespace miniMenu {
                 this.scrollAnimationTick = 0;
             }
             else {
-                let column = this.selectedIndex % this.columns;
-                let row = Math.idiv(this.selectedIndex, this.columns);
+                let column = this.selectedIndex % this.menuStyle.columns;
+                let row = Math.idiv(this.selectedIndex, this.menuStyle.columns);
 
-                const maxRows = Math.ceil(this.items.length / this.columns);
+                const maxRows = Math.ceil(this.items.length / this.menuStyle.columns);
 
                 if (direction === MoveDirection.Up) {
                     row = (row + maxRows - 1) % maxRows;
 
-                    if (column + row * this.columns >= this.items.length) {
+                    if (column + row * this.menuStyle.columns >= this.items.length) {
                         row = maxRows - 2;
                     }
                 }
                 else if (direction === MoveDirection.Down) {
                     row = (row + 1) % maxRows;
-                    if (column + row * this.columns >= this.items.length) {
+                    if (column + row * this.menuStyle.columns >= this.items.length) {
                         row = 0
                     }
                 }
                 else if (direction === MoveDirection.Left) {
-                    column = (column + this.columns - 1) % this.columns
-                    if (column + row * this.columns >= this.items.length) {
-                        column = (this.items.length - 1) % this.columns
+                    column = (column + this.menuStyle.columns - 1) % this.menuStyle.columns
+                    if (column + row * this.menuStyle.columns >= this.items.length) {
+                        column = (this.items.length - 1) % this.menuStyle.columns
                     }
                 }
                 else if (direction === MoveDirection.Right) {
-                    column = (column + 1) % this.columns
-                    if (column + row * this.columns >= this.items.length) {
+                    column = (column + 1) % this.menuStyle.columns
+                    if (column + row * this.menuStyle.columns >= this.items.length) {
                         column = 0;
                     }
                 }
 
-                this.selectedIndex = column + row * this.columns
+                this.selectedIndex = column + row * this.menuStyle.columns
                 this.scrollAnimationTick = 0
             }
 
@@ -898,37 +1200,27 @@ namespace miniMenu {
         //% blockGap=8
         //% help=github:arcade-mini-menu/docs/set-menu-style-property
         setMenuStyleProperty(property: MenuStyleProperty, value: number) {
-            switch (property) {
-                case MenuStyleProperty.Width:
-                    this.customWidth = value;
-                    break;
-                case MenuStyleProperty.Height:
-                    this.customHeight = value;
-                    break;
-                case MenuStyleProperty.ScrollSpeed:
-                    this.scrollSpeed = value;
-                    break;
-                case MenuStyleProperty.Columns:
-                    this.columns = Math.max(value | 0, 0);
-                    break;
-                case MenuStyleProperty.Rows:
-                    this.rows = Math.max(value | 0, 0);
-                    break;
-                case MenuStyleProperty.Border:
-                    this.border = value | 0;
-                    break;
-                case MenuStyleProperty.Padding:
-                    this.padding = value | 0;
-                    break;
-                case MenuStyleProperty.BorderColor:
-                    this.borderColor = value | 0;
-                    break;
-                case MenuStyleProperty.BackgroundColor:
-                    this.backgroundColor = value | 0;
-                    break;
-                case MenuStyleProperty.ScrollIndicatorColor:
-                    this.scrollColor = value | 0;
-                    break;
+            this.menuStyle.setMenuStyleProperty(property, value);
+
+            if (property === MenuStyleProperty.UseAsTemplate) {
+                if (value) {
+                    this.menuStyle.copyTo(_state().menuStyle);
+                    this.menuStyle = _state().menuStyle
+
+                    this.defaultStyle.copyTo(_state().defaultStyle);
+                    this.defaultStyle = _state().defaultStyle;
+
+                    this.titleStyle.copyTo(_state().titleStyle);
+                    this.titleStyle = _state().titleStyle;
+
+                    this.selectedStyle.copyTo(_state().selectedStyle);
+                    this.selectedStyle = _state().selectedStyle;
+                }
+                else {
+                    this.defaultStyle = new Style(_state().defaultStyle)
+                    this.titleStyle = new Style(_state().titleStyle)
+                    this.selectedStyle = new Style(_state().selectedStyle)
+                }
             }
         }
 
@@ -1156,8 +1448,8 @@ namespace miniMenu {
             if (!this.items) return;
 
             const menuTop = drawTop;
-            const widthPerColumn = (menuWidth / Math.max(this.columns, 1)) | 0;
-            const heightPerRow = (menuHeight / Math.max(this.rows, 1)) | 0;
+            const widthPerColumn = (menuWidth / Math.max(this.menuStyle.columns, 1)) | 0;
+            const heightPerRow = (menuHeight / Math.max(this.menuStyle.rows, 1)) | 0;
 
             let index = 0;
             let current: MenuItem;
@@ -1167,10 +1459,10 @@ namespace miniMenu {
             let xOffset = -(this.xScroll | 0);
             let yOffset = -(this.yScroll | 0);
 
-            const totalRows = Math.ceil(this.items.length / this.columns)
+            const totalRows = Math.ceil(this.items.length / this.menuStyle.columns)
 
             for (let row = 0; row < totalRows; row++) {
-                for (let col = 0; col < this.columns; col++) {
+                for (let col = 0; col < this.menuStyle.columns; col++) {
                     isSelected = index === this.selectedIndex;
                     style = isSelected ? this.selectedStyle : this.defaultStyle;
                     current = this.items[index];
@@ -1229,13 +1521,13 @@ namespace miniMenu {
         }
 
         protected getWidth() {
-            if (this.customWidth !== undefined) return this.customWidth;
+            if (this.menuStyle.customWidth !== undefined) return this.menuStyle.customWidth;
 
             let contentWidth = 0;
             let current: MenuItem;
             let style: Style;
 
-            if (this.columns <= 1 && this.rows === 0) {
+            if (this.menuStyle.columns <= 1 && this.menuStyle.rows === 0) {
                 for (let i = 0; i < this.items.length; i++) {
                     current = this.items[i];
                     style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
@@ -1243,7 +1535,7 @@ namespace miniMenu {
                 }
 
             }
-            else if (this.columns === 0 && this.rows === 1) {
+            else if (this.menuStyle.columns === 0 && this.menuStyle.rows === 1) {
                 for (let i = 0; i < this.items.length; i++) {
                     current = this.items[i];
                     style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
@@ -1256,26 +1548,26 @@ namespace miniMenu {
                     style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
                     contentWidth = Math.max(current.getWidth(style), contentWidth);
                 }
-                contentWidth *= this.columns;
+                contentWidth *= this.menuStyle.columns;
             }
 
             return contentWidth +
-                unpackMargin(this.border, MoveDirection.Left) +
-                unpackMargin(this.border, MoveDirection.Right) +
-                unpackMargin(this.padding, MoveDirection.Left) +
-                unpackMargin(this.padding, MoveDirection.Right) +
+                unpackMargin(this.menuStyle.border, MoveDirection.Left) +
+                unpackMargin(this.menuStyle.border, MoveDirection.Right) +
+                unpackMargin(this.menuStyle.padding, MoveDirection.Left) +
+                unpackMargin(this.menuStyle.padding, MoveDirection.Right) +
                 (this.frame ? (Math.idiv(this.frame.width, 3) << 1) : 0) +
-                (this.scrollColor ? (this.isVerticalScroll() ? SCROLL_INDICATOR_WIDTH + 1 : 0) : 0)
+                (this.menuStyle.scrollColor ? (this.isVerticalScroll() ? SCROLL_INDICATOR_WIDTH + 1 : 0) : 0)
         }
 
         protected getHeight() {
-            if (this.customHeight !== undefined) return this.customHeight;
+            if (this.menuStyle.customHeight !== undefined) return this.menuStyle.customHeight;
 
             let contentHeight = 0;
             let current: MenuItem;
             let style: Style;
 
-            if (this.columns <= 1 && this.rows === 0) {
+            if (this.menuStyle.columns <= 1 && this.menuStyle.rows === 0) {
                 for (let i = 0; i < this.items.length; i++) {
                     current = this.items[i];
                     style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
@@ -1283,7 +1575,7 @@ namespace miniMenu {
                 }
 
             }
-            else if (this.columns === 0 && this.rows === 1) {
+            else if (this.menuStyle.columns === 0 && this.menuStyle.rows === 1) {
                 for (let i = 0; i < this.items.length; i++) {
                     current = this.items[i];
                     style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
@@ -1296,27 +1588,23 @@ namespace miniMenu {
                     style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
                     contentHeight = Math.max(current.getHeight(style), contentHeight)
                 }
-                contentHeight *= this.rows;
+                contentHeight *= this.menuStyle.rows;
             }
 
             return contentHeight +
-                unpackMargin(this.border, MoveDirection.Up) +
-                unpackMargin(this.border, MoveDirection.Down) +
-                unpackMargin(this.padding, MoveDirection.Up) +
-                unpackMargin(this.padding, MoveDirection.Down) +
+                unpackMargin(this.menuStyle.border, MoveDirection.Up) +
+                unpackMargin(this.menuStyle.border, MoveDirection.Down) +
+                unpackMargin(this.menuStyle.padding, MoveDirection.Up) +
+                unpackMargin(this.menuStyle.padding, MoveDirection.Down) +
                 (this.frame ? (Math.idiv(this.frame.width, 3) << 1) : 0) +
-                (this.scrollColor ? (this.isVerticalScroll() ? 0 : SCROLL_INDICATOR_WIDTH + 1) : 0)
+                (this.menuStyle.scrollColor ? (this.isVerticalScroll() ? 0 : SCROLL_INDICATOR_WIDTH + 1) : 0)
         }
 
         protected isVerticalScroll() {
-            return !(this.columns === 0 &&  this.rows === 1);
+            return !(this.menuStyle.columns === 0 && this.menuStyle.rows === 1);
         }
     }
 
-    function fillVerticalRegion(target: Image, left: number, top: number, width: number, bottom: number, color: number) {
-        if (!color) return;
-        target.fillRect(left, top, width, bottom - top, color);
-    }
 
     function fillRegion(target: Image, left: number, top: number, right: number, bottom: number, color: number) {
         if (!color) return;

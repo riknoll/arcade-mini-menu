@@ -21,6 +21,7 @@ The available styles include:
 * **rows** - if set, limits the number of rows that are displayed in the menu before scrolling. Defaults to 0
 * **columns** - if set, limits the number of columns that are displayed in the menu before scrolling. Defaults to 0
 * **scroll indicator color** - if set, causes a scroll indicator in the specified color to appear next to the menu when the menu can be scrolled in a given direction. Defaults to 0
+* **use as template** - if set to any number other than 0, all other MenuSprites will use this MenuSprite's styles as a template. In other words, all menu style properties and menu item properties will be inherited from this MenuSprite unless explicitly set. Defaults to 0
 
 ### Changing the menu layout
 
