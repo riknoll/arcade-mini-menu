@@ -372,8 +372,14 @@ myMenu.setFrame(img`
 
 
 
-myMenu.top = 20
+myMenu.y = 60
 myMenu.x = 80
+
+
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.UseAsTemplate, 1)
+// myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Width, 40)
+// myMenu.say(`x: ${myMenu.x} l: ${myMenu.left} w: ${myMenu.width}`)
+
 
 myMenu = miniMenu.createMenu(
     miniMenu.createMenuItem("+"),
