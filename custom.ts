@@ -16,28 +16,58 @@ namespace miniMenu {
         selectedStyle: Style;
         titleStyle: Style;
 
+        sprites: MenuSprite[];
+
         constructor() {
+            this.sprites = [];
             this.menuStyle = new MenuStyle();
             this.defaultStyle = new Style();
 
-            this.defaultStyle.iconTextSpacing = 8;
-            this.defaultStyle.padding = 2;
-            this.defaultStyle.foreground = 15;
-            this.defaultStyle.background = 1;
+            this.defaultStyle._iconTextSpacing = 8;
+            this.defaultStyle._padding = 2;
+            this.defaultStyle._foreground = 15;
+            this.defaultStyle._background = 1;
 
             this.selectedStyle = this.defaultStyle.clone();
-            this.selectedStyle.foreground = 1;
-            this.selectedStyle.background = 3;
+            this.selectedStyle._foreground = 1;
+            this.selectedStyle._background = 3;
 
             this.titleStyle = this.defaultStyle.clone();
-            this.titleStyle.background = 0;
+            this.titleStyle._background = 0;
+
 
             for (const button of [controller.up, controller.right, controller.down, controller.menu, controller.left, controller.A, controller.B]) {
                 button.addEventListener(ControllerButtonEvent.Pressed, () => {
-                    for (const sprite of sprites.allOfKind(SpriteKind.MiniMenu).filter(buttonEventsEnabled)) {
-                        (sprite as MenuSprite).fireButtonEvent(button);
+                    for (const sprite of this.sprites.filter(buttonEventsEnabled)) {
+                        sprite.fireButtonEvent(button);
                     }
-                })
+                });
+            }
+        }
+
+        addSprite(sprite: MenuSprite) {
+            this.sprites.push(sprite);
+        }
+
+        removeSprite(sprite: MenuSprite) {
+            this.sprites = this.sprites.filter(s => s !== sprite);
+        }
+
+        onStyleChange(style: Style) {
+            if (style === this.defaultStyle || style === this.titleStyle || style === this.selectedStyle) {
+                this.updateDimensions();
+            }
+        }
+
+        onMenuStyleChange(style: MenuStyle) {
+            if (style === this.menuStyle) {
+                this.updateDimensions();
+            }
+        }
+
+        protected updateDimensions() {
+            for (const sprite of this.sprites) {
+                sprite.updateDimensions();
             }
         }
     }
@@ -132,13 +162,13 @@ namespace miniMenu {
 
         constructor(public parent?: MenuStyle) {
             if (!parent) {
-                this.scrollSpeed = 150;
-                this.columns = 0;
-                this.rows = 0;
-                this.backgroundColor = 0;
-                this.border = 0;
-                this.padding = 0;
-                this.borderColor = 0;
+                this._scrollSpeed = 150;
+                this._columns = 0;
+                this._rows = 0;
+                this._backgroundColor = 0;
+                this._border = 0;
+                this._padding = 0;
+                this._borderColor = 0;
             }
         }
 
@@ -151,6 +181,7 @@ namespace miniMenu {
 
         set customWidth(value: number) {
             this._customWidth = value;
+            _state().onMenuStyleChange(this);
         }
 
         get customHeight(): number {
@@ -162,6 +193,7 @@ namespace miniMenu {
 
         set customHeight(value: number) {
             this._customHeight = value;
+            _state().onMenuStyleChange(this);
         }
 
         get scrollSpeed(): number {
@@ -184,6 +216,7 @@ namespace miniMenu {
 
         set columns(value: number) {
             this._columns = value;
+            _state().onMenuStyleChange(this);
         }
 
         get rows(): number {
@@ -195,6 +228,7 @@ namespace miniMenu {
 
         set rows(value: number) {
             this._rows = value;
+            _state().onMenuStyleChange(this);
         }
 
         get border(): number {
@@ -206,6 +240,7 @@ namespace miniMenu {
 
         set border(value: number) {
             this._border = value;
+            _state().onMenuStyleChange(this);
         }
 
         get borderColor(): number {
@@ -228,6 +263,7 @@ namespace miniMenu {
 
         set padding(value: number) {
             this._padding = value;
+            _state().onMenuStyleChange(this);
         }
 
         get backgroundColor(): number {
@@ -321,6 +357,7 @@ namespace miniMenu {
 
         set padding(value: number) {
             this._padding = value;
+            _state().onStyleChange(this);
         }
 
         get foreground(): number {
@@ -365,6 +402,7 @@ namespace miniMenu {
 
         set border(value: number) {
             this._border = value;
+            _state().onStyleChange(this);
         }
 
         get margin(): number {
@@ -376,6 +414,7 @@ namespace miniMenu {
 
         set margin(value: number) {
             this._margin = value;
+            _state().onStyleChange(this);
         }
 
         get iconTextSpacing(): number {
@@ -387,6 +426,7 @@ namespace miniMenu {
 
         set iconTextSpacing(value: number) {
             this._iconTextSpacing = value;
+            _state().onStyleChange(this);
         }
 
         get iconOnly(): number {
@@ -398,6 +438,7 @@ namespace miniMenu {
 
         set iconOnly(value: number) {
             this._iconOnly = value;
+            _state().onStyleChange(this);
         }
 
         get alignment(): Alignment {
@@ -409,20 +450,20 @@ namespace miniMenu {
 
         set alignment(value: Alignment) {
             this._alignment = value;
+            _state().onStyleChange(this);
         }
-
 
         constructor(public parent?: Style) {
             if (!parent) {
-                this.padding = 0;
-                this.foreground = 1;
-                this.background = 15;
-                this.borderColor = 1;
-                this.border = 0;
-                this.margin = 0;
-                this.iconTextSpacing = 0;
-                this.iconOnly = 0;
-                this.alignment = Alignment.Left
+                this._padding = 0;
+                this._foreground = 1;
+                this._background = 15;
+                this._borderColor = 1;
+                this._border = 0;
+                this._margin = 0;
+                this._iconTextSpacing = 0;
+                this._iconOnly = 0;
+                this._alignment = Alignment.Left
             }
         }
 
@@ -798,14 +839,8 @@ namespace miniMenu {
             this.targetXScroll = 0;
             this.scrollAnimationTick = -1;
             this.titleAnimationTick = 0;
-        }
 
-        get width(): number {
-            return this.getWidth();
-        }
-
-        get height(): number {
-            return this.getHeight();
+            _state().addSprite(this);
         }
 
         draw(drawLeft: number, drawTop: number) {
@@ -988,6 +1023,7 @@ namespace miniMenu {
 
         setMenuItems(items: MenuItem[]) {
             this.items = items;
+            this.updateDimensions();
         }
 
         /**
@@ -1033,7 +1069,7 @@ namespace miniMenu {
                     this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
                 }
                 else {
-                    return
+                    return;
                 }
                 this.scrollAnimationTick = 0;
             }
@@ -1084,6 +1120,8 @@ namespace miniMenu {
                 this.selectedIndex = column + row * this.menuStyle.columns
                 this.scrollAnimationTick = 0
             }
+
+            this.updateDimensions();
 
             if (this.itemSelectedHandler && oldSelection !== this.selectedIndex) {
                 this.itemSelectedHandler(this.items[this.selectedIndex].text, this.selectedIndex);
@@ -1182,6 +1220,8 @@ namespace miniMenu {
                     this.titleStyle.setProperty(property, value);
                     break;
             }
+
+            this.updateDimensions();
         }
 
         /**
@@ -1222,6 +1262,8 @@ namespace miniMenu {
                     this.selectedStyle = new Style(_state().selectedStyle)
                 }
             }
+
+            this.updateDimensions();
         }
 
         /**
@@ -1240,6 +1282,7 @@ namespace miniMenu {
         //% help=github:arcade-mini-menu/docs/set-title
         setTitle(title: string) {
             this.title = new miniMenu.MenuItem(title, undefined);
+            this.updateDimensions();
         }
 
         /**
@@ -1282,6 +1325,7 @@ namespace miniMenu {
         setFrame(frame: Image) {
             if (!frame) {
                 this.frame = frame;
+                this.updateDimensions();
                 return;
             }
 
@@ -1293,6 +1337,7 @@ namespace miniMenu {
             }
 
             this.frame = frame;
+            this.updateDimensions();
         }
 
         fireButtonEvent(button: controller.Button) {
@@ -1307,6 +1352,15 @@ namespace miniMenu {
 
         onButtonEvent(button: controller.Button, handler: (text: string, selectedIndex: number) => void) {
             this.buttonHandlers[button.id] = handler;
+        }
+
+        _destroyCore() {
+            super._destroyCore();
+            _state().removeSprite(this);
+        }
+
+        updateDimensions() {
+            super.setDimensions(this.getWidth(), this.getHeight());
         }
 
         protected drawSingleColumn(drawLeft: number, drawTop: number, menuWidth: number, menuHeight: number) {
