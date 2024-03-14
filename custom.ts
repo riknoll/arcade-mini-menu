@@ -788,6 +788,37 @@ namespace miniMenu {
         })
     }
 
+    class ButtonHandler {
+        enabled: boolean
+        constructor(
+            public button: controller.Button,
+            public handler: (text: string, selectedIndex: number) => void
+        ) {
+
+            // Button handlers are often registered inside a button event (e.g. closing
+            // one menu and opening another when an option is selected). We don't want
+            // this event to fire immediately, so disable the handler until the button
+            // is released.
+            if (button.isPressed()) {
+                this.enabled = false;
+
+                const enableHandler = () => {
+                    this.enabled = true;
+                    button.removeEventListener(ControllerButtonEvent.Released, enableHandler);
+                };
+                button.addEventListener(ControllerButtonEvent.Released, enableHandler);
+            }
+            else {
+                this.enabled = true;
+            }
+        }
+
+        fire(text: string, selectedIndex: number) {
+            if (!this.enabled) return;
+            this.handler(text, selectedIndex);
+        }
+    }
+
     export class MenuSprite extends sprites.ExtendableSprite {
         items: MenuItem[];
 
@@ -812,7 +843,7 @@ namespace miniMenu {
         maxScroll: number;
         frame: Image;
 
-        protected buttonHandlers: any;
+        protected buttonHandlers: ButtonHandler[];
         protected itemSelectedHandler: (value: string, selectedIndex: number) => void;
 
         constructor() {
@@ -826,7 +857,7 @@ namespace miniMenu {
             this.selectedIndex = 0;
             this.items = [];
 
-            this.buttonHandlers = {};
+            this.buttonHandlers = [];
             this.buttonEventsEnabled = false;
 
             this.onButtonEvent(controller.up, () => this.moveSelection(MoveDirection.Up));
@@ -1341,17 +1372,24 @@ namespace miniMenu {
         }
 
         fireButtonEvent(button: controller.Button) {
-            if (!this.buttonEventsEnabled) return;
+            if (!this.buttonEventsEnabled || !this.items.length) return;
 
-            const handler = this.buttonHandlers[button.id];
-
-            if (handler && this.items.length) {
-                handler(this.items[this.selectedIndex].text, this.selectedIndex);
+            for (const buttonHandler of this.buttonHandlers) {
+                if (buttonHandler.button === button) {
+                    buttonHandler.fire(this.items[this.selectedIndex].text, this.selectedIndex);
+                    break;
+                }
             }
         }
 
         onButtonEvent(button: controller.Button, handler: (text: string, selectedIndex: number) => void) {
-            this.buttonHandlers[button.id] = handler;
+            for (const buttonHandler of this.buttonHandlers) {
+                if (buttonHandler.button === button) {
+                    buttonHandler.handler = handler;
+                    return;
+                }
+            }
+            this.buttonHandlers.push(new ButtonHandler(button, handler));
         }
 
         _destroyCore() {
