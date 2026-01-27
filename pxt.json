@@ -24,7 +24,13 @@
         "main.ts",
         "README.md",
         "assets.json",
+        "util.ts",
         "custom.ts",
+        "draw.ts",
+        "style.ts",
+        "menuStyle.ts",
+        "menuItem.ts",
+        "menuSprite.ts",
         "api.ts",
         "icon.png"
     ],

@@ -1,4 +1,5 @@
 // tests go here; this will not be compiled when this package is used as an extension.
+game.stats = true;
 let selection = 0
 let myMenu = miniMenu.createMenu(
     miniMenu.createMenuItem("Hello my name is not lucas", ), /* img`
