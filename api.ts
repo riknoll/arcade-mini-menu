@@ -4,6 +4,21 @@
 //% block="Mini Menu"
 //% groups='["Create","Controls","Styling"]'
 namespace miniMenu {
+    export enum Button {
+        //% block=A
+        A,
+        //% block=B
+        B,
+        //% block=up
+        Up,
+        //% block=down
+        Down,
+        //% block=left
+        Left,
+        //% block=right
+        Right
+    }
+
     /**
      * Creates a MenuItem with some text and an optional icon
      *

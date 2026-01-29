@@ -23,7 +23,7 @@ namespace miniMenu {
         maxScroll: number;
         frame: Image;
 
-        protected buttonHandlers: ButtonHandler[];
+        protected buttonHandlers: ButtonHandlers;
         protected itemSelectedHandler: (value: string, selectedIndex: number) => void;
 
         constructor() {
@@ -37,13 +37,13 @@ namespace miniMenu {
             this.selectedIndex = 0;
             this.items = [];
 
-            this.buttonHandlers = [];
+            this.buttonHandlers = new ButtonHandlers(controller.player1);
             this.buttonEventsEnabled = false;
 
-            this.onButtonEvent(controller.up, () => this.moveSelection(MoveDirection.Up));
-            this.onButtonEvent(controller.down, () => this.moveSelection(MoveDirection.Down));
-            this.onButtonEvent(controller.left, () => this.moveSelection(MoveDirection.Left));
-            this.onButtonEvent(controller.right, () => this.moveSelection(MoveDirection.Right));
+            this.onButtonEvent(Button.Up, () => this.moveSelection(MoveDirection.Up));
+            this.onButtonEvent(Button.Down, () => this.moveSelection(MoveDirection.Down));
+            this.onButtonEvent(Button.Left, () => this.moveSelection(MoveDirection.Left));
+            this.onButtonEvent(Button.Right, () => this.moveSelection(MoveDirection.Right));
             this.yScroll = 0;
             this.targetYScroll = 0;
             this.xScroll = 0;
@@ -240,6 +240,7 @@ namespace miniMenu {
         /**
          * Sets whether or not button events on this MenuSprite will be fired.
          *
+         *
          * @param enabled If true, button events are enabled. If false, they are disabled
          */
         //% blockId=mini_menu_sprite_set_button_events_enabled
@@ -256,6 +257,7 @@ namespace miniMenu {
 
         /**
          * Moves the selection cursor in the MenuSprite in the given direction.
+         *
          *
          * @param direction The direction to move the cursor in
          */
@@ -355,6 +357,7 @@ namespace miniMenu {
         /**
          * Runs some code whenever a button is pressed and the given MenuSprite has not been destroyed. Using this with one of the direction buttons will override the default behavior.
          *
+         *
          * @param button The button to listen to
          * @param handler The code to run when the button is pressed
          */
@@ -368,7 +371,7 @@ namespace miniMenu {
         //% weight=100
         //% blockGap=8
         //% help=github:arcade-mini-menu/docs/on-button-pressed
-        onButtonPressed(button: controller.Button, handler: (selection: string, selectedIndex: number) => void) {
+        onButtonPressed(button: Button, handler: (selection: string, selectedIndex: number) => void) {
             this.onButtonEvent(button, handler);
         }
 
@@ -396,7 +399,19 @@ namespace miniMenu {
         }
 
         /**
+         * Sets the controller that will be used to control this MenuSprite. Used for
+         * multiplayer games.
+         *
+         *
+         * @param controllerImpl The controller of the player that will control this MenuSprite
+         */
+        setController(controllerImpl: controller.Controller) {
+            this.buttonHandlers.setController(controllerImpl);
+        }
+
+        /**
          * Sets a style property for the specified part of the MenuSprite. See the help page for more info on what these properties mean.
+         *
          *
          * @param kind The part of the MenuSprite to style
          * @param property The property to set the value of
@@ -437,6 +452,7 @@ namespace miniMenu {
 
         /**
          * Sets a style property on a MenuSprite. See the help page for more info on what these properties mean.
+         *
          *
          * @param property The property to set the value of
          * @param value The value to set the property to
@@ -480,6 +496,7 @@ namespace miniMenu {
         /**
          * Sets the title of the MenuSprite. The title is displayed above the menu can can be customized using the setStyleProperty function.
          *
+         *
          * @param title The title to set for the MenuSprite
          */
         //% blockId=mini_menu_set_menu_title
@@ -498,6 +515,7 @@ namespace miniMenu {
 
         /**
          * Sets the width and height of the MenuSprite. If the width or height is too small to fit the menu's content, the menu will scroll.
+         *
          *
          * @param width The desired width of the MenuSprite or 0 for the content width
          * @param height The desired height of the MenuSprite or 0 for the content height
@@ -521,6 +539,7 @@ namespace miniMenu {
         /**
          * Sets the frame for the MenuSprite. The image must be square and have a width and height that are divisible by 3
          *
+         * 
          * @param frame An image to use as the template for drawing the MenuSprite's frame
          */
         //% blockId=mini_menu_set_menu_frame
@@ -551,30 +570,29 @@ namespace miniMenu {
             this.updateDimensions();
         }
 
-        fireButtonEvent(button: controller.Button) {
-            if (!this.buttonEventsEnabled || !this.items.length) return;
+        onButtonEvent(button: Button, handler: (text: string, selectedIndex: number) => void) {
+            const buttonImpl = this.buttonHandlers.getButtonImpl(button);
+            let hasBeenReleased = !buttonImpl.isPressed();
 
-            for (const buttonHandler of this.buttonHandlers) {
-                if (buttonHandler.button === button) {
-                    buttonHandler.fire(this.items[this.selectedIndex].text, this.selectedIndex);
-                    break;
-                }
-            }
-        }
+            const wrappedHandler = () => {
+                if (!this.buttonEventsEnabled || !this.items.length || !hasBeenReleased) return;
 
-        onButtonEvent(button: controller.Button, handler: (text: string, selectedIndex: number) => void) {
-            for (const buttonHandler of this.buttonHandlers) {
-                if (buttonHandler.button === button) {
-                    buttonHandler.handler = handler;
-                    return;
-                }
+                handler(this.items[this.selectedIndex].text, this.selectedIndex);
             }
-            this.buttonHandlers.push(new ButtonHandler(button, handler));
+
+            this.buttonHandlers.onEvent(button, ControllerButtonEvent.Pressed, wrappedHandler);
+
+            if (!hasBeenReleased) {
+                this.buttonHandlers.onEvent(button, ControllerButtonEvent.Released, () => {
+                    hasBeenReleased = true;
+                });
+            }
         }
 
         _destroyCore() {
             super._destroyCore();
             _state().removeSprite(this);
+            this.buttonHandlers.dispose();
         }
 
         updateDimensions() {
@@ -874,37 +892,6 @@ namespace miniMenu {
 
         protected isVerticalScroll() {
             return !(this.menuStyle.columns === 0 && this.menuStyle.rows === 1);
-        }
-    }
-
-        class ButtonHandler {
-        enabled: boolean
-        constructor(
-            public button: controller.Button,
-            public handler: (text: string, selectedIndex: number) => void
-        ) {
-
-            // Button handlers are often registered inside a button event (e.g. closing
-            // one menu and opening another when an option is selected). We don't want
-            // this event to fire immediately, so disable the handler until the button
-            // is released.
-            if (button.isPressed()) {
-                this.enabled = false;
-
-                const enableHandler = () => {
-                    this.enabled = true;
-                    button.removeEventListener(ControllerButtonEvent.Released, enableHandler);
-                };
-                button.addEventListener(ControllerButtonEvent.Released, enableHandler);
-            }
-            else {
-                this.enabled = true;
-            }
-        }
-
-        fire(text: string, selectedIndex: number) {
-            if (!this.enabled) return;
-            this.handler(text, selectedIndex);
         }
     }
 }

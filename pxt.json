@@ -30,6 +30,7 @@
         "style.ts",
         "menuStyle.ts",
         "menuItem.ts",
+        "input.ts",
         "menuSprite.ts",
         "api.ts",
         "icon.png"

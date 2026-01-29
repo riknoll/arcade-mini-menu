@@ -30,15 +30,6 @@ namespace miniMenu {
 
             this.titleStyle = this.defaultStyle.clone();
             this.titleStyle._background = 0;
-
-
-            for (const button of [controller.up, controller.right, controller.down, controller.menu, controller.left, controller.A, controller.B]) {
-                button.addEventListener(ControllerButtonEvent.Pressed, () => {
-                    for (const sprite of this.sprites.filter(buttonEventsEnabled)) {
-                        sprite.fireButtonEvent(button);
-                    }
-                });
-            }
         }
 
         addSprite(sprite: MenuSprite) {
@@ -117,9 +108,5 @@ namespace miniMenu {
                 stateStack.push(new MiniMenuState());
             }
         })
-    }
-
-    function buttonEventsEnabled(sprite: Sprite) {
-        return !!((sprite as MenuSprite).buttonEventsEnabled)
     }
 }

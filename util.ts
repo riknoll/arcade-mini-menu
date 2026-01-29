@@ -21,4 +21,21 @@ namespace miniMenu {
     export function packMargin(left: number, top: number, right: number, bottom: number) {
         return ((top + 1) & 0xff) | (((right + 1) & 0xff) << 8) | (((bottom + 1) & 0xff) << 16) | (((left + 1) & 0xff) << 24)
     }
+
+    export function getButton(ctrl: controller.Controller, button: Button) {
+        switch (button) {
+            case Button.A:
+                return ctrl.A;
+            case Button.B:
+                return ctrl.B;
+            case Button.Up:
+                return ctrl.up;
+            case Button.Down:
+                return ctrl.down;
+            case Button.Left:
+                return ctrl.left;
+            case Button.Right:
+                return ctrl.right;
+        }
+    }
 }
