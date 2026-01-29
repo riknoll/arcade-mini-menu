@@ -5,7 +5,7 @@ Sets the width and height of the menu sprite. This is the same as setting the wi
 Setting the width or height to 0 will result in the menu growing to fit its content.
 
 ```sig
-miniMenu.createMenuFromArray([]).setDimensions(100, 100)
+miniMenu.setDimensions(miniMenu.createMenuFromArray([]), 100, 100)
 ```
 
 ## Parameters

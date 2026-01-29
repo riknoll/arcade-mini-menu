@@ -251,6 +251,7 @@ namespace miniMenu {
         //% weight=80
         //% blockGap=8
         //% help=github:arcade-mini-menu/docs/set-button-events-enabled
+        //% blockHidden=1
         setButtonEventsEnabled(enabled: boolean) {
             this.buttonEventsEnabled = enabled;
         }
@@ -269,6 +270,7 @@ namespace miniMenu {
         //% weight=90
         //% blockGap=8
         //% help=github:arcade-mini-menu/docs/move-selection
+        //% blockHidden=1
         moveSelection(direction: number) {
             if (this.items.length === 0) return;
 
@@ -350,6 +352,7 @@ namespace miniMenu {
         //% group="Create"
         //% weight=10
         //% help=github:arcade-mini-menu/docs/close
+        //% blockHidden=1
         close() {
             this.destroy();
         }
@@ -371,6 +374,7 @@ namespace miniMenu {
         //% weight=100
         //% blockGap=8
         //% help=github:arcade-mini-menu/docs/on-button-pressed
+        //% blockHidden=1
         onButtonPressed(button: Button, handler: (selection: string, selectedIndex: number) => void) {
             this.onButtonEvent(button, handler);
         }
@@ -389,6 +393,7 @@ namespace miniMenu {
         //% group="Controls"
         //% weight=90
         //% help=github:arcade-mini-menu/docs/on-selection-changed
+        //% blockHidden=1
         onSelectionChanged(handler: (selection: string, selectedIndex: number) => void) {
             this.itemSelectedHandler = handler;
 
@@ -425,6 +430,7 @@ namespace miniMenu {
         //% group="Styling"
         //% weight=50
         //% help=github:arcade-mini-menu/docs/set-style-property
+        //% blockHidden=1
         setStyleProperty(kind: StyleKind, property: StyleProperty, value: number) {
             switch (kind) {
                 case StyleKind.Default:
@@ -466,6 +472,7 @@ namespace miniMenu {
         //% weight=100
         //% blockGap=8
         //% help=github:arcade-mini-menu/docs/set-menu-style-property
+        //% blockHidden=1
         setMenuStyleProperty(property: MenuStyleProperty, value: number) {
             this.menuStyle.setMenuStyleProperty(property, value);
 
@@ -508,6 +515,7 @@ namespace miniMenu {
         //% group="Create"
         //% weight=20
         //% help=github:arcade-mini-menu/docs/set-title
+        //% blockHidden=1
         setTitle(title: string) {
             this.title = new miniMenu.MenuItem(title, undefined);
             this.updateDimensions();
@@ -531,6 +539,7 @@ namespace miniMenu {
         //% weight=30
         //% blockGap=8
         //% help=github:arcade-mini-menu/docs/set-dimensions
+        //% blockHidden=1
         setDimensions(width: number, height: number) {
             this.setMenuStyleProperty(MenuStyleProperty.Width, width);
             this.setMenuStyleProperty(MenuStyleProperty.Height, height);
@@ -539,7 +548,7 @@ namespace miniMenu {
         /**
          * Sets the frame for the MenuSprite. The image must be square and have a width and height that are divisible by 3
          *
-         * 
+         *
          * @param frame An image to use as the template for drawing the MenuSprite's frame
          */
         //% blockId=mini_menu_set_menu_frame
@@ -552,6 +561,7 @@ namespace miniMenu {
         //% weight=100
         //% blockGap=8
         //% help=github:arcade-mini-menu/docs/set-frame
+        //% blockHidden=1
         setFrame(frame: Image) {
             if (!frame) {
                 this.frame = frame;

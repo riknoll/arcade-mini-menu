@@ -15,6 +15,7 @@
         "docs/on-button-pressed.md",
         "docs/on-selection-changed.md",
         "docs/set-button-events-enabled.md",
+        "docs/set-controller.md",
         "docs/set-dimensions.md",
         "docs/set-frame.md",
         "docs/set-menu-style-property.md",

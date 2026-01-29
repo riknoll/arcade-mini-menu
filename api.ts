@@ -87,7 +87,7 @@ namespace miniMenu {
         item10?: MenuItem,
         item11?: MenuItem,
         item12?: MenuItem,
-    ) {
+    ): Sprite {
         _init();
 
         const m = new MenuSprite();
@@ -129,7 +129,7 @@ namespace miniMenu {
     //% help=github:arcade-mini-menu/docs/create-menu-from-array
     export function createMenuFromArray(
         items: MenuItem[]
-    ) {
+    ): Sprite {
         _init();
 
         const m = new MenuSprite();
@@ -171,5 +171,223 @@ namespace miniMenu {
     //% help=github:arcade-mini-menu/docs/create-border-box
     export function createBorderBox(left: number, top: number, right: number, bottom: number) {
         return packMargin(left, top, right, bottom);
+    }
+
+    /**
+     * Sets whether or not button events on this MenuSprite will be fired.
+     *
+     *
+     * @param enabled If true, button events are enabled. If false, they are disabled
+     */
+    //% blockId=mini_menu_sprite_set_button_events_enabled_new
+    //% block="$menu set button events enabled $enabled"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% enable.shadow=toggleOnOff
+    //% group="Controls"
+    //% weight=80
+    //% blockGap=8
+    //% help=github:arcade-mini-menu/docs/set-button-events-enabled
+    export function setButtonEventsEnabled(menu: Sprite, enabled: boolean) {
+        assertMenuSprite(menu).setButtonEventsEnabled(enabled);
+    }
+
+    /**
+     * Moves the selection cursor in the MenuSprite in the given direction.
+     *
+     *
+     * @param direction The direction to move the cursor in
+     */
+    //% blockId=mini_menu_sprite_move_selection_up_new
+    //% block="$menu move selection $direction"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% direction.shadow=mini_menu_move_direction
+    //% group="Controls"
+    //% weight=90
+    //% blockGap=8
+    //% help=github:arcade-mini-menu/docs/move-selection
+    export function moveSelection(menu: Sprite, direction: number) {
+        assertMenuSprite(menu).moveSelection(direction);
+    }
+
+    /**
+     * Sets the controller that will be used to navigate the MenuSprite.
+     * Useful for multiplayer games.
+     *
+     *
+     * @param menu  The MenuSprite to set the controller for
+     * @param ctrl  The controller to use for navigation
+     */
+    //% blockId=mini_menu_sprite_set_controller
+    //% block="$menu set controller $ctrl"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% group="Controls"
+    //% weight=80
+    //% help=github:arcade-mini-menu/docs/set-controller
+    export function setController(menu: Sprite, ctrl: controller.Controller) {
+        assertMenuSprite(menu).setController(ctrl);
+    }
+
+    /**
+     * Destroys the MenuSprite. This is exactly the same as using the destroy block in the Sprites category
+     */
+    //% blockId=mini_menu_sprite_close_menu_new
+    //% block="close $menu"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% group="Create"
+    //% weight=10
+    //% help=github:arcade-mini-menu/docs/close
+    export function close(menu: Sprite) {
+        assertMenuSprite(menu).close();
+    }
+
+    /**
+     * Runs some code whenever a button is pressed and the given MenuSprite has not been destroyed. Using this with one of the direction buttons will override the default behavior.
+     *
+     *
+     * @param button The button to listen to
+     * @param handler The code to run when the button is pressed
+     */
+    //% blockId=mini_menu_on_button_pressed_new
+    //% block="$menu on $button pressed with $selection"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% handlerStatement
+    //% draggableParameters=reporter
+    //% group="Controls"
+    //% weight=100
+    //% blockGap=8
+    //% help=github:arcade-mini-menu/docs/on-button-pressed
+    export function onButtonPressed(menu: Sprite, button: Button, handler: (selection: string, selectedIndex: number) => void) {
+        assertMenuSprite(menu).onButtonPressed(button, handler);
+    }
+
+    /**
+     * Runs some code whenever the selection cursor in the specified MenuSprite moves. This will also fire once immediately when this function is called
+     *
+     * @param handler The code to run when the selection changes
+     */
+    //% blockId=mini_menu_on_selection_changed_new
+    //% block="$menu on selection changed $selection $selectedIndex"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% handlerStatement
+    //% draggableParameters=reporter
+    //% group="Controls"
+    //% weight=90
+    //% help=github:arcade-mini-menu/docs/on-selection-changed
+    export function onSelectionChanged(menu: Sprite, handler: (selection: string, selectedIndex: number) => void) {
+        assertMenuSprite(menu).onSelectionChanged(handler);
+    }
+
+    /**
+     * Sets a style property for the specified part of the MenuSprite. See the help page for more info on what these properties mean.
+     *
+     *
+     * @param kind The part of the MenuSprite to style
+     * @param property The property to set the value of
+     * @param value The value to set the property to
+     */
+    //% blockId=mini_menu_set_style_property_new
+    //% block="set $kind item style for $menu $property to $value"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% inlineInputMode=inline
+    //% group="Styling"
+    //% weight=50
+    //% help=github:arcade-mini-menu/docs/set-style-property
+    export function setStyleProperty(menu: Sprite, kind: StyleKind, property: StyleProperty, value: number) {
+        assertMenuSprite(menu).setStyleProperty(kind, property, value);
+    }
+
+    /**
+     * Sets a style property on a MenuSprite. See the help page for more info on what these properties mean.
+     *
+     *
+     * @param property The property to set the value of
+     * @param value The value to set the property to
+     */
+    //% blockId=mini_menu_set_menu_style_property_new
+    //% block="set menu style for $menu $property to $value"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% inlineInputMode=inline
+    //% group="Styling"
+    //% weight=100
+    //% blockGap=8
+    //% help=github:arcade-mini-menu/docs/set-menu-style-property
+    export function setMenuStyleProperty(menu: Sprite, property: MenuStyleProperty, value: number) {
+        assertMenuSprite(menu).setMenuStyleProperty(property, value);
+    }
+
+    /**
+     * Sets the title of the MenuSprite. The title is displayed above the menu can can be customized using the setStyleProperty function.
+     *
+     *
+     * @param title The title to set for the MenuSprite
+     */
+    //% blockId=mini_menu_set_menu_title_new
+    //% block="set $menu title to $title"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% title.defl="title"
+    //% inlineInputMode=inline
+    //% group="Create"
+    //% weight=20
+    //% help=github:arcade-mini-menu/docs/set-title
+    export function setTitle(menu: Sprite, title: string) {
+        assertMenuSprite(menu).setTitle(title);
+    }
+
+    /**
+     * Sets the width and height of the MenuSprite. If the width or height is too small to fit the menu's content, the menu will scroll.
+     *
+     *
+     * @param width The desired width of the MenuSprite or 0 for the content width
+     * @param height The desired height of the MenuSprite or 0 for the content height
+     */
+    //% blockId=mini_menu_set_menu_dimensions_new
+    //% block="set $menu width $width height $height"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% width.defl=100
+    //% height.defl=100
+    //% inlineInputMode=inline
+    //% group="Create"
+    //% weight=30
+    //% blockGap=8
+    //% help=github:arcade-mini-menu/docs/set-dimensions
+    export function setDimensions(menu: Sprite, width: number, height: number) {
+        assertMenuSprite(menu).setDimensions(width, height);
+    }
+
+    /**
+     * Sets the frame for the MenuSprite. The image must be square and have a width and height that are divisible by 3
+     *
+     *
+     * @param frame An image to use as the template for drawing the MenuSprite's frame
+     */
+    //% blockId=mini_menu_set_menu_frame_new
+    //% block="set $menu frame to $frame"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% frame.shadow=dialog_image_picker
+    //% inlineInputMode=inline
+    //% group="Styling"
+    //% weight=100
+    //% blockGap=8
+    //% help=github:arcade-mini-menu/docs/set-frame
+    export function setFrame(menu: Sprite, frame: Image) {
+        assertMenuSprite(menu).setFrame(frame);
+    }
+
+    function assertMenuSprite(menu: Sprite): MenuSprite {
+        if (!(menu instanceof MenuSprite)) {
+            throw "Mini menu functions can only be called on MenuSprites";
+        }
+        return menu;
     }
 }

@@ -3,7 +3,7 @@
 Moves the selection of the menu in the given direction. This is useful for implementing your own custom menu controls.
 
 ```sig
-miniMenu.createMenuFromArray([]).moveSelection(miniMenu.MoveDirection.Up)
+miniMenu.moveSelection(miniMenu.createMenuFromArray([]), miniMenu.MoveDirection.Up)
 ```
 
 For some menu layouts, some movement directions will have no effect:

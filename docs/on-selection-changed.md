@@ -3,7 +3,7 @@
 Runs some code when the selected item of a MenuSprite changes. The code will also run immediately when this function is called.
 
 ```sig
-miniMenu.createMenuFromArray([]).onButtonPressed(controller.A, function (selection, selectedIndex) {
+miniMenu.onButtonPressed(miniMenu.createMenuFromArray([]), controller.A, function (selection, selectedIndex) {
 
 })
 ```
