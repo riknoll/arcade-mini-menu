@@ -10,6 +10,7 @@ namespace miniMenu {
         menuStyle: MenuStyle;
         defaultStyle: Style;
         selectedStyle: Style;
+        disabledStyle: Style;
         titleStyle: Style;
 
         sprites: MenuSprite[];
@@ -27,6 +28,9 @@ namespace miniMenu {
             this.selectedStyle = this.defaultStyle.clone();
             this.selectedStyle._foreground = 1;
             this.selectedStyle._background = 3;
+
+            this.disabledStyle = this.defaultStyle.clone();
+            this.disabledStyle._foreground = 11;
 
             this.titleStyle = this.defaultStyle.clone();
             this.titleStyle._background = 0;
@@ -66,6 +70,8 @@ namespace miniMenu {
         Selected,
         //% block="title"
         Title,
+        //% block="disabled"
+        Disabled,
         //% block="default and selected"
         DefaultAndSelected,
         //% block="all"

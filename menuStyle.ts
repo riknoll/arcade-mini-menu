@@ -21,7 +21,9 @@ namespace miniMenu {
         //% block="scroll indicator"
         ScrollIndicatorColor,
         //% block="use as template"
-        UseAsTemplate
+        UseAsTemplate,
+        //% block="allow selecting disabled items"
+        DisabledItemsSelectable
     }
 
 
@@ -36,6 +38,7 @@ namespace miniMenu {
         _padding: number;
         _backgroundColor: number;
         _scrollColor: number;
+        _disabledItemsSelectable: boolean;
 
         constructor(public parent?: MenuStyle) {
             if (!parent) {
@@ -46,6 +49,7 @@ namespace miniMenu {
                 this._border = 0;
                 this._padding = 0;
                 this._borderColor = 0;
+                this._disabledItemsSelectable = false;
             }
         }
 
@@ -165,6 +169,17 @@ namespace miniMenu {
             this._scrollColor = value;
         }
 
+        get disabledItemsSelectable(): boolean {
+            if (this.parent && this._disabledItemsSelectable === undefined) {
+                return this.parent.disabledItemsSelectable;
+            }
+            return this._disabledItemsSelectable;
+        }
+
+        set disabledItemsSelectable(value: boolean) {
+            this._disabledItemsSelectable = value;
+        }
+
         setMenuStyleProperty(property: MenuStyleProperty, value: number) {
             switch (property) {
                 case MenuStyleProperty.Width:
@@ -197,6 +212,9 @@ namespace miniMenu {
                 case MenuStyleProperty.ScrollIndicatorColor:
                     this.scrollColor = value | 0;
                     break;
+                case MenuStyleProperty.DisabledItemsSelectable:
+                    this.disabledItemsSelectable = !!value;
+                    break;
             }
         }
 
@@ -211,6 +229,7 @@ namespace miniMenu {
             target.padding = this.padding;
             target.backgroundColor = this.backgroundColor;
             target.scrollColor = this.scrollColor;
+            target.disabledItemsSelectable = this.disabledItemsSelectable;
         }
     }
 

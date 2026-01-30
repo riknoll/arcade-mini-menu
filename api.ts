@@ -24,19 +24,20 @@ namespace miniMenu {
      *
      * @param text The text for the MenuItem
      * @param image An optional icon for the MenuItem
+     * @param disabled Whether or not the MenuItem is disabled
      * @returns A MenuItem
      */
     //% blockId=mini_menu_create_menu_item
-    //% block="menu item $text||$image"
+    //% block="menu item $text||$image disabled $disabled"
     //% text.defl="abc"
     //% text.shadow=text
     //% image.shadow=screen_image_picker
     //% group="Create"
     //% weight=90
     //% help=github:arcade-mini-menu/docs/create-menu-item
-    export function createMenuItem(text: string, image?: Image) {
+    export function createMenuItem(text: string, image?: Image, disabled?: boolean): MenuItem {
         _init()
-        return new MenuItem(text, image);
+        return new MenuItem(text, image, disabled);
     }
 
     /**
@@ -204,7 +205,7 @@ namespace miniMenu {
     //% menu.defl=myMenu
     //% direction.shadow=mini_menu_move_direction
     //% group="Controls"
-    //% weight=90
+    //% weight=80
     //% blockGap=8
     //% help=github:arcade-mini-menu/docs/move-selection
     export function moveSelection(menu: Sprite, direction: number) {
@@ -224,7 +225,7 @@ namespace miniMenu {
     //% menu.shadow=variables_get
     //% menu.defl=myMenu
     //% group="Controls"
-    //% weight=80
+    //% weight=70
     //% help=github:arcade-mini-menu/docs/set-controller
     export function setController(menu: Sprite, ctrl: controller.Controller) {
         assertMenuSprite(menu).setController(ctrl);
@@ -382,6 +383,61 @@ namespace miniMenu {
     //% help=github:arcade-mini-menu/docs/set-frame
     export function setFrame(menu: Sprite, frame: Image) {
         assertMenuSprite(menu).setFrame(frame);
+    }
+
+    //% blockId=mini_menu_get_menu_item
+    //% block="$menu get menu item at $index"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% index.defl=0
+    //% inlineInputMode=inline
+    //% group="Menu Items"
+    //% weight=90
+    //% blockGap=8
+    //% help=github:arcade-mini-menu/docs/get-menu-item
+    export function getMenuItem(menu: Sprite, index: number): MenuItem {
+        return assertMenuSprite(menu).getMenuItem(index);
+    }
+
+    //% blockId=mini_menu_get_menu_items
+    //% block="$menu get all menu items"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% inlineInputMode=inline
+    //% group="Menu Items"
+    //% weight=85
+    //% blockGap=8
+    //% help=github:arcade-mini-menu/docs/get-menu-items
+    export function getMenuItems(menu: Sprite): MenuItem[] {
+        return assertMenuSprite(menu).getMenuItems();
+    }
+
+    //% blockId=mini_menu_remove_menu_item
+    //% block="$menu remove menu item at $index"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% index.defl=0
+    //% inlineInputMode=inline
+    //% group="Menu Items"
+    //% weight=80
+    //% blockGap=8
+    //% help=github:arcade-mini-menu/docs/remove-menu-item
+    export function removeMenuItem(menu: Sprite, index: number): void {
+        assertMenuSprite(menu).removeMenuItem(index);
+    }
+
+    //% blockId=mini_menu_insert_menu_item
+    //% block="$menu insert $item||at $index"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% item.shadow=mini_menu_create_menu_item
+    //% index.defl=0
+    //% inlineInputMode=inline
+    //% group="Menu Items"
+    //% weight=70
+    //% help=github:arcade-mini-menu/docs/insert-menu-item
+    export function insertMenuItem(menu: Sprite, item: MenuItem, index?: number): void {
+        assertMenuSprite(menu).insertMenuItem(item, index);
     }
 
     function assertMenuSprite(menu: Sprite): MenuSprite {

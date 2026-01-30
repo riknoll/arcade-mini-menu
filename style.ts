@@ -1,7 +1,10 @@
 namespace miniMenu {
     export enum Alignment {
+        //% block="left"
         Left,
+        //% block="center"
         Center,
+        //% block="right"
         Right
     }
 
@@ -230,5 +233,4 @@ namespace miniMenu {
             }
         }
     }
-
 }

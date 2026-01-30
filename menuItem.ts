@@ -1,9 +1,93 @@
 namespace miniMenu {
-        export class MenuItem {
-        font: image.Font;
+    export class MenuItem {
+        _font: image.Font;
+        _isDirty: boolean;
+        _disabled: boolean;
 
-        constructor(public text: string, public icon: Image) {
-            this.font = image.getFontForText(text);
+        constructor(public text: string, public icon: Image, disabled?: boolean) {
+            this._font = image.getFontForText(text);
+            this._disabled = !!disabled;
+            this._isDirty = true;
+        }
+
+        //% blockId=mini_menu_menu_item_set_disabled
+        //% block="$this set disabled $disabled"
+        //% this.shadow=variables_get
+        //% this.defl=myMenuItem
+        //% inlineInputMode=inline
+        //% group="Menu Items"
+        //% weight=50
+        //% blockGap=8
+        //% help=github:arcade-mini-menu/docs/menu-item-set-disabled
+        setDisabled(disabled: boolean) {
+            this._disabled = disabled;
+            this._isDirty = true;
+        }
+
+        //% blockId=mini_menu_menu_item_is_disabled
+        //% block="$this is disabled"
+        //% this.shadow=variables_get
+        //% this.defl=myMenuItem
+        //% inlineInputMode=inline
+        //% group="Menu Items"
+        //% weight=45
+        //% help=github:arcade-mini-menu/docs/menu-item-is-disabled
+        isDisabled(): boolean {
+            return this._disabled;
+        }
+
+        //% blockId=mini_menu_menu_item_set_text
+        //% block="$this set text $text"
+        //% this.shadow=variables_get
+        //% this.defl=myMenuItem
+        //% inlineInputMode=inline
+        //% group="Menu Items"
+        //% weight=40
+        //% blockGap=8
+        //% help=github:arcade-mini-menu/docs/menu-item-set-text
+        setText(text: string) {
+            this.text = text;
+            this._font = image.getFontForText(text);
+            this._isDirty = true;
+        }
+
+        //% blockId=mini_menu_menu_item_get_text
+        //% block="$this text"
+        //% this.shadow=variables_get
+        //% this.defl=myMenuItem
+        //% inlineInputMode=inline
+        //% group="Menu Items"
+        //% weight=35
+        //% help=github:arcade-mini-menu/docs/menu-item-get-text
+        getText(): string {
+            return this.text;
+        }
+
+        //% blockId=mini_menu_menu_item_set_icon
+        //% block="$this set icon $icon"
+        //% this.shadow=variables_get
+        //% this.defl=myMenuItem
+        //% icon.shadow=screen_image_picker
+        //% inlineInputMode=inline
+        //% group="Menu Items"
+        //% weight=30
+        //% blockGap=8
+        //% help=github:arcade-mini-menu/docs/menu-item-set-icon
+        setIcon(icon: Image) {
+            this.icon = icon;
+            this._isDirty = true;
+        }
+
+        //% blockId=mini_menu_menu_item_get_icon
+        //% block="$this icon"
+        //% this.shadow=variables_get
+        //% this.defl=myMenuItem
+        //% inlineInputMode=inline
+        //% group="Menu Items"
+        //% weight=25
+        //% help=github:arcade-mini-menu/docs/menu-item-get-icon
+        getIcon(): Image {
+            return this.icon;
         }
 
         getHeight(style: Style) {
@@ -19,10 +103,10 @@ namespace miniMenu {
                 return this.icon.height + allPadding
             }
             else if (this.icon) {
-                return Math.max(this.icon.height, this.font.charHeight) + allPadding;
+                return Math.max(this.icon.height, this._font.charHeight) + allPadding;
             }
             else {
-                return this.font.charHeight + allPadding
+                return this._font.charHeight + allPadding
             }
         }
 
@@ -39,10 +123,10 @@ namespace miniMenu {
                 return this.icon.width + allPadding
             }
             else if (this.icon) {
-                return this.icon.width + style.iconTextSpacing + this.text.length * this.font.charWidth + allPadding;
+                return this.icon.width + style.iconTextSpacing + this.text.length * this._font.charWidth + allPadding;
             }
             else {
-                return this.text.length * this.font.charWidth + allPadding
+                return this.text.length * this._font.charWidth + allPadding
             }
         }
 
@@ -57,7 +141,7 @@ namespace miniMenu {
                 maxHeight = this.getHeight(style);
             }
 
-            const widthOfText = this.font.charWidth * this.text.length;
+            const widthOfText = this._font.charWidth * this.text.length;
 
             let borderLeft = left + unpackMargin(style.margin, MoveDirection.Left);
             let borderTop = top + unpackMargin(style.margin, MoveDirection.Up);
@@ -70,9 +154,9 @@ namespace miniMenu {
             let contentBottom = borderBottom - unpackMargin(style.border, MoveDirection.Down) - unpackMargin(style.padding, MoveDirection.Down);
 
             let textLeft: number;
-            let textTop = contentTop + ((contentBottom - contentTop) >> 1) - (this.font.charHeight >> 1);
+            let textTop = contentTop + ((contentBottom - contentTop) >> 1) - (this._font.charHeight >> 1);
             let textRight: number;
-            let textBottom = textTop + this.font.charHeight;
+            let textBottom = textTop + this._font.charHeight;
 
             let iconLeft: number;
             let iconTop: number;
@@ -198,11 +282,11 @@ namespace miniMenu {
                     textBottom,
                     style.foreground,
                     Math.min(Math.max((scrollTick - 100) >> 2, 0), maxScroll),
-                    this.font
+                    this._font
                 )
             }
             else {
-                const printableCharacters = Math.ceil((textRight - textLeft) / this.font.charWidth)
+                const printableCharacters = Math.ceil((textRight - textLeft) / this._font.charWidth)
                 printTextInRect(
                     target,
                     this.text.substr(0, printableCharacters),
@@ -213,7 +297,7 @@ namespace miniMenu {
                     style.foreground,
                     cutLeft,
                     cutTop,
-                    this.font
+                    this._font
                 )
             }
         }

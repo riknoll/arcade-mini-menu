@@ -6,6 +6,7 @@ namespace miniMenu {
         titleStyle: Style;
         defaultStyle: Style;
         selectedStyle: Style;
+        disabledStyle: Style;
 
         selectedIndex: number;
         buttonEventsEnabled: boolean;
@@ -33,6 +34,7 @@ namespace miniMenu {
             this.titleStyle = new Style(_state().titleStyle)
             this.defaultStyle = new Style(_state().defaultStyle)
             this.selectedStyle = new Style(_state().selectedStyle)
+            this.disabledStyle = new Style(_state().disabledStyle)
 
             this.selectedIndex = 0;
             this.items = [];
@@ -203,6 +205,19 @@ namespace miniMenu {
         }
 
         update(deltaTimeMillis: number) {
+            let needsDimensionsUpdate = false;
+            for (const item of this.items) {
+                if (item._isDirty) {
+                    needsDimensionsUpdate = true;
+                    item._isDirty = false;
+                }
+            }
+
+            if (needsDimensionsUpdate) {
+                this.ensureValidSelection();
+                this.updateDimensions();
+            }
+
             if (Math.abs(this.yScroll - this.targetYScroll) <= 1) {
                 this.yScroll = this.targetYScroll
             }
@@ -234,6 +249,7 @@ namespace miniMenu {
 
         setMenuItems(items: MenuItem[]) {
             this.items = items;
+            this.ensureValidSelection();
             this.updateDimensions();
         }
 
@@ -272,66 +288,88 @@ namespace miniMenu {
         //% help=github:arcade-mini-menu/docs/move-selection
         //% blockHidden=1
         moveSelection(direction: number) {
-            if (this.items.length === 0) return;
+            let hasItems = false;
+            for (const item of this.items) {
+                if (!item._disabled || this.menuStyle.disabledItemsSelectable) {
+                    hasItems = true;
+                    break;
+                }
+            }
+
+            if (!hasItems) return;
 
             let oldSelection = this.selectedIndex;
 
             if (this.menuStyle.columns <= 1 && this.menuStyle.rows === 0) {
-                if (direction === MoveDirection.Up) {
-                    this.selectedIndex = (this.selectedIndex + this.items.length - 1) % this.items.length;
-                }
-                else if (direction === MoveDirection.Down) {
-                    this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
-                }
-                else {
-                    return;
-                }
+                do {
+                    if (direction === MoveDirection.Up) {
+                        this.selectedIndex = (this.selectedIndex + this.items.length - 1) % this.items.length;
+                    }
+                    else if (direction === MoveDirection.Down) {
+                        this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
+                    }
+                    else {
+                        return;
+                    }
+                } while (!this.menuStyle.disabledItemsSelectable && this.items[this.selectedIndex]._disabled);
                 this.scrollAnimationTick = 0;
             }
             else if (this.menuStyle.columns === 0 && this.menuStyle.rows === 1) {
-                if (direction === MoveDirection.Left) {
-                    this.selectedIndex = (this.selectedIndex + this.items.length - 1) % this.items.length;
-                }
-                else if (direction === MoveDirection.Right) {
-                    this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
-                }
-                else {
-                    return;
-                }
+                do {
+                    if (direction === MoveDirection.Left) {
+                        this.selectedIndex = (this.selectedIndex + this.items.length - 1) % this.items.length;
+                    }
+                    else if (direction === MoveDirection.Right) {
+                        this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
+                    }
+                    else {
+                        return;
+                    }
+                } while (!this.menuStyle.disabledItemsSelectable && this.items[this.selectedIndex]._disabled);
                 this.scrollAnimationTick = 0;
             }
             else {
                 let column = this.selectedIndex % this.menuStyle.columns;
                 let row = Math.idiv(this.selectedIndex, this.menuStyle.columns);
 
+                const startColumn = column;
+                const startRow = row;
+
                 const maxRows = Math.ceil(this.items.length / this.menuStyle.columns);
 
-                if (direction === MoveDirection.Up) {
-                    row = (row + maxRows - 1) % maxRows;
+                do {
+                    if (direction === MoveDirection.Up) {
+                        row = (row + maxRows - 1) % maxRows;
 
-                    if (column + row * this.menuStyle.columns >= this.items.length) {
-                        row = maxRows - 2;
+                        if (column + row * this.menuStyle.columns >= this.items.length) {
+                            row = maxRows - 2;
+                        }
                     }
-                }
-                else if (direction === MoveDirection.Down) {
-                    row = (row + 1) % maxRows;
-                    if (column + row * this.menuStyle.columns >= this.items.length) {
-                        row = 0
+                    else if (direction === MoveDirection.Down) {
+                        row = (row + 1) % maxRows;
+                        if (column + row * this.menuStyle.columns >= this.items.length) {
+                            row = 0
+                        }
                     }
-                }
-                else if (direction === MoveDirection.Left) {
-                    column = (column + this.menuStyle.columns - 1) % this.menuStyle.columns
-                    if (column + row * this.menuStyle.columns >= this.items.length) {
-                        column = (this.items.length - 1) % this.menuStyle.columns
+                    else if (direction === MoveDirection.Left) {
+                        column = (column + this.menuStyle.columns - 1) % this.menuStyle.columns
+                        if (column + row * this.menuStyle.columns >= this.items.length) {
+                            column = (this.items.length - 1) % this.menuStyle.columns
+                        }
                     }
-                }
-                else if (direction === MoveDirection.Right) {
-                    column = (column + 1) % this.menuStyle.columns
-                    if (column + row * this.menuStyle.columns >= this.items.length) {
-                        column = 0;
+                    else if (direction === MoveDirection.Right) {
+                        column = (column + 1) % this.menuStyle.columns
+                        if (column + row * this.menuStyle.columns >= this.items.length) {
+                            column = 0;
+                        }
                     }
-                }
+                } while (
+                    !this.menuStyle.disabledItemsSelectable &&
+                    this.items[column + row * this.menuStyle.columns]._disabled &&
+                    (column !== startColumn || row !== startRow)
+                );
 
+                if (column === startColumn && row === startRow) return;
                 this.selectedIndex = column + row * this.menuStyle.columns
                 this.scrollAnimationTick = 0
             }
@@ -442,6 +480,9 @@ namespace miniMenu {
                 case StyleKind.Title:
                     this.titleStyle.setProperty(property, value);
                     break;
+                case StyleKind.Disabled:
+                    this.disabledStyle.setProperty(property, value);
+                    break;
                 case StyleKind.DefaultAndSelected:
                     this.defaultStyle.setProperty(property, value);
                     this.selectedStyle.setProperty(property, value);
@@ -450,6 +491,7 @@ namespace miniMenu {
                     this.defaultStyle.setProperty(property, value);
                     this.selectedStyle.setProperty(property, value);
                     this.titleStyle.setProperty(property, value);
+                    this.disabledStyle.setProperty(property, value);
                     break;
             }
 
@@ -489,11 +531,15 @@ namespace miniMenu {
 
                     this.selectedStyle.copyTo(_state().selectedStyle);
                     this.selectedStyle = _state().selectedStyle;
+
+                    this.disabledStyle.copyTo(_state().disabledStyle);
+                    this.disabledStyle = _state().disabledStyle;
                 }
                 else {
                     this.defaultStyle = new Style(_state().defaultStyle)
                     this.titleStyle = new Style(_state().titleStyle)
                     this.selectedStyle = new Style(_state().selectedStyle)
+                    this.disabledStyle = new Style(_state().disabledStyle)
                 }
             }
 
@@ -609,6 +655,53 @@ namespace miniMenu {
             super.setDimensions(this.getWidth(), this.getHeight());
         }
 
+        getMenuItem(index: number): MenuItem {
+            return this.items[index];
+        }
+
+        getMenuItems(): MenuItem[] {
+            return this.items.slice();
+        }
+
+        removeMenuItem(index: number) {
+            this.items.removeAt(index);
+            if (index < this.selectedIndex) {
+                this.selectedIndex--;
+            }
+            this.ensureValidSelection();
+            this.updateDimensions();
+        }
+
+        insertMenuItem(item: MenuItem, index?: number) {
+            if (index === undefined) {
+                this.items.push(item);
+            }
+            else {
+                this.items.insertAt(index, item);
+            }
+            if (index <= this.selectedIndex) {
+                this.selectedIndex++;
+            }
+            this.ensureValidSelection();
+            this.updateDimensions();
+        }
+
+        protected getStyle(index: number): Style {
+            const item = this.items[index];
+
+            if (!item) return this.defaultStyle;
+
+            if (item._disabled) {
+                return this.disabledStyle;
+            }
+            else if (this.selectedIndex === index) {
+                return this.selectedStyle;
+            }
+            else {
+                return this.defaultStyle;
+            }
+        }
+
         protected drawSingleColumn(drawLeft: number, drawTop: number, menuWidth: number, menuHeight: number) {
             if (!this.items) return;
 
@@ -622,7 +715,7 @@ namespace miniMenu {
             for (let i = 0; i < this.items.length; i++) {
                 current = this.items[i];
                 isSelected = this.selectedIndex === i
-                style = isSelected ? this.selectedStyle : this.defaultStyle;
+                style = this.getStyle(i);
                 currentHeight = current.getHeight(style);
 
                 if (isSelected) {
@@ -689,7 +782,7 @@ namespace miniMenu {
             for (let i = 0; i < this.items.length; i++) {
                 current = this.items[i];
                 isSelected = this.selectedIndex === i
-                style = isSelected ? this.selectedStyle : this.defaultStyle;
+                style = this.getStyle(i);
                 currentWidth = Math.min(current.getWidth(style), menuWidth);
 
                 if (isSelected) {
@@ -764,7 +857,7 @@ namespace miniMenu {
             for (let row = 0; row < totalRows; row++) {
                 for (let col = 0; col < this.menuStyle.columns; col++) {
                     isSelected = index === this.selectedIndex;
-                    style = isSelected ? this.selectedStyle : this.defaultStyle;
+                    style = this.getStyle(index);
                     current = this.items[index];
 
                     if (!current) return;
@@ -830,7 +923,7 @@ namespace miniMenu {
             if (this.menuStyle.columns <= 1 && this.menuStyle.rows === 0) {
                 for (let i = 0; i < this.items.length; i++) {
                     current = this.items[i];
-                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    style = this.getStyle(i);
                     contentWidth = Math.max(current.getWidth(style), contentWidth);
                 }
 
@@ -838,14 +931,14 @@ namespace miniMenu {
             else if (this.menuStyle.columns === 0 && this.menuStyle.rows === 1) {
                 for (let i = 0; i < this.items.length; i++) {
                     current = this.items[i];
-                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    style = this.getStyle(i);
                     contentWidth += current.getWidth(style)
                 }
             }
             else {
                 for (let i = 0; i < this.items.length; i++) {
                     current = this.items[i];
-                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    style = this.getStyle(i);
                     contentWidth = Math.max(current.getWidth(style), contentWidth);
                 }
                 contentWidth *= this.menuStyle.columns;
@@ -870,7 +963,7 @@ namespace miniMenu {
             if (this.menuStyle.columns <= 1 && this.menuStyle.rows === 0) {
                 for (let i = 0; i < this.items.length; i++) {
                     current = this.items[i];
-                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    style = this.getStyle(i);
                     contentHeight += current.getHeight(style)
                 }
 
@@ -878,14 +971,14 @@ namespace miniMenu {
             else if (this.menuStyle.columns === 0 && this.menuStyle.rows === 1) {
                 for (let i = 0; i < this.items.length; i++) {
                     current = this.items[i];
-                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    style = this.getStyle(i);
                     contentHeight = Math.max(current.getHeight(style), contentHeight)
                 }
             }
             else {
                 for (let i = 0; i < this.items.length; i++) {
                     current = this.items[i];
-                    style = this.selectedIndex === i ? this.selectedStyle : this.defaultStyle;
+                    style = this.getStyle(i);
                     contentHeight = Math.max(current.getHeight(style), contentHeight)
                 }
                 contentHeight *= this.menuStyle.rows;
@@ -902,6 +995,24 @@ namespace miniMenu {
 
         protected isVerticalScroll() {
             return !(this.menuStyle.columns === 0 && this.menuStyle.rows === 1);
+        }
+
+        protected ensureValidSelection() {
+            if (this.menuStyle.disabledItemsSelectable || !this.items.length) return;
+
+            if (this.selectedIndex >= this.items.length || this.selectedIndex < 0) {
+                this.selectedIndex = 0;
+            }
+
+            if (!this.items[this.selectedIndex]._disabled) {
+                return;
+            }
+
+            const originalIndex = this.selectedIndex;
+
+            do {
+                this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
+            } while (this.items[this.selectedIndex]._disabled && this.selectedIndex !== originalIndex);
         }
     }
 }
