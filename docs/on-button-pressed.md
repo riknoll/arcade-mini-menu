@@ -6,7 +6,7 @@ Using this function with one of the direction buttons will override the default 
 The `set button events enabled` block can also be used to control if these events run or not.
 
 ```sig
-miniMenu.createMenuFromArray([]).onButtonPressed(controller.A, function (selection, selectedIndex) {
+miniMenu.onButtonPressed(miniMenu.createMenuFromArray([]), controller.A, function (selection, selectedIndex) {
 
 })
 ```

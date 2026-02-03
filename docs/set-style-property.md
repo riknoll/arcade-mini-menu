@@ -6,7 +6,7 @@ Sets one of the available style options for the meneu items of a MenuSprite.
 let myMenu = miniMenu.createMenu(
 miniMenu.createMenuItem("abc")
 )
-myMenu.setStyleProperty(miniMenu.StyleKind.Default, miniMenu.StyleProperty.Padding, 0)
+miniMenu.setStyleProperty(myMenu, miniMenu.StyleKind.Default, miniMenu.StyleProperty.Padding, 0)
 ```
 
 ### Style targets

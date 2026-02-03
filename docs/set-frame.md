@@ -5,7 +5,7 @@ Sets the frame for the MenuSprite.
 A frame is a special image that is used to create borders that surround the MenuSprite. It must be a square image where the width and height are both divisible by 3.
 
 ```sig
-miniMenu.createMenuFromArray([]).setFrame(img`
+miniMenu.setFrame(miniMenu.createMenuFromArray([]), img`
 .
     `)
 ```

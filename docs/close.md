@@ -3,7 +3,7 @@
 Destroys a menu sprite. This is exactly the same as using the destroy block in the sprites category
 
 ```sig
-miniMenu.createMenuFromArray([]).close()
+miniMenu.close(miniMenu.createMenuFromArray([]))
 ```
 
 ## Example #example

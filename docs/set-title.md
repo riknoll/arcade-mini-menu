@@ -3,7 +3,7 @@
 Sets the title for the MenuSprite.
 
 ```sig
-miniMenu.createMenuFromArray([]).setTitle("abc")
+miniMenu.setTitle(miniMenu.createMenuFromArray([]), "abc")
 ```
 
 The title styling can be customized using the `set style property` function.

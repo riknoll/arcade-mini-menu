@@ -1,4 +1,5 @@
 // tests go here; this will not be compiled when this package is used as an extension.
+game.stats = true;
 let selection = 0
 let myMenu = miniMenu.createMenu(
     miniMenu.createMenuItem("Hello my name is not lucas", ), /* img`
@@ -46,7 +47,7 @@ myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
 myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(36, 10)
-myMenu.onButtonPressed(controller.A, function (selection) {
+myMenu.onButtonPressed(miniMenu.Button.A, function (selection) {
     myMenu.sayText(selection)
 })
 // myMenu.setStyleProperty(miniMenu.StyleKind.Selected, miniMenu.StyleProperty.BorderColor, 9)
@@ -98,7 +99,7 @@ myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 40)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(36, 32)
-myMenu.onButtonPressed(controller.A, function (selection) {
+myMenu.onButtonPressed(miniMenu.Button.A, function (selection) {
     myMenu.sayText(selection)
 })
 
@@ -183,7 +184,7 @@ myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(140, 60)
-myMenu.onButtonPressed(controller.A, function (selection) {
+myMenu.onButtonPressed(miniMenu.Button.A, function (selection) {
     myMenu.sayText(selection)
 })
 
@@ -268,7 +269,7 @@ myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Height, 20)
 // myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns, 2)
 myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 1)
 myMenu.setPosition(140, 90)
-myMenu.onButtonPressed(controller.A, function (selection) {
+myMenu.onButtonPressed(miniMenu.Button.A, function (selection) {
     myMenu.sayText(selection)
 })
 
@@ -328,7 +329,7 @@ myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 2)
 // myMenu.setStyleProperty(miniMenu.StyleKind.All, miniMenu.StyleProperty.BorderColor, 15)
 // myMenu.setStyleProperty(miniMenu.StyleKind.All, miniMenu.StyleProperty.Border, miniMenu.packMargin(0, 1, 2, 3))
 myMenu.setPosition(36, 74)
-myMenu.onButtonPressed(controller.A, function (selection) {
+myMenu.onButtonPressed(miniMenu.Button.A, function (selection) {
     myMenu.sayText(selection)
 })
 
@@ -388,7 +389,9 @@ myMenu = miniMenu.createMenu(
     miniMenu.createMenuItem(":"),
     miniMenu.createMenuItem("?")
 )
-myMenu.onButtonPressed(controller.A, function (selection, selectedIndex) {
+myMenu.setController(controller.player2)
+
+myMenu.onButtonPressed(miniMenu.Button.A, function (selection, selectedIndex) {
     myMenu.close()
 })
 myMenu.x = 150
@@ -396,6 +399,6 @@ myMenu.y = 30
 myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Border, 1)
 myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.BorderColor, 1)
 myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.Padding, 1)
-myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.BackgroundColor, 3)
+myMenu.setMenuStyleProperty(miniMenu.MenuStyleProperty.BackgroundColor, 5)
 myMenu.setStyleProperty(miniMenu.StyleKind.Selected, miniMenu.StyleProperty.Foreground, 1)
 myMenu.setStyleProperty(miniMenu.StyleKind.Selected, miniMenu.StyleProperty.Background, 3)

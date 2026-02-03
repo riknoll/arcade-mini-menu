@@ -3,7 +3,7 @@
 Controls whether or not button events are enabled on this menu sprite. Setting this to false will also disable the default button behavior of changing the menu selection when a button is pressed.
 
 ```sig
-miniMenu.createMenuFromArray([]).setButtonEventsEnabled(false)
+miniMenu.setButtonEventsEnabled(miniMenu.createMenuFromArray([]), false)
 ```
 
 ## Parameters
