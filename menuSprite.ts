@@ -691,11 +691,11 @@ namespace miniMenu {
 
             if (!item) return this.defaultStyle;
 
-            if (item._disabled) {
-                return this.disabledStyle;
-            }
             else if (this.selectedIndex === index) {
                 return this.selectedStyle;
+            }
+            else if (item._disabled) {
+                return this.disabledStyle;
             }
             else {
                 return this.defaultStyle;
@@ -998,20 +998,26 @@ namespace miniMenu {
         }
 
         protected ensureValidSelection() {
-            if (this.menuStyle.disabledItemsSelectable || !this.items.length) return;
+            if (!this.items.length) return;
 
-            if (this.selectedIndex >= this.items.length || this.selectedIndex < 0) {
+            let scanDx = 1;
+            if (this.selectedIndex < 0) {
                 this.selectedIndex = 0;
             }
+            else if (this.selectedIndex >= this.items.length) {
+                this.selectedIndex = this.items.length - 1;
+                // if we're past the end, scan backwards when trying to find a non-disabled item
+                scanDx = (this.items.length - 1);
+            }
 
-            if (!this.items[this.selectedIndex]._disabled) {
+            if (this.menuStyle.disabledItemsSelectable || !this.items[this.selectedIndex]._disabled) {
                 return;
             }
 
             const originalIndex = this.selectedIndex;
 
             do {
-                this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
+                this.selectedIndex = (this.selectedIndex + scanDx) % this.items.length;
             } while (this.items[this.selectedIndex]._disabled && this.selectedIndex !== originalIndex);
         }
     }

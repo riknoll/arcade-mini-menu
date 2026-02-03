@@ -386,7 +386,7 @@ namespace miniMenu {
     }
 
     //% blockId=mini_menu_get_menu_item
-    //% block="$menu get menu item at $index"
+    //% block="$menu menu item at $index"
     //% menu.shadow=variables_get
     //% menu.defl=myMenu
     //% index.defl=0
@@ -400,13 +400,12 @@ namespace miniMenu {
     }
 
     //% blockId=mini_menu_get_menu_items
-    //% block="$menu get all menu items"
+    //% block="$menu all menu items"
     //% menu.shadow=variables_get
     //% menu.defl=myMenu
     //% inlineInputMode=inline
     //% group="Menu Items"
     //% weight=85
-    //% blockGap=8
     //% help=github:arcade-mini-menu/docs/get-menu-items
     export function getMenuItems(menu: Sprite): MenuItem[] {
         return assertMenuSprite(menu).getMenuItems();

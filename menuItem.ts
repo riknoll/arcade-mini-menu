@@ -10,39 +10,13 @@ namespace miniMenu {
             this._isDirty = true;
         }
 
-        //% blockId=mini_menu_menu_item_set_disabled
-        //% block="$this set disabled $disabled"
-        //% this.shadow=variables_get
-        //% this.defl=myMenuItem
-        //% inlineInputMode=inline
-        //% group="Menu Items"
-        //% weight=50
-        //% blockGap=8
-        //% help=github:arcade-mini-menu/docs/menu-item-set-disabled
-        setDisabled(disabled: boolean) {
-            this._disabled = disabled;
-            this._isDirty = true;
-        }
-
-        //% blockId=mini_menu_menu_item_is_disabled
-        //% block="$this is disabled"
-        //% this.shadow=variables_get
-        //% this.defl=myMenuItem
-        //% inlineInputMode=inline
-        //% group="Menu Items"
-        //% weight=45
-        //% help=github:arcade-mini-menu/docs/menu-item-is-disabled
-        isDisabled(): boolean {
-            return this._disabled;
-        }
-
         //% blockId=mini_menu_menu_item_set_text
         //% block="$this set text $text"
         //% this.shadow=variables_get
         //% this.defl=myMenuItem
         //% inlineInputMode=inline
         //% group="Menu Items"
-        //% weight=40
+        //% weight=50
         //% blockGap=8
         //% help=github:arcade-mini-menu/docs/menu-item-set-text
         setText(text: string) {
@@ -57,7 +31,7 @@ namespace miniMenu {
         //% this.defl=myMenuItem
         //% inlineInputMode=inline
         //% group="Menu Items"
-        //% weight=35
+        //% weight=45
         //% help=github:arcade-mini-menu/docs/menu-item-get-text
         getText(): string {
             return this.text;
@@ -70,7 +44,7 @@ namespace miniMenu {
         //% icon.shadow=screen_image_picker
         //% inlineInputMode=inline
         //% group="Menu Items"
-        //% weight=30
+        //% weight=40
         //% blockGap=8
         //% help=github:arcade-mini-menu/docs/menu-item-set-icon
         setIcon(icon: Image) {
@@ -84,10 +58,36 @@ namespace miniMenu {
         //% this.defl=myMenuItem
         //% inlineInputMode=inline
         //% group="Menu Items"
-        //% weight=25
+        //% weight=35
         //% help=github:arcade-mini-menu/docs/menu-item-get-icon
         getIcon(): Image {
             return this.icon;
+        }
+
+        //% blockId=mini_menu_menu_item_set_disabled
+        //% block="$this set disabled $disabled"
+        //% this.shadow=variables_get
+        //% this.defl=myMenuItem
+        //% inlineInputMode=inline
+        //% group="Menu Items"
+        //% weight=30
+        //% blockGap=8
+        //% help=github:arcade-mini-menu/docs/menu-item-set-disabled
+        setDisabled(disabled: boolean) {
+            this._disabled = disabled;
+            this._isDirty = true;
+        }
+
+        //% blockId=mini_menu_menu_item_is_disabled
+        //% block="$this is disabled"
+        //% this.shadow=variables_get
+        //% this.defl=myMenuItem
+        //% inlineInputMode=inline
+        //% group="Menu Items"
+        //% weight=25
+        //% help=github:arcade-mini-menu/docs/menu-item-is-disabled
+        isDisabled(): boolean {
+            return this._disabled;
         }
 
         getHeight(style: Style) {
