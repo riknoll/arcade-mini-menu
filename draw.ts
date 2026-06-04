@@ -359,4 +359,123 @@ namespace miniMenu {
         }
     }
 
+    //% whenUsed
+    const _fancyContrastMap = img` . f c c e 4 8 6 c 8 c c f e f 1`;
+    function _fancyContrastingColor(color: number) {
+        return _fancyContrastMap.getPixel(color, 0);
+    }
+
+    export function printFancyTextInRect(target: Image, text: string, left: number, top: number, right: number, bottom: number, color: number, cutLeft: boolean, cutTop: boolean, font: fancyText.BaseFont) {
+        const width = right - left;
+        const height = bottom - top;
+        if (width <= 0 || height <= 0) return;
+
+        const textWidth = fancyText.getTextWidth(font, text);
+        const textHeight = font.lineHeight;
+
+        let textX: number;
+        if (textWidth <= width || !cutLeft) {
+            textX = left;
+        }
+        else {
+            textX = right - textWidth;
+        }
+
+        let textY: number;
+        if (textHeight <= height || !cutTop) {
+            textY = top;
+        }
+        else {
+            textY = bottom - textHeight;
+        }
+
+        _drawFancyTextClipped(target, text, font, color, textX, textY, left, top, right, bottom);
+    }
+
+    export function printFancyScrolledText(target: Image, text: string, left: number, top: number, right: number, bottom: number, color: number, scroll: number, font: fancyText.BaseFont) {
+        if (right - left <= 0 || bottom - top <= 0) return;
+
+        _drawFancyTextClipped(target, text, font, color, left - scroll, top, left, top, right, bottom);
+    }
+
+    function _drawFancyTextClipped(target: Image, text: string, font: fancyText.BaseFont, color: number, startX: number, startY: number, boxLeft: number, boxTop: number, boxRight: number, boxBottom: number) {
+        const imgBuf = control.createBuffer(font.bufferSize());
+        imgBuf[0] = 0x87;
+        imgBuf[1] = 1;
+
+        let x = startX;
+        const baselineY = startY + font.baselineOffset;
+
+        for (let i = 0; i < text.length; i++) {
+            const charCode = text.charCodeAt(i);
+
+            if (charCode === 32) {
+                x += font.wordSpacing;
+                continue;
+            }
+            if (!font.isInFont(charCode)) {
+                x += font.wordSpacing;
+                continue;
+            }
+
+            const charW = font.charWidth(charCode);
+            if (charW === 0) continue;
+
+            const rawX = (x + font.charXOffset(charCode)) | 0;
+            const rawY = (baselineY + font.charYOffset(charCode)) | 0;
+
+            if (rawX < boxRight && rawX + charW > boxLeft) {
+                const charBuf = font.writeCharacterBytes(imgBuf, charCode);
+                const charImg = image.ofBuffer(charBuf);
+
+                if (rawY < boxBottom && rawY + charImg.height > boxTop) {
+                    _blitFancyChar(target, charImg, rawX, rawY, color & 0xf, boxLeft, boxTop, boxRight, boxBottom);
+
+                    if (font.isDualTone) {
+                        const charBuf2 = font.writeCharacterBytes(imgBuf, charCode, true);
+                        const charImg2 = image.ofBuffer(charBuf2);
+                        const secondColor = ((color >> 4) & 0xf) || _fancyContrastingColor(color & 0xf);
+                        _blitFancyChar(target, charImg2, rawX, rawY, secondColor, boxLeft, boxTop, boxRight, boxBottom);
+                    }
+                }
+            }
+
+            x += charW + font.letterSpacing;
+
+            if (i < text.length - 1) {
+                x += font.getKernOffset(charCode, text.charCodeAt(i + 1));
+            }
+        }
+    }
+
+    function _blitFancyChar(target: Image, charImg: Image, rawX: number, rawY: number, color: number, boxLeft: number, boxTop: number, boxRight: number, boxBottom: number) {
+        if (printCanvas.width < charImg.width || printCanvas.height < charImg.height) {
+            printCanvas = image.create(Math.max(printCanvas.width, charImg.width), Math.max(printCanvas.height, charImg.height));
+        }
+        printCanvas.fill(0);
+        printCanvas.drawTransparentImage(charImg, 0, 0);
+        printCanvas.replace(1, color);
+
+        const xDst = Math.max(rawX, boxLeft);
+        const yDst = Math.max(rawY, boxTop);
+        const wDst = Math.min(rawX + charImg.width, boxRight) - xDst;
+        const hDst = Math.min(rawY + charImg.height, boxBottom) - yDst;
+
+        if (wDst <= 0 || hDst <= 0) return;
+
+        target.blit(
+            xDst,
+            yDst,
+            wDst,
+            hDst,
+            printCanvas,
+            xDst - rawX,
+            yDst - rawY,
+            wDst,
+            hDst,
+            true,
+            false
+        );
+    }
+
 }

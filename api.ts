@@ -305,6 +305,27 @@ namespace miniMenu {
     }
 
     /**
+     * Sets the font used to draw text for the specified part of the MenuSprite. Pass null to clear the font and use the default arcade font.
+     *
+     *
+     * @param menu The MenuSprite to set the font on
+     * @param kind The part of the MenuSprite to set the font for
+     * @param font The font to use, or null to use the default arcade font
+     */
+    //% blockId=mini_menu_set_style_font
+    //% block="set $kind item font for $menu to $font"
+    //% menu.shadow=variables_get
+    //% menu.defl=myMenu
+    //% font.shadow=fancy_text__fontPicker
+    //% inlineInputMode=inline
+    //% group="Styling"
+    //% weight=45
+    //% help=github:arcade-mini-menu/docs/set-style-font
+    export function setStyleFont(menu: Sprite, kind: StyleKind, font: fancyText.BaseFont) {
+        assertMenuSprite(menu).setStyleFont(kind, font);
+    }
+
+    /**
      * Sets a style property on a MenuSprite. See the help page for more info on what these properties mean.
      *
      *

@@ -498,6 +498,35 @@ namespace miniMenu {
             this.updateDimensions();
         }
 
+        setStyleFont(kind: StyleKind, font: fancyText.BaseFont) {
+            switch (kind) {
+                case StyleKind.Default:
+                    this.defaultStyle.font = font;
+                    break;
+                case StyleKind.Selected:
+                    this.selectedStyle.font = font;
+                    break;
+                case StyleKind.Title:
+                    this.titleStyle.font = font;
+                    break;
+                case StyleKind.Disabled:
+                    this.disabledStyle.font = font;
+                    break;
+                case StyleKind.DefaultAndSelected:
+                    this.defaultStyle.font = font;
+                    this.selectedStyle.font = font;
+                    break;
+                case StyleKind.All:
+                    this.defaultStyle.font = font;
+                    this.selectedStyle.font = font;
+                    this.titleStyle.font = font;
+                    this.disabledStyle.font = font;
+                    break;
+            }
+
+            this.updateDimensions();
+        }
+
         /**
          * Sets a style property on a MenuSprite. See the help page for more info on what these properties mean.
          *

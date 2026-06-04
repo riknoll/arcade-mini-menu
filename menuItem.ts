@@ -99,14 +99,17 @@ namespace miniMenu {
                 unpackMargin(style.border, MoveDirection.Up) +
                 unpackMargin(style.border, MoveDirection.Down);
 
+            const fancyFont = style.font;
+            const textHeight = fancyFont ? fancyFont.lineHeight : this._font.charHeight;
+
             if (style.iconOnly && this.icon) {
                 return this.icon.height + allPadding
             }
             else if (this.icon) {
-                return Math.max(this.icon.height, this._font.charHeight) + allPadding;
+                return Math.max(this.icon.height, textHeight) + allPadding;
             }
             else {
-                return this._font.charHeight + allPadding
+                return textHeight + allPadding
             }
         }
 
@@ -119,14 +122,19 @@ namespace miniMenu {
                 unpackMargin(style.border, MoveDirection.Left) +
                 unpackMargin(style.border, MoveDirection.Right);
 
+            const fancyFont = style.font;
+            const textWidth = fancyFont ?
+                fancyText.getTextWidth(fancyFont, this.text) :
+                this.text.length * this._font.charWidth;
+
             if (style.iconOnly && this.icon) {
                 return this.icon.width + allPadding
             }
             else if (this.icon) {
-                return this.icon.width + style.iconTextSpacing + this.text.length * this._font.charWidth + allPadding;
+                return this.icon.width + style.iconTextSpacing + textWidth + allPadding;
             }
             else {
-                return this.text.length * this._font.charWidth + allPadding
+                return textWidth + allPadding
             }
         }
 
@@ -141,7 +149,11 @@ namespace miniMenu {
                 maxHeight = this.getHeight(style);
             }
 
-            const widthOfText = this._font.charWidth * this.text.length;
+            const fancyFont = style.font;
+            const textHeight = fancyFont ? fancyFont.lineHeight : this._font.charHeight;
+            const widthOfText = fancyFont ?
+                fancyText.getTextWidth(fancyFont, this.text) :
+                this._font.charWidth * this.text.length;
 
             let borderLeft = left + unpackMargin(style.margin, MoveDirection.Left);
             let borderTop = top + unpackMargin(style.margin, MoveDirection.Up);
@@ -154,9 +166,9 @@ namespace miniMenu {
             let contentBottom = borderBottom - unpackMargin(style.border, MoveDirection.Down) - unpackMargin(style.padding, MoveDirection.Down);
 
             let textLeft: number;
-            let textTop = contentTop + ((contentBottom - contentTop) >> 1) - (this._font.charHeight >> 1);
+            let textTop = contentTop + ((contentBottom - contentTop) >> 1) - (textHeight >> 1);
             let textRight: number;
-            let textBottom = textTop + this._font.charHeight;
+            let textBottom = textTop + textHeight;
 
             let iconLeft: number;
             let iconTop: number;
@@ -273,32 +285,63 @@ namespace miniMenu {
 
                 scrollTick = scrollTick % animationLength;
 
-                printScrolledText(
-                    target,
-                    this.text,
-                    Math.max(textLeft, cutoffLeft),
-                    textTop,
-                    Math.min(textRight, cutoffRight),
-                    textBottom,
-                    style.foreground,
-                    Math.min(Math.max((scrollTick - 100) >> 2, 0), maxScroll),
-                    this._font
-                )
+                if (fancyFont) {
+                    printFancyScrolledText(
+                        target,
+                        this.text,
+                        Math.max(textLeft, cutoffLeft),
+                        textTop,
+                        Math.min(textRight, cutoffRight),
+                        textBottom,
+                        style.foreground,
+                        Math.min(Math.max((scrollTick - 100) >> 2, 0), maxScroll),
+                        fancyFont
+                    )
+                }
+                else {
+                    printScrolledText(
+                        target,
+                        this.text,
+                        Math.max(textLeft, cutoffLeft),
+                        textTop,
+                        Math.min(textRight, cutoffRight),
+                        textBottom,
+                        style.foreground,
+                        Math.min(Math.max((scrollTick - 100) >> 2, 0), maxScroll),
+                        this._font
+                    )
+                }
             }
             else {
-                const printableCharacters = Math.ceil((textRight - textLeft) / this._font.charWidth)
-                printTextInRect(
-                    target,
-                    this.text.substr(0, printableCharacters),
-                    Math.max(textLeft, cutoffLeft),
-                    Math.max(textTop, cutoffTop),
-                    Math.min(textRight, cutoffRight),
-                    Math.min(textBottom, cutoffBottom),
-                    style.foreground,
-                    cutLeft,
-                    cutTop,
-                    this._font
-                )
+                if (fancyFont) {
+                    printFancyTextInRect(
+                        target,
+                        this.text,
+                        Math.max(textLeft, cutoffLeft),
+                        Math.max(textTop, cutoffTop),
+                        Math.min(textRight, cutoffRight),
+                        Math.min(textBottom, cutoffBottom),
+                        style.foreground,
+                        cutLeft,
+                        cutTop,
+                        fancyFont
+                    )
+                }
+                else {
+                    const printableCharacters = Math.ceil((textRight - textLeft) / this._font.charWidth)
+                    printTextInRect(
+                        target,
+                        this.text.substr(0, printableCharacters),
+                        Math.max(textLeft, cutoffLeft),
+                        Math.max(textTop, cutoffTop),
+                        Math.min(textRight, cutoffRight),
+                        Math.min(textBottom, cutoffBottom),
+                        style.foreground,
+                        cutLeft,
+                        cutTop,
+                        this._font
+                    )
+                }
             }
         }
     }

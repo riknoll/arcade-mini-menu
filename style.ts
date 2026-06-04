@@ -40,6 +40,7 @@ namespace miniMenu {
         _iconTextSpacing: number;
         _iconOnly: number;
         _alignment: Alignment;
+        _font: fancyText.BaseFont;
 
         get padding(): number {
             if (this._padding === undefined) {
@@ -146,6 +147,18 @@ namespace miniMenu {
             _state().onStyleChange(this);
         }
 
+        get font(): fancyText.BaseFont {
+            if (this._font === undefined && this.parent) {
+                return this.parent.font;
+            }
+            return this._font;
+        }
+
+        set font(value: fancyText.BaseFont) {
+            this._font = value;
+            _state().onStyleChange(this);
+        }
+
         constructor(public parent?: Style) {
             if (!parent) {
                 this._padding = 0;
@@ -172,6 +185,7 @@ namespace miniMenu {
                 res.iconOnly = this.iconOnly;
                 res.iconTextSpacing = this.iconTextSpacing;
                 res.alignment = this.alignment;
+                res.font = this.font;
             }
             else {
                 res._padding = this._padding;
@@ -183,6 +197,7 @@ namespace miniMenu {
                 res._iconOnly = this._iconOnly;
                 res._iconTextSpacing = this._iconTextSpacing;
                 res._alignment = this._alignment;
+                res._font = this._font;
                 res.parent = this.parent;
             }
 
@@ -199,6 +214,7 @@ namespace miniMenu {
             target.iconOnly = this.iconOnly;
             target.iconTextSpacing = this.iconTextSpacing;
             target.alignment = this.alignment;
+            target.font = this.font;
         }
 
         setProperty(prop: StyleProperty, value: number) {

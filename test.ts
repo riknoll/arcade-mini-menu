@@ -417,3 +417,43 @@ miniMenu.getMenuItem(mm, 2).setDisabled(true)
 miniMenu.onButtonPressed(mm, miniMenu.Button.B, function (selection, selectedIndex) {
     miniMenu.removeMenuItem(mm, selectedIndex)
 })
+miniMenu.setDimensions(mm, 60, 80)
+mm.left = 4
+mm.top = 4
+
+// Demonstrate fancy-text fonts on a menu. The title uses one font, the
+// menu items use another, and the disabled item inherits the default font
+// while the selected item gets a third, bolder font.
+let fancyMenu = miniMenu.createMenu(
+miniMenu.createMenuItem("New Game"),
+miniMenu.createMenuItem("Continue"),
+miniMenu.createMenuItem("Load Save", null, true),
+miniMenu.createMenuItem("Options"),
+miniMenu.createMenuItem("Credits"),
+miniMenu.createMenuItem("This is a long entry that scrolls")
+)
+miniMenu.setTitle(fancyMenu, "Main Menu")
+miniMenu.setStyleFont(fancyMenu, miniMenu.StyleKind.Title, fancyText.gothic_large)
+miniMenu.setStyleFont(fancyMenu, miniMenu.StyleKind.DefaultAndSelected, fancyText.geometric_sans_7)
+miniMenu.setStyleFont(fancyMenu, miniMenu.StyleKind.Selected, fancyText.bold_sans_7)
+miniMenu.setStyleFont(fancyMenu, miniMenu.StyleKind.Disabled, fancyText.italic_small)
+miniMenu.setStyleProperty(fancyMenu, miniMenu.StyleKind.Title, miniMenu.StyleProperty.Foreground, 5)
+miniMenu.setStyleProperty(fancyMenu, miniMenu.StyleKind.Title, miniMenu.StyleProperty.Background, 1)
+miniMenu.setStyleProperty(fancyMenu, miniMenu.StyleKind.Default, miniMenu.StyleProperty.Foreground, 15)
+miniMenu.setStyleProperty(fancyMenu, miniMenu.StyleKind.Default, miniMenu.StyleProperty.Background, 1)
+miniMenu.setStyleProperty(fancyMenu, miniMenu.StyleKind.Selected, miniMenu.StyleProperty.Foreground, 1)
+miniMenu.setStyleProperty(fancyMenu, miniMenu.StyleKind.Selected, miniMenu.StyleProperty.Background, 5)
+miniMenu.setStyleProperty(fancyMenu, miniMenu.StyleKind.Disabled, miniMenu.StyleProperty.Foreground, 11)
+miniMenu.setStyleProperty(fancyMenu, miniMenu.StyleKind.All, miniMenu.StyleProperty.Padding, 1)
+miniMenu.setMenuStyleProperty(fancyMenu, miniMenu.MenuStyleProperty.BackgroundColor, 1)
+miniMenu.setMenuStyleProperty(fancyMenu, miniMenu.MenuStyleProperty.Border, 1)
+miniMenu.setMenuStyleProperty(fancyMenu, miniMenu.MenuStyleProperty.BorderColor, 5)
+miniMenu.setMenuStyleProperty(fancyMenu, miniMenu.MenuStyleProperty.Padding, 2)
+miniMenu.setMenuStyleProperty(fancyMenu, miniMenu.MenuStyleProperty.ScrollIndicatorColor, 5)
+miniMenu.setDimensions(fancyMenu, 86, 80)
+fancyMenu.right = 156
+fancyMenu.top = 4
+miniMenu.setButtonEventsEnabled(mm, false)
+miniMenu.onButtonPressed(fancyMenu, miniMenu.Button.A, function (selection, selectedIndex) {
+    game.splash(selection)
+})
